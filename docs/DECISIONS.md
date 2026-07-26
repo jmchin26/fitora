@@ -83,3 +83,45 @@
 - Status: Accepted
 - Decision: Run end-to-end tests through a small Node launcher that starts the Next CLI directly, confirms the Fitora health endpoint, lets Playwright reuse that server, and terminates the child process in a `finally` block.
 - Reason: Playwright completed all cases but its built-in Windows web-server wrapper did not exit reliably. Explicit lifecycle ownership makes `npm run test:e2e` deterministic without weakening test coverage.
+
+## D-013 — Treat model output as an evidence-bound intent proposal
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Gemini or Ollama may propose exactly one member of the strict `AgentIntent` union. The server reparses that output with Zod and independently requires the action and every parameter to appear unambiguously in the current user message before any tool runs.
+- Reason: A JSON schema alone proves shape, not semantic truth. The evidence guard prevents invented categories, colours, styles, amounts, operations, positions, checkout requests, prompt-injection actions, and hidden-context decisions from becoming executable state changes.
+
+## D-014 — Execute one deterministic tool and verify the final state again
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Each agent turn maps one verified intent to one bounded deterministic path. Submitted product ID/size references are canonically rehydrated before interpretation, and every resulting outfit state is rehydrated and compared again before the response is released.
+- Reason: Initial validation does not prove that revision code produced a valid commerce state. Final verification keeps catalogue products, sizes, stock, totals, scores, explanations, uniqueness, and selection membership server-authoritative across the whole turn.
+
+## D-015 — Disclose configured provider, actual interpreter, and fallback separately
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Agent responses report the configured provider, the provider that actually interpreted the request, deterministic template explanation mode, and a finite fallback reason. Rules are the default; Gemini and Ollama failures fall back only after cancellation, timeout, output, and semantic checks.
+- Reason: A configured model is not necessarily the model that completed a request. Separate fields make missing credentials, invalid configuration, timeout, unavailability, invalid output, and semantic mismatch visible without leaking raw provider data.
+
+## D-016 — Keep Phase 3 agent persistence reference-only
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Persist only validated preferences and product ID/size selection references. Keep agent messages, chat history, raw provider output, product presentation facts, and future payment data in transient memory only; abort and discard requests when their verified context becomes stale.
+- Reason: Agent conversation is unnecessary for recovery and expands both privacy and stale-state risk. Compact references can always be revalidated against current server authority.
+
+## D-017 — Make checkout intent review-only until checkout architecture exists
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: `REQUEST_CHECKOUT` requires an explicitly selected visible outfit and produces only a `CHECKOUT_REVIEW_READY` event. It creates no hosted session, payment request, approval, redirect, or payment control in Phase 3.
+- Reason: Natural-language intent must never authorize payment. Session creation belongs behind the future explicit order summary and visible user action in the checkout provider phases.
+
+## D-018 — Keep local Ollama optional and deployment-aware
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Support Ollama through a validated server-side HTTP(S) base URL and model setting, but do not assume a local developer instance is reachable from Vercel. Hosted deployments use rules or Gemini unless a separately secured, server-reachable Ollama endpoint is intentionally provisioned.
+- Reason: `localhost` in a Vercel function refers to the deployment environment, not the developer's computer. Making this limitation explicit prevents a local-only integration from being presented as deployable or encourages unsafe public exposure.

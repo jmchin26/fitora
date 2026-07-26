@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 
+import { AgentPanel } from "@/components/agent/agent-panel";
+import type { AgentSuccessResponse } from "@/lib/agent/contracts";
 import {
   OutfitSchema,
   PRODUCT_CATEGORIES,
@@ -113,6 +115,7 @@ type RequestState =
       status: "no-results";
       message: string;
       diagnostics: GenerationDiagnostics;
+      preferences: UserPreferences;
     }
   | { status: "error"; message: string };
 
@@ -253,6 +256,7 @@ export function BuildExperience() {
   const [storageNotice, setStorageNotice] = useState<string | null>(null);
   const [storageAvailable, setStorageAvailable] = useState(true);
   const [resultsAreStale, setResultsAreStale] = useState(false);
+  const [hasGeneratedOutfits, setHasGeneratedOutfits] = useState(false);
   const activeRequest = useRef<AbortController | null>(null);
   const initialBuildState = useRef<ReturnType<typeof readBuildState> | null>(
     null,
@@ -399,6 +403,7 @@ export function BuildExperience() {
           outfits: parsedResponse.data.outfits,
           preferences,
         });
+        setHasGeneratedOutfits(true);
         setSelectedOutfitId(restoredOutfit?.id ?? null);
         setSavedSelection(verifiedSelection);
         persistState(preferences, verifiedSelection);
@@ -416,6 +421,7 @@ export function BuildExperience() {
           status: "no-results",
           message: parsedError.data.error.message,
           diagnostics: parsedError.data.diagnostics,
+          preferences,
         });
         setSavedSelection(null);
         persistState(preferences, null);
@@ -462,6 +468,41 @@ export function BuildExperience() {
     setSelectedOutfitId(outfit.id);
     setSavedSelection(safeSelection);
     persistState(requestState.preferences, safeSelection);
+  }
+
+  function handleAgentResponse(response: AgentSuccessResponse) {
+    const nextPreferences = response.state.preferences;
+    const selectedOutfit = response.state.selectedOutfitId
+      ? response.state.outfits.find(
+          (outfit) => outfit.id === response.state.selectedOutfitId,
+        )
+      : undefined;
+    const safeSelection = selectedOutfit
+      ? toSafeSelectedOutfit(selectedOutfit)
+      : null;
+
+    setDraft(draftFromPreferences(nextPreferences));
+    setSavedPreferences(nextPreferences);
+    setSavedSelection(safeSelection);
+    setSelectedOutfitId(response.state.selectedOutfitId);
+    setResultsAreStale(false);
+
+    if (response.state.outfits.length > 0) {
+      setRequestState({
+        status: "success",
+        outfits: response.state.outfits,
+        preferences: nextPreferences,
+      });
+    } else if (response.state.diagnostics) {
+      setRequestState({
+        status: "no-results",
+        message: response.assistantMessage,
+        diagnostics: response.state.diagnostics,
+        preferences: nextPreferences,
+      });
+    }
+
+    persistState(nextPreferences, safeSelection);
   }
 
   let liveMessage = "Ready to build up to three verified outfits.";
@@ -598,6 +639,33 @@ export function BuildExperience() {
                 </div>
               ) : null}
             </>
+          ) : null}
+
+          {hasGeneratedOutfits && savedPreferences ? (
+            <div className="mt-10">
+              <AgentPanel
+                disabled={
+                  resultsAreStale || requestState.status !== "success"
+                }
+                onVerifiedResponse={handleAgentResponse}
+                outfits={
+                  requestState.status === "success"
+                    ? requestState.outfits
+                    : []
+                }
+                preferences={
+                  requestState.status === "success" ||
+                  requestState.status === "no-results"
+                    ? requestState.preferences
+                    : savedPreferences
+                }
+                selectedOutfitId={
+                  requestState.status === "success"
+                    ? selectedOutfitId
+                    : null
+                }
+              />
+            </div>
           ) : null}
         </div>
       </div>

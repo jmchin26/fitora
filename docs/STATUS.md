@@ -4,17 +4,18 @@ Last updated: 2026-07-26 (Asia/Kuala_Lumpur)
 
 ## Current state
 
-- Current phase: Phase 2 — editorial preference and outfit experience (complete); Phase 3 is next.
-- Latest milestone: `feat: build preference and outfit experience`.
+- Current phase: Phase 3 — controlled agent orchestration (complete); Phase 4 checkout/provider abstraction is next.
+- Latest completed milestone scope: `feat: add controlled agent orchestration`.
 - Git branch: `main`.
-- Application state: the responsive landing/build journey generates one to three schema-verified outfits, presents full score and commerce facts, and safely persists only validated preferences plus product references.
-- Current AI provider: `rules` planned safe default.
-- Current payment provider: `mock` planned safe default.
+- Application state: the responsive landing/build journey generates, selects, and revises one to three verified outfits. Each agent turn accepts only a message plus compact preference/product references, interprets one strict intent, executes one deterministic styling action, and verifies the resulting state against the catalogue.
+- Current AI provider: `rules` is the safe default; Gemini and local Ollama adapters are implemented with strict structured output, bounded timeouts, and truthful fallback disclosure.
+- Current payment provider: `mock` remains the safe default; Phase 3 checkout requests stop at a review-ready event and never create a payment session.
 - Real Prava gate: not started.
-- Gemini gate: not started.
+- Gemini gate: adapter and mocked integration tests passed; genuine credential/manual testing is deferred and has not started.
+- Ollama gate: adapter and mocked HTTP integration tests passed; a live local model test has not been claimed.
 - GitHub status: GitHub CLI is unavailable; no remote is configured.
 - Deployment status: not started; Vercel preparation is planned, but production deployment requires human approval.
-- Next automatic action: implement strict agent intents, deterministic revision tools, rules/Gemini/Ollama provider adapters, and the constrained revision panel.
+- Next automatic action: implement the Phase 4 checkout provider abstraction and explicit order-review boundary, retaining mock mode as the default.
 
 ## Environment audit
 
@@ -36,9 +37,10 @@ Last updated: 2026-07-26 (Asia/Kuala_Lumpur)
 
 - `npm run lint`
 - `npm run typecheck`
-- `npm test` — 14 files and 88 tests passed
-- `npm run build` — Next.js production build completed successfully, including `/api/health` and `/api/outfits/generate`
-- `npm run test:e2e` — 4 desktop/mobile browser journeys passed and the Windows runner exited cleanly
+- `npm test` — Vitest 4.1.10: 26 files and 200 tests passed
+- `npm run build` — Next.js 16.2.12 production build completed successfully, including `/api/agent`, `/api/health`, and `/api/outfits/generate`
+- `npm run check` — lint, strict type-check, all 200 tests, and the production build passed in one clean run
+- `npm run test:e2e` — Playwright 1.61.1: 6 desktop/mobile browser cases passed and the Windows runner exited cleanly
 - Local HTTP smoke check — `/` returned 200 and contained the Fitora and mode labels
 - In-app browser smoke check — title, primary heading, build action, and mock-mode disclosure were present
 - Environment inspection and execution-pack integrity checks completed
@@ -77,6 +79,17 @@ None. External accounts and credentials are intentionally deferred while local d
 - Added 30 project-authored placeholder SVGs and a complete source/license manifest.
 - Added component and Playwright coverage, including one/two/three-result contracts, 375 px overflow, skip-link focus, keyboard selection, and no unexpected browser errors.
 - Passed the complete Phase 2 quality gate: lint, strict type-check, 88 tests, production build, and 4 browser journeys.
+- Added a strict discriminated `AgentIntent` contract for generation, item replacement, cheaper alternatives, style/budget/colour changes, selection, checkout review, help, and typed unsupported input.
+- Added deterministic rules parsing with Unicode normalization, precise integer-cent budget parsing, single-action enforcement, and rejection of prompt injection, negated commands, meta/quoted commands, ambiguous parameters, and malformed amounts.
+- Added an independent semantic evidence guard so a model cannot invent a category, style, colour, amount, budget operation, outfit position, action family, or checkout instruction absent from the user message.
+- Added canonical agent-state rehydration and final-state verification: client references are rebuilt from the immutable catalogue, and totals, scores, explanations, sizes, stock, uniqueness, and selection membership are recomputed before and after every turn.
+- Added deterministic revision tools for replacement, cheaper alternatives, style, budget, preferred colour, and excluded colour, including visible-outfit diversity and structured no-result recovery.
+- Added rules, official Google Gen AI SDK, and native Ollama chat adapters with strict JSON schemas, bounded output/timeouts, cancellation, and sanitized provider errors.
+- Added truthful provider status reporting for configured mode, actual interpreter, template explanation mode, and exact fallback reason; no provider can silently masquerade as another.
+- Added a validated, no-store `/api/agent` route with sanitized 400, 409, and 500 error boundaries.
+- Added the accessible “Refine with Fitora” panel with one-tap commands, a 280-character input, stale-request cancellation, response validation, safe state synchronization, and no chat persistence.
+- Added a checkout-review-only event that requires a selected visible outfit and explicitly creates no payment session.
+- Passed the complete Phase 3 quality gate: lint, strict type-check, 26 files/200 tests, production build, and 6 desktop/mobile browser cases.
 
 ### Blocked
 
@@ -88,4 +101,4 @@ None. External accounts and credentials are intentionally deferred while local d
 
 ### Future work
 
-- Phase 3 through Phase 8 remain pending.
+- Phase 4 through Phase 8 remain pending, beginning with checkout/provider abstraction in persistent mock mode.

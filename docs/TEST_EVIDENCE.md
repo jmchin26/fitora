@@ -86,3 +86,39 @@ Date: 2026-07-26 (Asia/Kuala_Lumpur)
 | `git diff --check` | Pass | No whitespace errors detected before the milestone commit |
 
 Phase 2 exit criteria are satisfied: the journey works at mobile and desktop widths, keyboard and form validation paths pass, no unexpected browser errors remain, persistence is non-sensitive and failure-safe, and all quality gates are green.
+
+## Phase 3 — Controlled agent orchestration
+
+Date: 2026-07-26 (Asia/Kuala_Lumpur)
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Strict intent boundary | Pass | A strict discriminated Zod union accepts only the supported action families and finite enum values; unknown and authority-bearing fields such as product, price, tool, approval, and payment data are rejected |
+| Deterministic rules interpretation | Pass | Tests cover all action families, Unicode normalization, single-action enforcement, exact integer-cent budget parsing, replacement modifiers, explicit outfit-position context, and typed unsupported reasons |
+| Adversarial text handling | Pass | Prompt-injection markers, negated commands, quoted/meta instructions, multiple actions, ambiguous parameters, malformed or truncated amounts, and unrelated numbers do not execute as positive commands |
+| Semantic evidence guard | Pass | Every model-proposed action and parameter must be supported by the current user message; invented categories, styles, colours, amounts, operations, positions, checkout requests, and action-family changes are rejected before execution |
+| Canonical input state | Pass | The route accepts only preferences plus one to three product ID/size references and an optional visible selected reference; unknown, duplicate, oversized, or forged rich product state is rejected before provider execution |
+| One controlled execution | Pass | Each accepted turn resolves one intent and invokes one deterministic generation, revision, selection, checkout-review, help, or no-change path; provider output never chooses an unverified product or supplies commerce facts |
+| Deterministic revisions | Pass | Replacement and cheaper-item tests verify strict savings, target style/colour constraints, exclusions, visible-outfit diversity, immutable inputs, canonical starting references, and typed no-change/no-result recovery |
+| Final commerce verification | Pass | Every changed response is canonically rehydrated again and compared with recomputed catalogue products, sizes, stock, totals, scores, explanations, uniqueness, and selected-outfit membership before it leaves the server |
+| Provider adapters | Pass | Rules, Gemini, and Ollama adapters validate inputs and outputs. Gemini tests use an injected client to verify structured JSON, deterministic settings, bounded retry and timeout; Ollama tests use mocked HTTP to verify native chat format, URL/envelope validation, timeout, and failure handling |
+| Provider truthfulness | Pass | Responses separately identify configured provider, actual interpreter, template explanation mode, and a finite fallback reason. Missing configuration, invalid configuration/output, timeout, unavailability, and semantic mismatch cannot be presented as successful model interpretation |
+| Gemini live gate | Deferred | Adapter and mocked integration coverage passed. No genuine Gemini credential or live-model manual test has been run or claimed |
+| Agent route | Pass | `/api/agent` returns schema-valid no-store responses, sanitized validation fields, 409 for unverifiable catalogue state, and a generic 500 boundary without exposing provider payloads or secrets |
+| Agent interface | Pass | Component coverage verifies accessible suggested revisions, the 280-character limit, compact request payloads, response schema validation, actual provider/fallback labels, stale-request cancellation, and safe selected/no-result synchronization |
+| Safe persistence | Pass | Only validated preferences and product ID/size selection references are persisted. Agent messages, chat history, raw provider output, product presentation/commerce facts, and payment data are not persisted |
+| Checkout boundary | Pass | Checkout intent requires a selected visible outfit and yields `CHECKOUT_REVIEW_READY` only. Route and browser tests confirm no payment session, checkout navigation, payment button, or request to a checkout/payment/Prava path occurs |
+| Responsive agent journey | Pass | Playwright exercises cheaper-shoes and relaxed-style revisions, catalogue-verified total reduction, selection, truthful rules labels, and checkout review on desktop and mobile with no unexpected browser errors |
+
+## Phase 3 quality gates
+
+| Command or check | Result | Evidence |
+| --- | --- | --- |
+| `npm run lint` | Pass | ESLint completed with no findings |
+| `npm run typecheck` | Pass | TypeScript strict no-emit check completed |
+| `npm test` | Pass | Vitest 4.1.10: 26 files and 200 tests passed |
+| `npm run build` | Pass | Next.js 16.2.12 production build compiled `/`, `/build`, `/api/agent`, `/api/health`, and `/api/outfits/generate` |
+| `npm run check` | Pass | Lint, type-check, all 200 tests, and production build completed successfully in one run |
+| `npm run test:e2e` | Pass | Playwright 1.61.1: 6 desktop/mobile cases passed; the project-owned Windows server process exited cleanly |
+
+Phase 3 exit criteria are satisfied: model output remains an untrusted intent proposal, semantic evidence and canonical catalogue data bound every action, deterministic tools own every state change, fallback is visible and truthful, chat is not persisted, and checkout review remains non-transactional.

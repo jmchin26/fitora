@@ -7,11 +7,9 @@ import type {
   UserPreferences,
 } from "@/lib/catalogue/schemas";
 import { formatUsd, sumCents } from "@/lib/money";
-import { explainOutfit } from "@/lib/styling/explain";
-import { scoreOutfit } from "@/lib/styling/rank";
+import { buildVerifiedOutfit } from "@/lib/styling/build-verified-outfit";
 import {
   DEMO_MERCHANT_ID,
-  validateOutfit,
   type OutfitSelection,
 } from "@/lib/styling/validate";
 
@@ -117,40 +115,6 @@ function buildSelection(
     top: selectProduct(top, preferences.topSize),
     bottom: selectProduct(bottom, preferences.bottomSize),
     shoes: selectProduct(shoes, preferences.shoeSize),
-  };
-}
-
-function buildCandidate(
-  selection: OutfitSelection,
-  preferences: UserPreferences,
-): Outfit | null {
-  const validation = validateOutfit(selection, preferences);
-
-  if (!validation.valid) {
-    return null;
-  }
-
-  const ranking = scoreOutfit(selection, preferences);
-  const id = [
-    selection.top.product.id,
-    selection.bottom.product.id,
-    selection.shoes.product.id,
-  ].join("__");
-
-  return {
-    id: `outfit__${id}`,
-    top: selection.top,
-    bottom: selection.bottom,
-    shoes: selection.shoes,
-    totalCents: validation.computedTotalCents,
-    score: ranking.score,
-    scoreBreakdown: ranking.scoreBreakdown,
-    reasonCodes: ranking.reasonCodes,
-    explanation: explainOutfit(
-      selection,
-      preferences,
-      ranking.scoreBreakdown,
-    ),
   };
 }
 
@@ -384,7 +348,7 @@ export function generateOutfits(
   for (const top of eligible.top) {
     for (const bottom of eligible.bottom) {
       for (const shoes of eligible.shoes) {
-        const candidate = buildCandidate(
+        const candidate = buildVerifiedOutfit(
           buildSelection(top, bottom, shoes, preferences),
           preferences,
         );

@@ -33,6 +33,33 @@ function unexpectedConsoleErrors(errors: readonly string[]): string[] {
   );
 }
 
+async function verifiedTotalCents(
+  card: ReturnType<Page["getByRole"]>,
+): Promise<number> {
+  const totalRegion = card
+    .getByText("Verified total", { exact: true })
+    .locator("..")
+    .locator("..");
+  const currencyValues = (await totalRegion.innerText()).match(
+    /\$[\d,]+\.\d{2}/g,
+  );
+  const total = currencyValues?.at(-1);
+
+  if (!total) {
+    throw new Error("Could not read the verified outfit total.");
+  }
+
+  return Number(total.replace(/[$,]/g, "")) * 100;
+}
+
+async function shoesName(card: ReturnType<Page["getByRole"]>) {
+  return card
+    .getByText("Shoes", { exact: true })
+    .locator("..")
+    .getByRole("heading", { level: 4 })
+    .innerText();
+}
+
 test("builds, selects, corrects, and rebuilds a complete outfit", async ({
   page,
 }) => {
@@ -140,6 +167,97 @@ test("builds, selects, corrects, and rebuilds a complete outfit", async ({
   expect(unexpectedConsoleErrors(consoleErrors)).toEqual([]);
 });
 
+test("refines verified outfits in rules mode and prepares checkout review without payment", async ({
+  page,
+}) => {
+  const consoleErrors = collectConsoleErrors(page);
+  const paymentRequests: string[] = [];
+
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+
+    if (/\/(?:checkout|payment|prava)(?:\/|$)/i.test(url.pathname)) {
+      paymentRequests.push(request.url());
+    }
+  });
+
+  await page.goto("/build");
+  await page.waitForLoadState("networkidle");
+  await page
+    .getByRole("button", { name: "Build outfit options" })
+    .click();
+
+  await expect(
+    page.getByText("Three verified outfits are ready. Choose one look."),
+  ).toBeVisible();
+
+  const agentPanel = page.getByRole("region", {
+    name: "Refine with Fitora",
+  });
+  await expect(agentPanel).toBeVisible();
+  await expect(agentPanel.getByText("No autonomous checkout")).toBeVisible();
+
+  const firstOutfit = page.getByRole("article", {
+    name: "Verified outfit 01",
+  });
+  const originalShoes = await shoesName(firstOutfit);
+  const originalTotalCents = await verifiedTotalCents(firstOutfit);
+
+  await agentPanel
+    .getByRole("button", {
+      name: "Replace the shoes with a cheaper option",
+    })
+    .click();
+
+  const agentResponse = agentPanel.getByRole("status");
+  await expect(agentResponse).toContainText("I replaced the shoes with");
+  await expect(agentResponse.getByText("Rules fallback")).toHaveCount(2);
+  await expect(agentResponse).toContainText("Fallback");
+  await expect(agentResponse).toContainText("None");
+
+  await expect.poll(() => shoesName(firstOutfit)).not.toBe(originalShoes);
+  await expect
+    .poll(() => verifiedTotalCents(firstOutfit))
+    .toBeLessThan(originalTotalCents);
+
+  await agentPanel
+    .getByRole("button", { name: "Make this outfit more relaxed" })
+    .click();
+
+  await expect(
+    page.getByRole("radio", { name: "Relaxed" }),
+  ).toBeChecked();
+  await expect(agentResponse).toContainText("Style is now relaxed.");
+  await expect(agentResponse.getByText("Rules fallback")).toHaveCount(2);
+
+  const choices = page
+    .getByRole("group", { name: "Choose one verified outfit" })
+    .getByRole("radio", { name: /Select verified outfit/ });
+  await choices.first().check();
+  await expect(page.getByText("Outfit selected")).toBeVisible();
+
+  const urlBeforeReview = page.url();
+  const agentInput = agentPanel.getByRole("textbox", {
+    name: "One change for this edit",
+  });
+  await agentInput.fill("Proceed to checkout");
+  await agentPanel.getByRole("button", { name: "Ask Fitora" }).click();
+
+  await expect(agentResponse).toContainText(
+    "Checkout review is ready. No payment session was created.",
+  );
+  await expect(agentResponse).toContainText(
+    "No payment session has been created.",
+  );
+  await expect(agentResponse.getByText("Rules fallback")).toHaveCount(2);
+  await expect(
+    agentPanel.getByRole("button", { name: /pay|checkout/i }),
+  ).toHaveCount(0);
+  expect(page.url()).toBe(urlBeforeReview);
+  expect(paymentRequests).toEqual([]);
+  expect(unexpectedConsoleErrors(consoleErrors)).toEqual([]);
+});
+
 test("supports the critical build and selection path by keyboard on mobile", async ({
   page,
 }) => {
@@ -176,6 +294,25 @@ test("supports the critical build and selection path by keyboard on mobile", asy
     .getByRole("radio", { name: /Select verified outfit/ });
 
   await expect(choices).toHaveCount(3);
+
+  const agentPanel = page.getByRole("region", {
+    name: "Refine with Fitora",
+  });
+  await expect(agentPanel).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+
+  const lastSuggestion = agentPanel.getByRole("button", {
+    name: "Lower the budget to $130",
+  });
+  await lastSuggestion.focus();
+  await page.keyboard.press("Tab");
+  await expect(
+    agentPanel.getByRole("textbox", { name: "One change for this edit" }),
+  ).toBeFocused();
 
   const firstChoice = choices.nth(0);
   await firstChoice.focus();
