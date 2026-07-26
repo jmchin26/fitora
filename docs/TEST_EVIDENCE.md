@@ -16,6 +16,15 @@ Date: 2026-07-26 (Asia/Kuala_Lumpur)
 | Browser baseline | Pass | Local Edge and Chrome installations detected; Playwright project dependency is pending |
 | Prava skill installation | Not installed | Global external-code installation was rejected by the security review; official documentation will be used instead |
 
-## Quality gates
+## Phase 0 quality gates
 
-Application quality gates will be recorded after scaffolding.
+| Command or check | Result | Evidence |
+| --- | --- | --- |
+| `npm run lint` | Pass | ESLint completed with no findings |
+| `npm run typecheck` | Pass | TypeScript strict no-emit check completed |
+| `npm test` | Pass | Vitest 4.1.10: 1 file and 1 test passed |
+| `npm run build` | Pass | Next.js 16.2.12 production build compiled and prerendered `/` and `/build` |
+| Local HTTP smoke | Pass | `GET http://127.0.0.1:3000/` returned 200 and contained Fitora plus the mock-mode disclosure |
+| In-app browser smoke | Pass | Document title, Fitora heading, “Build my outfit” link, and “Mock payment mode” text detected |
+
+Phase 0 exit criteria are satisfied: the app serves locally, all required scripts exist, the initial unit-test baseline passes, the production build is clean, and a Git baseline exists.

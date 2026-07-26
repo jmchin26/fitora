@@ -1,6 +1,6 @@
 # Fitora
 
-> Implementation in progress. The current repository contains the authoritative build specification and Phase 0 workspace evidence; it is not yet a completed application.
+> Implementation in progress. The Phase 0 application baseline is healthy; catalogue, recommendation, agent, and checkout features are still being built.
 
 Fitora is an AI shopping and styling agent for students and young professionals seeking gender-neutral smart-casual outfits. It turns an occasion, budget, sizes, colour preferences, and style into three complete catalogue-verified looks, supports controlled revisions, and proceeds to an explicitly approved sandbox checkout.
 
@@ -21,3 +21,21 @@ Fitora is an AI shopping and styling agent for students and young professionals 
 - Merchant: simulated Fitora demo merchant with simulated inventory.
 
 See [`docs/STATUS.md`](docs/STATUS.md) for live delivery status and [`docs/PRODUCT_SPEC.md`](docs/PRODUCT_SPEC.md) for acceptance criteria.
+
+## Local development
+
+Requirements: Node.js 20.19 or newer and npm. Node.js 24 LTS is recommended.
+
+```bash
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
+Quality gates:
+
+```bash
+npm run check
+npm run test:e2e
+```

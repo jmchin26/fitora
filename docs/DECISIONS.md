@@ -35,3 +35,9 @@
 - Decision: Preserve the authoritative Next.js App Router and Vercel architecture. General site-building guidance informs UX and validation but does not replace the requested framework or hosting target.
 - Reason: The supplied project specification takes precedence over generic website scaffolding defaults.
 
+## D-006 — ESLint compatibility over newest major
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Use the stable ESLint 9 line with `eslint-config-next@16.2.12` instead of ESLint 10.
+- Reason: The official Next.js 16.2 scaffold selects ESLint 9, and transitive accessibility/import/react plugins currently declare peer support through ESLint 9. Installing ESLint 10 produced invalid peer-resolution evidence, so the compatible line is safer for a clean quality gate.
