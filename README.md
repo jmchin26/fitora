@@ -1,8 +1,8 @@
 # Fitora
 
-> Implementation in progress. Phase 4 is complete: Fitora can generate and revise catalogue-verified outfits, require a visible order review and explicit approval, and complete an unmistakably labelled mock hosted checkout through a sanitized, retry-safe terminal result.
+> The local MVP and automated release gates are complete. Fitora can generate and revise catalogue-verified outfits, require a visible order review and explicit approval, complete the labelled mock checkout, and execute the server-side Prava Hosted Checkout create/poll/merchant/report callback workflow. A genuine Prava sandbox transaction has not yet been run.
 
-Fitora is an AI shopping and styling agent for students and young professionals seeking gender-neutral smart-casual outfits. It turns an occasion, budget, sizes, colour preferences, and style into up to three complete catalogue-verified looks, supports controlled revisions, and currently completes an explicitly approved mock checkout while real Prava sandbox integration remains pending.
+Fitora is an AI shopping and styling agent for students and young professionals seeking gender-neutral smart-casual outfits. It turns an occasion, budget, sizes, colour preferences, and style into up to three complete catalogue-verified looks, supports controlled revisions, and completes an explicitly approved checkout through either the local mock path or the implemented Prava Hosted Checkout path. The Prava path is verified with mocked HTTP contracts only; live sandbox proof remains behind the documented human gate.
 
 ## Planned MVP
 
@@ -23,11 +23,13 @@ Fitora is an AI shopping and styling agent for students and young professionals 
 - AI: deterministic rules are the safe default. Gemini and local Ollama adapters support bounded structured output, timeouts, validation, and truthful rules fallback. Adapter and mocked integration tests pass; a genuine Gemini credential test has not started and is intentionally deferred.
 - State: normal builder storage contains only validated preferences and product ID/size references. Terminal local history is separately schema-limited to five sanitized provider/status/order-reference/total/item-count/time summaries. Agent messages, email, signed tokens, session IDs, raw provider output, product presentation facts, and payment credentials are not persisted.
 - Checkout: the browser submits only selected product IDs and sizes. The server rehydrates current catalogue facts and recomputes the order at review, session creation, and finalization. A complete three-item summary, validated email, explicit confirmation checkbox, and click are required before a hosted session is created.
-- Checkout security: strict HMAC review, payment-session, and terminal-result claims use short-lived HTTP-only, SameSite=Lax cookies that are Secure in production. Session state is bound to the reviewed checkout, and invalid, expired, mismatched, changed, or tampered state fails closed.
-- Payment: the typed provider architecture and full mock path are implemented. Mock mode uses a separate persistently labelled hosted page with approve/decline controls and no card fields. `PAYMENT_PROVIDER=prava` currently fails closed—configuration is invalid without its required secret, and the provider factory reports explicit `NOT_IMPLEMENTED` unavailability once selected; it never silently falls back to mock.
-- Merchant: the server-only demo merchant revalidates the canonical order and provider-session context before producing a deterministic sanitized order reference or decline.
-- Result: terminal finalization returns an existing valid signed result before repeating provider or merchant work, so ordinary retries and refreshes are idempotent within the cookie-only MVP boundary. No database-backed cross-browser or distributed replay guarantee is claimed.
-- Prava: real Hosted Checkout, callback polling, merchant-result reporting to Prava, and live sandbox proof remain Phase 5. No Prava account, secret, allowed domain, card/OTP/Passkey action, or manual success has been claimed.
+- Checkout security: strict HMAC review, payment-session, and terminal-result claims use short-lived HTTP-only, SameSite=Lax cookies that are Secure in production. Every Prava form receives a distinct lowercase RFC UUID attempt locator. The signed payment-session claim binds that attempt to the reviewed checkout and includes the canonical order snapshot; invalid, expired, mismatched, changed, or tampered state fails closed.
+- Payment: the typed provider architecture, full mock path, and direct Prava REST provider are implemented. Mock mode keeps its separate labelled hosted page. Prava mode creates `full_checkout` sessions only after approval, adds the returned `session_token` to the provider-hosted URL, and finalizes only through the server callback; the public mock-finalize endpoint rejects Prava.
+- Prava security: the application accepts only the exact official sandbox API and hosted origins with an `sk_test_*` server key. Production constants inside the isolated low-level client are inactive capability scaffolding; the Fitora application does not accept `sk_live_*`. Shopper identity uses an HMAC-derived privacy-preserving `user_id`. Callback URLs are attempt-scoped as `/checkout/callback/<lowercase-RFC-attempt-UUID>`; the bare callback path fails closed, callback query values are ignored, and signed local state plus server-to-server polling determine the outcome.
+- Merchant: the server-only demo merchant validates the signed canonical order snapshot and provider context. Catalogue drift disables merchant execution and safely drives a `DECLINED` report. A unique canonical context mismatch is also declined and reported; ambiguous multi-transaction or multi-line context cannot be safely attributed and therefore enters reconciliation. Prava one-time credentials pass through a narrow transient adapter and are never sent to a client, persisted, or returned in a public result.
+- Result and creation safety: Prava polling, merchant execution, and `APPROVED`/`DECLINED` reporting use signed progress and reconciliation markers plus in-process callback coalescing. The server-side provider timeout is 10 seconds and the browser waits 15 seconds for an authoritative response. An ambiguous timeout/network result locks that form attempt and leaves a short-lived server tombstone. A 20-minute browser lease serializes cooperative tabs. The review route also issues a one-hour HTTP-only random browser-scope UUID; within one process, the server atomically combines that browser's valid active cookies with outstanding reservations across reviews, caps the aggregate at three, and prunes invalid, expired, orphaned, and terminal sets. A separate best-effort production client throttle allows 20 attempts per 10 minutes. Deployment-level WAF rate limiting remains authoritative across serverless instances; no database-backed cross-instance replay or rate-limit guarantee is claimed.
+- Prava verification: create-session, payment-result polling, hosted URL construction, merchant execution, reporting, callback sanitization, and retry/reconciliation branches have mocked automated coverage. No Prava account/key, HTTPS allowed domain, hosted card/OTP/Passkey action, live provider response, or sandbox success is claimed.
+- Assets: all 30 catalogue entries still use project-authored 640×800 SVG placeholders recorded in a strict source/license manifest. No generated or licensed final image pack was supplied, so Phase 6 intentionally preserves the truthful fallback set.
 
 See [`docs/STATUS.md`](docs/STATUS.md) for live delivery status and [`docs/PRODUCT_SPEC.md`](docs/PRODUCT_SPEC.md) for acceptance criteria.
 
@@ -94,9 +96,23 @@ The mock flow is:
 5. Choose approve or decline on the separate “Mock payment mode” page.
 6. View the sanitized result; refreshing an approved result does not finalize it again.
 
-Do not set `PAYMENT_PROVIDER=prava` for a working demo yet. The provider intentionally fails closed as not implemented until Phase 5 is completed from current official Prava documentation and the human prerequisites in [`docs/MANUAL_ACTIONS.md`](docs/MANUAL_ACTIONS.md) are satisfied.
+The Prava code path is available only with a valid HTTPS sandbox configuration:
 
-Latest verified quality evidence: Vitest 4.1.10 passed 49 files/378 tests, the production build passed, and Playwright 1.61.1 passed 10/10 desktop/mobile cases including four mock checkout approval/decline runs. See [`docs/TEST_EVIDENCE.md`](docs/TEST_EVIDENCE.md) for the sanitized evidence record.
+```bash
+PAYMENT_PROVIDER=prava
+PRAVA_SECRET_KEY=<server-only sk_test_* sandbox key>
+PRAVA_BASE_URL=https://sandbox.api.prava.space
+PRAVA_HOSTED_CHECKOUT_ORIGIN=https://sandbox.collect.prava.space
+NEXT_PUBLIC_APP_URL=https://<your-exact-fitora-origin>
+DEMO_MERCHANT_URL=https://<your-exact-fitora-origin>
+CHECKOUT_SIGNING_SECRET=<strong server-only value>
+```
+
+Do not commit these values. The application validates the exact official sandbox API and hosted origins, an `sk_test_*` key, the application origin, and the merchant origin as one sandbox-only environment; Prava mode never silently falls back to mock. The isolated low-level client's production constants do not activate live-key support in the application. Follow the live-gate and deployment-rate-limit procedure in [`docs/MANUAL_ACTIONS.md`](docs/MANUAL_ACTIONS.md) before claiming a sandbox transaction.
+
+Latest release evidence: `npm run check` passed lint, strict type-check, Vitest 4.1.10 with 61 files/507 tests, and the Next.js 16.2.12 production build. Playwright 1.61.1 also passed 10/10 desktop/mobile mock journeys after the latest hardening. See [`docs/TEST_EVIDENCE.md`](docs/TEST_EVIDENCE.md) for the sanitized evidence record.
+
+Implementation references: [Prava authentication and environments](https://docs.prava.space/authentication), [create session](https://docs.prava.space/api-reference/create-session), [hosted integration modes](https://docs.prava.space/sdk/integration-modes), [get payment result](https://docs.prava.space/api-reference/get-payment-result), and [report status](https://docs.prava.space/api-reference/report-status).
 
 Quality gates:
 
