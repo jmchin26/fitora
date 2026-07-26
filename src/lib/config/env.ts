@@ -7,6 +7,10 @@ import { z } from "zod";
 
 const LOCAL_APP_ORIGIN = "http://localhost:3000";
 const DEFAULT_PRAVA_ORIGIN = "https://sandbox.api.prava.space";
+const DEFAULT_PRAVA_HOSTED_CHECKOUT_ORIGIN =
+  "https://sandbox.collect.prava.space";
+const PRAVA_SECRET_KEY_PATTERN =
+  /^sk_test_[A-Za-z0-9._~-]{8,}$/;
 const DEFAULT_MERCHANT_NAME = "Fitora Demo Merchant";
 const DEFAULT_MERCHANT_COUNTRY_CODE = "US";
 
@@ -101,6 +105,7 @@ const rawServerEnvironmentSchema = z
       })
       .optional(),
     pravaBaseUrl: httpOriginSchema,
+    pravaHostedCheckoutOrigin: httpOriginSchema.optional(),
     merchantName: merchantNameSchema,
     merchantUrl: httpOriginSchema,
     merchantCountryCode: merchantCountryCodeSchema,
@@ -138,6 +143,18 @@ const rawServerEnvironmentSchema = z
 
     if (
       environment.paymentProvider === "prava" &&
+      !environment.pravaHostedCheckoutOrigin
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["pravaHostedCheckoutOrigin"],
+        message:
+          "An exact Prava hosted-checkout origin is required in Prava mode.",
+      });
+    }
+
+    if (
+      environment.paymentProvider === "prava" &&
       !environment.pravaBaseUrl.startsWith("https://")
     ) {
       context.addIssue({
@@ -145,6 +162,47 @@ const rawServerEnvironmentSchema = z
         path: ["pravaBaseUrl"],
         message: "Prava mode requires an HTTPS API origin.",
       });
+    }
+
+    if (
+      environment.paymentProvider === "prava" &&
+      environment.pravaHostedCheckoutOrigin &&
+      !environment.pravaHostedCheckoutOrigin.startsWith("https://")
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["pravaHostedCheckoutOrigin"],
+        message: "Prava mode requires an HTTPS hosted-checkout origin.",
+      });
+    }
+
+    if (
+      environment.paymentProvider === "prava" &&
+      environment.pravaSecretKey &&
+      !PRAVA_SECRET_KEY_PATTERN.test(environment.pravaSecretKey)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["pravaSecretKey"],
+        message: "The Prava secret key format is invalid.",
+      });
+    }
+
+    if (environment.paymentProvider === "prava") {
+      const sandboxConfiguration =
+        environment.pravaBaseUrl === DEFAULT_PRAVA_ORIGIN &&
+        environment.pravaHostedCheckoutOrigin ===
+          DEFAULT_PRAVA_HOSTED_CHECKOUT_ORIGIN &&
+        environment.pravaSecretKey?.startsWith("sk_test_");
+
+      if (!sandboxConfiguration) {
+        context.addIssue({
+          code: "custom",
+          path: ["pravaBaseUrl"],
+          message:
+            "Fitora currently requires matching Prava sandbox API, hosted-checkout, and sk_test key configuration.",
+        });
+      }
     }
 
     if (
@@ -184,6 +242,7 @@ export type ServerEnvironment = Readonly<{
   usesDevelopmentSigningSecret: boolean;
   prava: Readonly<{
     baseUrl: string;
+    hostedCheckoutOrigin?: string;
     secretKey?: string;
     ready: boolean;
   }>;
@@ -239,6 +298,9 @@ export function parseServerEnvironment(
     checkoutSigningSecret: optionalNonEmpty(source.CHECKOUT_SIGNING_SECRET),
     pravaSecretKey: optionalNonEmpty(source.PRAVA_SECRET_KEY),
     pravaBaseUrl: source.PRAVA_BASE_URL ?? DEFAULT_PRAVA_ORIGIN,
+    pravaHostedCheckoutOrigin:
+      source.PRAVA_HOSTED_CHECKOUT_ORIGIN ??
+      DEFAULT_PRAVA_HOSTED_CHECKOUT_ORIGIN,
     merchantName: source.DEMO_MERCHANT_NAME ?? DEFAULT_MERCHANT_NAME,
     merchantUrl: source.DEMO_MERCHANT_URL ?? appUrl,
     merchantCountryCode:
@@ -273,6 +335,12 @@ export function parseServerEnvironment(
       usesDevelopmentSigningSecret,
       prava: {
         baseUrl: result.data.pravaBaseUrl,
+        ...(result.data.pravaHostedCheckoutOrigin
+          ? {
+              hostedCheckoutOrigin:
+                result.data.pravaHostedCheckoutOrigin,
+            }
+          : {}),
         ...(result.data.pravaSecretKey
           ? { secretKey: result.data.pravaSecretKey }
           : {}),

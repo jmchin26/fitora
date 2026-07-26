@@ -38,7 +38,8 @@ src/
     page.tsx
     build/page.tsx
     checkout/review/page.tsx
-    checkout/callback/page.tsx
+    checkout/callback/[attemptId]/route.ts
+    checkout/callback/route.ts
     checkout/result/page.tsx
     api/
       outfits/generate/route.ts
@@ -75,9 +76,14 @@ src/
         ollama.ts
         rules.ts
     checkout/
+      attempt-id.ts
       token.ts
       cookies.ts
       order.ts
+      workflow.ts
+      prava-browser-lease.ts
+      prava-creation-throttle.ts
+      prava-session-creation.ts
     payments/
       types.ts
       factory.ts
@@ -328,15 +334,16 @@ Use browser storage only for non-sensitive convenience state:
 When creating a payment session:
 
 1. Server rehydrates product IDs and recomputes the order.
-2. Server creates an HMAC-signed short-lived checkout token.
-3. Server creates the Prava session.
-4. Server stores session ID and signed checkout token in HTTP-only SameSite=Lax cookies with a lifetime slightly longer than the Prava session.
-5. Browser redirects to the Prava hosted URL.
-6. Callback page invokes finalize; cookies identify the session.
-7. Server checks Prava status before merchant checkout.
-8. On success, server stores only a sanitized signed result cookie and clears transient session cookies.
+2. The rendered approval form receives a fresh lowercase RFC UUID attempt ID, distinct from the signed review JTI.
+3. A 20-minute browser lease serializes cooperative tabs. A one-hour HTTP-only random browser-scope UUID lets the create route atomically union valid active cookie IDs with outstanding reservations across reviews in the same process. Invalid, expired, orphaned, and terminal sets are pruned; an aggregate fourth attempt is rejected before provider side effects.
+4. Server creates the Prava session with a 10-second provider timeout. The browser waits 15 seconds; an ambiguous timeout or network result locks the form attempt while a same-process tombstone prevents an automatic duplicate.
+5. Server issues attempt-scoped HTTP-only SameSite=Lax cookies. The signed payment-session token contains the attempt ID, reviewed-checkout JTI, provider session reference, and canonical order snapshot; cookie lifetime cannot outlive the provider session.
+6. Browser redirects to the exact Prava sandbox hosted origin.
+7. Prava returns to `/checkout/callback/<lowercase-RFC-attempt-UUID>`. The bare callback fails closed; the path selects a cookie set but is authoritative only when it matches the signed session claim. Query values are ignored.
+8. Server polls Prava and checks provider context against the signed canonical snapshot before merchant execution.
+9. On a terminal outcome, server stores only a sanitized signed result cookie and clears that attempt's transient cookies.
 
-This is sufficient for a hackathon MVP but is not a substitute for durable idempotency storage in a production commerce system. Document the limitation.
+This is sufficient for a hackathon MVP but is not a substitute for durable idempotency or distributed rate-limit storage. Browser-scoped aggregate reservations, per-review throttling, and the production client throttle (20 distinct attempts per 10 minutes) are process-local. A deployment WAF on `POST /api/checkout/create-session` is authoritative across Vercel instances; start with 20 requests per 10 minutes per source IP and tune downward only after observing legitimate demo traffic.
 
 ## 8. Payment provider interface
 
@@ -355,16 +362,17 @@ interface PaymentProvider {
    - user ID and email;
    - exact server-computed amount;
    - USD;
-   - Fitora callback URL;
+   - attempt-scoped Fitora callback URL `/checkout/callback/<lowercase-RFC-attempt-UUID>`;
    - one `purchase_context` for the demo merchant;
    - verified product details.
 2. Redirect to returned hosted URL.
-3. On callback, poll session payment result with bounded backoff.
+3. On the signed, attempt-scoped callback, ignore all query values and poll session payment result with bounded backoff.
 4. If still pending, return a retryable pending state.
-5. If credentials are ready, pass them directly in memory to `DemoMerchantAdapter.checkout`.
-6. Do not stringify or log the credential object.
-7. Report `APPROVED` or `DECLINED` to Prava.
-8. Re-query or verify the final status and return only sanitized fields.
+5. If credentials are ready, compare their merchant, amount, and product context with the signed canonical order snapshot. Catalogue drift or one uniquely attributable canonical mismatch skips merchant execution and is safely reported `DECLINED`; ambiguous multi-transaction or multi-line context enters reconciliation without guessing a transaction reference.
+6. Only when context is canonical, pass credentials directly in memory to `DemoMerchantAdapter.checkout`.
+7. Do not stringify or log the credential object.
+8. Report `APPROVED` or `DECLINED` to Prava when one transaction is safely attributable.
+9. Re-query or verify the final status and return only sanitized fields.
 
 ### Demo merchant adapter
 
@@ -395,6 +403,7 @@ Validate environment variables in `src/lib/config/env.ts`. Required variables de
 - `PAYMENT_PROVIDER=mock|prava`
 - `PRAVA_SECRET_KEY`
 - `PRAVA_BASE_URL`
+- `PRAVA_HOSTED_CHECKOUT_ORIGIN`
 - `NEXT_PUBLIC_APP_URL`
 - `DEMO_MERCHANT_NAME`
 - `DEMO_MERCHANT_URL`
@@ -402,7 +411,7 @@ Validate environment variables in `src/lib/config/env.ts`. Required variables de
 - `CHECKOUT_SIGNING_SECRET`
 - `DEMO_MERCHANT_FORCE_DECLINE`
 
-The application should boot in safe local defaults using `rules` and `mock`, but production deployment must emit a prominent configuration warning when real provider variables are absent.
+The application boots in safe local defaults using `rules` and `mock`. Application-level Prava configuration accepts only `https://sandbox.api.prava.space`, `https://sandbox.collect.prava.space`, and an `sk_test_*` key, together with HTTPS Fitora and merchant origins. Production constants in the isolated low-level Prava client are inactive capability scaffolding; application configuration rejects production Prava origins and `sk_live_*` keys.
 
 ## 10. Logging and observability
 

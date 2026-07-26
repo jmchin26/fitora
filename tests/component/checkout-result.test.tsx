@@ -1,5 +1,21 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import type { AnchorHTMLAttributes, ReactNode } from "react";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("next/link", () => ({
+  default: ({
+    children,
+    prefetch,
+    ...props
+  }: AnchorHTMLAttributes<HTMLAnchorElement> & {
+    children: ReactNode;
+    prefetch?: boolean;
+  }) => (
+    <a data-prefetch={String(prefetch)} {...props}>
+      {children}
+    </a>
+  ),
+}));
 
 import {
   CheckoutResult,
@@ -57,10 +73,22 @@ describe("CheckoutResult", () => {
     expect(screen.getByText(/this was a simulation and no real charge/i)).toBeInTheDocument();
     view.rerender(<CheckoutResult result={{ status: "pending", provider: "prava" }} />);
     expect(screen.getByText(/Do not submit a second payment/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Check status again" })).toHaveAttribute(
-      "href",
-      "/checkout/result",
+    const pendingRetry = screen.getByRole("link", {
+      name: "Check with Prava again",
+    });
+    expect(pendingRetry).toHaveAttribute("href", "/checkout/callback");
+    expect(pendingRetry).toHaveAttribute("data-prefetch", "false");
+    view.rerender(
+      <CheckoutResult
+        result={{
+          status: "reconciliation_required",
+          provider: "prava",
+        }}
+      />,
     );
+    expect(
+      screen.getByRole("link", { name: "Check with Prava again" }),
+    ).toHaveAttribute("data-prefetch", "false");
     view.rerender(<CheckoutResult result={{ status: "declined", provider: "mock" }} />);
     expect(
       screen.getByRole("link", { name: "Start a fresh checkout" }),

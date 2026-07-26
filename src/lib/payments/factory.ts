@@ -3,9 +3,18 @@ import {
   type DemoMerchantAdapter,
 } from "@/lib/merchant/demo-merchant";
 import {
+  getServerEnvironment,
+  type ServerEnvironment,
+} from "@/lib/config/env";
+import {
   createMockPaymentProvider,
   type MockPaymentProviderOptions,
 } from "@/lib/payments/mock";
+import {
+  createPravaClient,
+  type PravaClient,
+} from "@/lib/payments/prava";
+import { createPravaPaymentProvider } from "@/lib/payments/prava-provider";
 import {
   PAYMENT_PROVIDER_NAMES,
   PaymentProviderError,
@@ -13,27 +22,27 @@ import {
   type PaymentProviderName,
 } from "@/lib/payments/types";
 
-type PaymentProviderEnvironment = Readonly<{
-  PAYMENT_PROVIDER?: string;
-  NEXT_PUBLIC_APP_URL?: string;
-  DEMO_MERCHANT_FORCE_DECLINE?: string;
-}>;
+type PaymentProviderEnvironment = Readonly<
+  Record<string, string | undefined>
+>;
 
 export type PaymentProviderFactoryOptions = {
   provider?: string;
   environment?: PaymentProviderEnvironment;
+  serverEnvironment?: ServerEnvironment;
   appUrl?: string;
   forceMerchantDecline?: boolean;
   merchant?: DemoMerchantAdapter;
   now?: MockPaymentProviderOptions["now"];
   randomUUID?: MockPaymentProviderOptions["randomUUID"];
   expiresInMs?: number;
+  pravaClient?: PravaClient;
 };
 
 export type PaymentProviderResolution =
   | {
       status: "ready";
-      configured: "mock";
+      configured: PaymentProviderName;
       provider: PaymentProvider;
     }
   | {
@@ -100,26 +109,73 @@ export function resolvePaymentProvider(
 
   const configured = requested as PaymentProviderName;
 
-  if (configured === "prava") {
-    return {
-      status: "unavailable",
-      configured,
-      reason: "NOT_IMPLEMENTED",
-      message: "Prava is selected, but its hosted checkout provider is not implemented yet.",
-    };
-  }
-
   try {
+    const serverEnvironment =
+      options.serverEnvironment ??
+      getServerEnvironment({
+        ...environment,
+        PAYMENT_PROVIDER: configured,
+        ...(options.appUrl
+          ? { NEXT_PUBLIC_APP_URL: options.appUrl }
+          : {}),
+        ...(options.forceMerchantDecline === undefined
+          ? {}
+          : {
+              DEMO_MERCHANT_FORCE_DECLINE: String(
+                options.forceMerchantDecline,
+              ),
+            }),
+      });
+
+    if (serverEnvironment.paymentProvider !== configured) {
+      throw new PaymentProviderError(
+        configured,
+        "INVALID_CONFIGURATION",
+        "The payment provider configuration does not match.",
+      );
+    }
+
+    if (configured === "prava") {
+      if (!serverEnvironment.prava.secretKey) {
+        throw new PaymentProviderError(
+          configured,
+          "INVALID_CONFIGURATION",
+          "The Prava server configuration is incomplete.",
+        );
+      }
+
+      const client =
+        options.pravaClient ??
+        createPravaClient({
+          baseUrl: serverEnvironment.prava.baseUrl,
+          secretKey: serverEnvironment.prava.secretKey,
+          userIdSigningSecret:
+            serverEnvironment.checkoutSigningSecret,
+          merchant: {
+            name: serverEnvironment.merchant.name,
+            url: serverEnvironment.merchant.url,
+            countryCode: serverEnvironment.merchant.countryCode,
+          },
+        });
+
+      return {
+        status: "ready",
+        configured,
+        provider: createPravaPaymentProvider({ client }),
+      };
+    }
+
     const forceDecline =
       options.forceMerchantDecline ??
-      parseForceDecline(environment.DEMO_MERCHANT_FORCE_DECLINE);
+      parseForceDecline(
+        String(serverEnvironment.merchant.forceDecline),
+      );
     const merchant =
       options.merchant ?? createDemoMerchant({ forceDecline });
     const provider = createMockPaymentProvider({
       appUrl:
         options.appUrl ??
-        environment.NEXT_PUBLIC_APP_URL ??
-        "http://localhost:3000",
+        serverEnvironment.appUrl,
       merchant,
       now: options.now,
       randomUUID: options.randomUUID,
@@ -137,7 +193,7 @@ export function resolvePaymentProvider(
       requested,
       error instanceof PaymentProviderError
         ? error.message
-        : "The mock payment provider configuration is invalid.",
+        : "The payment provider configuration is invalid.",
     );
   }
 }

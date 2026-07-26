@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { verifyCheckoutOrder } from "@/lib/checkout/order";
+import { issuePravaProgressToken } from "@/lib/checkout/prava-progress";
+import { issuePravaReconciliationToken } from "@/lib/checkout/prava-reconciliation";
 import { resolveCheckoutResultState } from "@/lib/checkout/result-state";
 import { issueCheckoutToken, verifyCheckoutToken } from "@/lib/checkout/token";
 import {
@@ -33,6 +35,7 @@ function activeTokens(
   options: {
     sessionId?: string;
     sessionJti?: string;
+    provider?: "mock" | "prava";
   } = {},
 ) {
   const verifiedOrder = order();
@@ -51,12 +54,19 @@ function activeTokens(
 
   const sessionToken = issuePaymentSessionToken(
     {
+      attemptId:
+        options.sessionJti ??
+        "22222222-2222-4222-8222-222222222222",
       checkoutClaims: checkout.claims,
+      order: verifiedOrder,
       session: {
-        provider: "mock",
+        provider: options.provider ?? "mock",
         sessionId:
           options.sessionId ?? "session-result-state",
-        hostedUrl: "http://localhost:3000/checkout/mock",
+        hostedUrl:
+          options.provider === "prava"
+            ? "https://sandbox.collect.prava.space/?session_token=TEST_ONLY"
+            : "http://localhost:3000/checkout/mock",
         expiresAt: new Date((now + 240) * 1_000).toISOString(),
       },
     },
@@ -178,6 +188,47 @@ describe("resolveCheckoutResultState", () => {
       ),
     ).toMatchObject({ status: "awaiting_payment" });
   });
+
+  it.each(["progress", "reconciliation"] as const)(
+    "surfaces bound Prava %s state with safe order context",
+    (kind) => {
+      const tokens = activeTokens({ provider: "prava" });
+      const input = {
+        checkoutClaims: tokens.checkoutClaims,
+        sessionClaims: tokens.sessionClaims,
+        order: order(),
+      };
+      const resultToken =
+        kind === "progress"
+          ? issuePravaProgressToken(
+              {
+                ...input,
+                transactionReference: "line_result_state_001",
+                expectedOutcome: {
+                  status: "approved",
+                  orderReference: "FITORA-PRAVA-RESULTSTATE",
+                },
+              },
+              secret,
+              { nowEpochSeconds: now + 1 },
+            )
+          : issuePravaReconciliationToken(input, secret, {
+              nowEpochSeconds: now + 1,
+            });
+
+      expect(
+        resolveCheckoutResultState(
+          { ...tokens, resultToken },
+          secret,
+          { nowEpochSeconds: now + 2 },
+        ),
+      ).toMatchObject({
+        status: "reconciliation_required",
+        provider: "prava",
+        order: { totalCents: order().totalCents },
+      });
+    },
+  );
 
   it("does not let a stale terminal result override fresh transient state", () => {
     const tokens = activeTokens();

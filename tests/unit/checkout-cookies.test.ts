@@ -1,12 +1,21 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  CHECKOUT_BROWSER_ID_COOKIE_NAME,
   CHECKOUT_COOKIE_MAX_AGE_SECONDS,
   CHECKOUT_COOKIE_NAMES,
+  MAX_ACTIVE_PRAVA_ATTEMPTS,
   checkoutCookieSpec,
+  clearCheckoutAttemptCookie,
   clearCheckoutCookie,
   clearCheckoutCookieSpec,
+  isCheckoutAttemptId,
+  listCheckoutAttemptCookieSets,
+  readCheckoutBrowserId,
+  readCheckoutAttemptCookie,
   readCheckoutCookie,
+  setCheckoutAttemptCookie,
+  setCheckoutBrowserId,
   setCheckoutCookie,
   type CheckoutCookieOptions,
 } from "@/lib/checkout/cookies";
@@ -24,6 +33,13 @@ class MemoryCookieStore {
     return value === undefined ? undefined : { value };
   }
 
+  getAll(): Array<{ name: string; value: string }> {
+    return [...this.values].map(([name, value]) => ({
+      name,
+      value,
+    }));
+  }
+
   set(name: string, value: string, options: CheckoutCookieOptions): void {
     this.writes.push({ name, value, options });
     if (options.maxAge === 0) {
@@ -35,6 +51,8 @@ class MemoryCookieStore {
 }
 
 const cookieKinds = ["review", "session", "result"] as const;
+const ATTEMPT_A = "70000000-0000-4000-8000-000000000007";
+const ATTEMPT_B = "80000000-0000-4000-8000-000000000008";
 
 describe("checkout cookie specifications", () => {
   it("uses fixed, distinct, non-sensitive names", () => {
@@ -115,6 +133,72 @@ describe("checkout cookie specifications", () => {
 });
 
 describe("checkout cookie store helpers", () => {
+  it("stores only a strict opaque browser scope without customer data", async () => {
+    const store = new MemoryCookieStore();
+
+    await setCheckoutBrowserId(
+      store,
+      ATTEMPT_A,
+      "production",
+    );
+
+    await expect(readCheckoutBrowserId(store)).resolves.toBe(
+      ATTEMPT_A,
+    );
+    expect(store.writes[0]).toMatchObject({
+      name: CHECKOUT_BROWSER_ID_COOKIE_NAME,
+      value: ATTEMPT_A,
+      options: {
+        httpOnly: true,
+        maxAge: 3_600,
+        sameSite: "lax",
+        secure: true,
+      },
+    });
+    await expect(
+      setCheckoutBrowserId(store, "NOT-A-UUID"),
+    ).rejects.toThrow("Checkout browser ID is invalid.");
+  });
+
+  it("enumerates only generated attempt sets and marks unsafe values", async () => {
+    const store = new MemoryCookieStore();
+    store.values.set(
+      `${CHECKOUT_COOKIE_NAMES.review}_${ATTEMPT_A}`,
+      "signed-review-a",
+    );
+    store.values.set(
+      `${CHECKOUT_COOKIE_NAMES.session}_${ATTEMPT_A}`,
+      "x".repeat(4_097),
+    );
+    store.values.set(
+      `${CHECKOUT_COOKIE_NAMES.result}_${ATTEMPT_B}`,
+      "signed-terminal-b",
+    );
+    store.values.set(CHECKOUT_COOKIE_NAMES.review, "global-review");
+    store.values.set(
+      `${CHECKOUT_COOKIE_NAMES.review}_not-a-valid-attempt`,
+      "ignored",
+    );
+
+    await expect(
+      listCheckoutAttemptCookieSets(store),
+    ).resolves.toEqual([
+      {
+        attemptId: ATTEMPT_A,
+        values: { review: "signed-review-a" },
+        presentKinds: ["review", "session"],
+        invalidKinds: ["session"],
+      },
+      {
+        attemptId: ATTEMPT_B,
+        values: { result: "signed-terminal-b" },
+        presentKinds: ["result"],
+        invalidKinds: [],
+      },
+    ]);
+    expect(MAX_ACTIVE_PRAVA_ATTEMPTS).toBe(3);
+  });
+
   it("sets and reads through a NextResponse-like cookies property", async () => {
     const store = new MemoryCookieStore();
     const responseLike = { cookies: store };
@@ -171,5 +255,77 @@ describe("checkout cookie store helpers", () => {
     await setCheckoutCookie(store, kind, `${kind}-value`, "test");
 
     expect(store.writes.at(-1)?.name).toBe(CHECKOUT_COOKIE_NAMES[kind]);
+  });
+
+  it("isolates short-lived state by strict opaque checkout attempt ID", async () => {
+    const store = new MemoryCookieStore();
+
+    await setCheckoutAttemptCookie(
+      store,
+      "session",
+      ATTEMPT_A,
+      "signed-session-a",
+      "production",
+    );
+    await setCheckoutAttemptCookie(
+      store,
+      "session",
+      ATTEMPT_B,
+      "signed-session-b",
+      "production",
+    );
+
+    await expect(
+      readCheckoutAttemptCookie(store, "session", ATTEMPT_A),
+    ).resolves.toBe("signed-session-a");
+    await expect(
+      readCheckoutAttemptCookie(store, "session", ATTEMPT_B),
+    ).resolves.toBe("signed-session-b");
+    expect(store.writes[0]?.name).not.toBe(store.writes[1]?.name);
+    expect(store.writes[0]).toMatchObject({
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: true,
+        path: "/",
+      },
+    });
+
+    await clearCheckoutAttemptCookie(
+      store,
+      "session",
+      ATTEMPT_A,
+      "production",
+    );
+    await expect(
+      readCheckoutAttemptCookie(store, "session", ATTEMPT_A),
+    ).resolves.toBeUndefined();
+    await expect(
+      readCheckoutAttemptCookie(store, "session", ATTEMPT_B),
+    ).resolves.toBe("signed-session-b");
+  });
+
+  it.each([
+    "",
+    "../callback",
+    "70000000-0000-4000-8000-000000000007_suffix",
+    "70000000-0000-0000-0000-000000000007",
+    "70000000-0000-4000-8000-000000000007; injected=true",
+  ])("rejects an unsafe attempt locator %j", async (attemptId) => {
+    const store = new MemoryCookieStore();
+
+    expect(isCheckoutAttemptId(attemptId)).toBe(false);
+    await expect(
+      setCheckoutAttemptCookie(
+        store,
+        "review",
+        attemptId,
+        "signed-value",
+      ),
+    ).rejects.toThrow("Checkout attempt ID is invalid.");
+    await expect(
+      readCheckoutAttemptCookie(store, "review", attemptId),
+    ).rejects.toThrow("Checkout attempt ID is invalid.");
+    expect(store.writes).toHaveLength(0);
   });
 });

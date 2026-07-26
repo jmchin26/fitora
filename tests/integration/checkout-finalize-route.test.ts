@@ -46,6 +46,9 @@ import type {
 
 const TEST_SIGNING_SECRET =
   "fitora-checkout-finalize-route-test-signing-secret";
+const PRAVA_TEST_SECRET = ["sk", "test", "finalize-placeholder"].join(
+  "_",
+);
 const CHECKOUT_JTI = "11111111-1111-4111-8111-111111111111";
 const SESSION_JTI = "22222222-2222-4222-8222-222222222222";
 const RESULT_JTI = "33333333-3333-4333-8333-333333333333";
@@ -129,7 +132,9 @@ function checkoutStateCookies(
       : review.claims;
   const session = issuePaymentSessionToken(
     {
+      attemptId: SESSION_JTI,
       checkoutClaims: sessionCheckout,
+      order: verifiedOrder(),
       session: hostedSession(
         nowEpochSeconds,
         options.sessionProvider,
@@ -229,6 +234,29 @@ afterEach(() => {
 });
 
 describe("POST /api/checkout/finalize", () => {
+  it("rejects browser-controlled finalization in real Prava mode", async () => {
+    vi.stubEnv("PAYMENT_PROVIDER", "prava");
+    vi.stubEnv("PRAVA_SECRET_KEY", PRAVA_TEST_SECRET);
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://fitora.example");
+    vi.stubEnv("DEMO_MERCHANT_URL", "https://merchant.fitora.example");
+
+    const response = await POST(
+      jsonRequest({ decision: "approve" }, checkoutStateCookies()),
+    );
+    const body: unknown = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(CheckoutApiErrorSchema.safeParse(body)).toMatchObject({
+      success: true,
+      data: {
+        error: { code: "PAYMENT_FINALIZE_NOT_ALLOWED" },
+      },
+    });
+    expect(paymentFactoryMocks.resolve).not.toHaveBeenCalled();
+    expect(paymentFactoryMocks.finalize).not.toHaveBeenCalled();
+    expect(response.headers.get("Set-Cookie")).toBeNull();
+  });
+
   it("rejects text/plain and sibling-origin requests before finalizing or setting cookies", async () => {
     const textPlain = await POST(
       jsonRequest(
@@ -667,7 +695,9 @@ describe("POST /api/checkout/finalize", () => {
     const review = issueReviewClaims(issuedAt, CHECKOUT_JTI, 15 * 60);
     const session = issuePaymentSessionToken(
       {
+        attemptId: SESSION_JTI,
         checkoutClaims: review.claims,
+        order: verifiedOrder(),
         session: {
           ...hostedSession(issuedAt),
           expiresAt: new Date((issuedAt + 5 * 60) * 1_000).toISOString(),

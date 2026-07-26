@@ -1,4 +1,6 @@
-import { resolveCheckoutState } from "@/lib/checkout/state";
+import { verifyPravaProgressTokenForCheckout } from "@/lib/checkout/prava-progress";
+import { verifyPravaReconciliationTokenForCheckout } from "@/lib/checkout/prava-reconciliation";
+import { verifyCheckoutToken } from "@/lib/checkout/token";
 import {
   checkoutResultFromClaims,
   verifyCheckoutResultToken,
@@ -22,7 +24,11 @@ export type CheckoutResultState =
       order: VerifiedOrder;
     }
   | { status: "expired" }
-  | { status: "reconciliation_required" };
+  | {
+      status: "reconciliation_required";
+      provider?: PaymentProviderName;
+      order?: VerifiedOrder;
+    };
 
 type CheckoutResultStateInput = {
   resultToken?: string;
@@ -77,18 +83,18 @@ export function resolveCheckoutResultState(
       : { status: "reconciliation_required" };
   }
 
-  const checkout = resolveCheckoutState(
+  const checkout = verifyCheckoutToken(
     input.reviewToken,
     secret,
     options,
   );
 
   if (!checkout.ok) {
-    if (checkout.reason === "MISSING" && hasSessionState) {
+    if (!input.reviewToken && hasSessionState) {
       return { status: "reconciliation_required" };
     }
 
-    return checkout.reason === "MISSING" || checkout.reason === "EXPIRED"
+    return !input.reviewToken || checkout.error.code === "TOKEN_EXPIRED"
       ? { status: "expired" }
       : { status: "reconciliation_required" };
   }
@@ -110,13 +116,15 @@ export function resolveCheckoutResultState(
       : { status: "reconciliation_required" };
   }
 
+  const order = session.claims.order;
+
   if (input.resultToken) {
     const pendingMarker =
       verifyPendingCheckoutResultTokenForCheckout(
         input.resultToken,
         checkout.claims,
         session.claims,
-        checkout.order,
+        order,
         secret,
         options,
       );
@@ -125,7 +133,42 @@ export function resolveCheckoutResultState(
       return {
         status: "pending",
         provider: session.claims.provider,
-        order: checkout.order,
+        order,
+      };
+    }
+
+    const progress = verifyPravaProgressTokenForCheckout(
+      input.resultToken,
+      checkout.claims,
+      session.claims,
+      order,
+      secret,
+      options,
+    );
+
+    if (progress.ok) {
+      return {
+        status: "reconciliation_required",
+        provider: "prava",
+        order,
+      };
+    }
+
+    const reconciliation =
+      verifyPravaReconciliationTokenForCheckout(
+        input.resultToken,
+        checkout.claims,
+        session.claims,
+        order,
+        secret,
+        options,
+      );
+
+    if (reconciliation.ok) {
+      return {
+        status: "reconciliation_required",
+        provider: "prava",
+        order,
       };
     }
   }
@@ -133,6 +176,6 @@ export function resolveCheckoutResultState(
   return {
     status: "awaiting_payment",
     provider: session.claims.provider,
-    order: checkout.order,
+    order,
   };
 }

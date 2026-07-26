@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 
@@ -86,7 +88,11 @@ export default async function CheckoutReviewPage() {
       ) : null}
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(20rem,0.65fr)] lg:items-start">
         <OrderReview order={checkout.order} />
-        <PaymentApprovalForm />
+        <PaymentApprovalForm
+          attemptId={randomUUID()}
+          provider={environment.paymentProvider}
+          reviewId={checkout.claims.jti}
+        />
       </div>
     </CheckoutShell>
   );

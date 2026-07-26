@@ -7,7 +7,12 @@ import {
 } from "@/components/checkout/checkout-result";
 import { CheckoutShell } from "@/components/checkout/checkout-shell";
 import { OrderHistoryRecorder } from "@/components/checkout/order-history-recorder";
-import { readCheckoutCookie } from "@/lib/checkout/cookies";
+import { PravaAttemptLeaseRelease } from "@/components/checkout/prava-attempt-lease-release";
+import {
+  isCheckoutAttemptId,
+  readCheckoutAttemptCookie,
+  readCheckoutCookie,
+} from "@/lib/checkout/cookies";
 import { resolveCheckoutResultState } from "@/lib/checkout/result-state";
 import type { SanitizedOrderHistoryEntry } from "@/lib/checkout/history";
 import { getServerEnvironment } from "@/lib/config/env";
@@ -19,7 +24,13 @@ export const metadata: Metadata = {
   description: "View a sanitized Fitora payment and demo-order result.",
 };
 
-export default async function CheckoutResultPage() {
+type CheckoutResultPageProps = Readonly<{
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}>;
+
+export default async function CheckoutResultPage({
+  searchParams,
+}: CheckoutResultPageProps) {
   let environment: ReturnType<typeof getServerEnvironment>;
 
   try {
@@ -32,11 +43,21 @@ export default async function CheckoutResultPage() {
     );
   }
 
+  const rawAttemptId = (await searchParams).attempt;
+  const attemptId = isCheckoutAttemptId(rawAttemptId)
+    ? rawAttemptId
+    : undefined;
   const cookieStore = cookies();
   const [resultToken, reviewToken, sessionToken] = await Promise.all([
-    readCheckoutCookie(cookieStore, "result"),
-    readCheckoutCookie(cookieStore, "review"),
-    readCheckoutCookie(cookieStore, "session"),
+    attemptId
+      ? readCheckoutAttemptCookie(cookieStore, "result", attemptId)
+      : readCheckoutCookie(cookieStore, "result"),
+    attemptId
+      ? readCheckoutAttemptCookie(cookieStore, "review", attemptId)
+      : readCheckoutCookie(cookieStore, "review"),
+    attemptId
+      ? readCheckoutAttemptCookie(cookieStore, "session", attemptId)
+      : readCheckoutCookie(cookieStore, "session"),
   ]);
   const state = resolveCheckoutResultState(
     { resultToken, reviewToken, sessionToken },
@@ -60,6 +81,9 @@ export default async function CheckoutResultPage() {
       totalCents: sanitized.totalCents,
       itemCount: sanitized.itemCount,
       completedAt: sanitized.completedAt,
+      ...(attemptId
+        ? { retryUrl: `/checkout/callback/${attemptId}` }
+        : {}),
     };
     historyEntry = {
       version: 1,
@@ -83,6 +107,24 @@ export default async function CheckoutResultPage() {
       currency: state.order.currency,
       totalCents: state.order.totalCents,
       itemCount: state.order.items.length,
+      ...(attemptId
+        ? { retryUrl: `/checkout/callback/${attemptId}` }
+        : {}),
+    };
+  } else if (
+    state.status === "reconciliation_required" &&
+    state.provider &&
+    state.order
+  ) {
+    result = {
+      status: state.status,
+      provider: state.provider,
+      currency: state.order.currency,
+      totalCents: state.order.totalCents,
+      itemCount: state.order.items.length,
+      ...(attemptId
+        ? { retryUrl: `/checkout/callback/${attemptId}` }
+        : {}),
     };
   } else {
     result = { status: state.status };
@@ -92,6 +134,12 @@ export default async function CheckoutResultPage() {
     <CheckoutShell eyebrow="Sanitized checkout result">
       <CheckoutResult result={result} />
       {historyEntry ? <OrderHistoryRecorder entry={historyEntry} /> : null}
+      {attemptId &&
+      (state.status === "approved" ||
+        state.status === "declined" ||
+        state.status === "expired") ? (
+        <PravaAttemptLeaseRelease attemptId={attemptId} />
+      ) : null}
     </CheckoutShell>
   );
 }

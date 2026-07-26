@@ -1,6 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { resolvePaymentProvider } from "@/lib/payments/factory";
+import type { PravaClient } from "@/lib/payments/prava";
+
+const PRAVA_TEST_SECRET = ["sk", "test", "factory-placeholder"].join(
+  "_",
+);
+const CHECKOUT_SIGNING_SECRET =
+  "payment-factory-test-signing-secret-123456789";
 
 describe("payment provider factory", () => {
   it("boots in truthful mock mode by default", () => {
@@ -13,18 +20,42 @@ describe("payment provider factory", () => {
     }
   });
 
-  it("marks Prava unavailable instead of silently substituting mock", () => {
+  it("marks incomplete Prava configuration invalid without using mock", () => {
     expect(
       resolvePaymentProvider({
         environment: { PAYMENT_PROVIDER: "prava" },
       }),
-    ).toEqual({
-      status: "unavailable",
+    ).toMatchObject({
+      status: "invalid",
       configured: "prava",
-      reason: "NOT_IMPLEMENTED",
-      message:
-        "Prava is selected, but its hosted checkout provider is not implemented yet.",
+      reason: "INVALID_CONFIGURATION",
     });
+  });
+
+  it("creates a real Prava adapter only from complete server configuration", () => {
+    const client: PravaClient = {
+      createSession: vi.fn(),
+      getPaymentResult: vi.fn(),
+      pollPaymentResult: vi.fn(),
+      reportStatus: vi.fn(),
+    };
+    const resolution = resolvePaymentProvider({
+      environment: {
+        NODE_ENV: "test",
+        PAYMENT_PROVIDER: "prava",
+        NEXT_PUBLIC_APP_URL: "https://fitora.example",
+        CHECKOUT_SIGNING_SECRET,
+        PRAVA_SECRET_KEY: PRAVA_TEST_SECRET,
+        DEMO_MERCHANT_URL: "https://merchant.fitora.example",
+      },
+      pravaClient: client,
+    });
+
+    expect(resolution.status).toBe("ready");
+    if (resolution.status === "ready") {
+      expect(resolution.configured).toBe("prava");
+      expect(resolution.provider.name).toBe("prava");
+    }
   });
 
   it("returns typed invalid resolutions for unknown or malformed config", () => {

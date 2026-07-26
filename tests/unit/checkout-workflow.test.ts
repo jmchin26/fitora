@@ -119,7 +119,12 @@ function paymentSessionClaims(
   jti = SESSION_TOKEN_JTI,
 ): PaymentSessionTokenClaims {
   const token = issuePaymentSessionToken(
-    { checkoutClaims: checkout, session },
+    {
+      attemptId: SESSION_TOKEN_JTI,
+      checkoutClaims: checkout,
+      order: verifiedOrder(),
+      session,
+    },
     SECRET,
     { nowEpochSeconds: NOW, jti },
   );
@@ -138,7 +143,9 @@ describe("payment-session workflow state", () => {
   it("binds a provider session to the reviewed checkout JTI", () => {
     const token = issuePaymentSessionToken(
       {
+        attemptId: SESSION_TOKEN_JTI,
         checkoutClaims: checkoutClaims(),
+        order: verifiedOrder(),
         session: hostedSession(),
       },
       SECRET,
@@ -162,9 +169,11 @@ describe("payment-session workflow state", () => {
         jti: SESSION_TOKEN_JTI,
         iat: NOW,
         exp: NOW + 10 * 60,
+        attemptId: SESSION_TOKEN_JTI,
         checkoutJti: CHECKOUT_JTI,
         provider: "mock",
         sessionId: "session-123",
+        order: verifiedOrder(),
       },
     });
   });
@@ -173,7 +182,9 @@ describe("payment-session workflow state", () => {
     const providerExpiry = NOW + 90;
     const token = issuePaymentSessionToken(
       {
+        attemptId: SESSION_TOKEN_JTI,
         checkoutClaims: checkoutClaims(),
+        order: verifiedOrder(),
         session: hostedSession({
           expiresAt: new Date(providerExpiry * 1_000).toISOString(),
         }),
@@ -207,7 +218,9 @@ describe("payment-session workflow state", () => {
   it("rejects tampering and a valid token bound to another checkout", () => {
     const token = issuePaymentSessionToken(
       {
+        attemptId: SESSION_TOKEN_JTI,
         checkoutClaims: checkoutClaims(),
+        order: verifiedOrder(),
         session: hostedSession(),
       },
       SECRET,
@@ -257,7 +270,9 @@ describe("payment-session workflow state", () => {
     expect(() =>
       issuePaymentSessionToken(
         {
+          attemptId: SESSION_TOKEN_JTI,
           checkoutClaims: checkoutClaims(),
+          order: verifiedOrder(),
           session: hostedSession(),
         },
         SECRET,

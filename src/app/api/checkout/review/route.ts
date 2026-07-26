@@ -1,8 +1,12 @@
-import { NextResponse } from "next/server";
+import { randomUUID } from "node:crypto";
+
+import { NextRequest, NextResponse } from "next/server";
 
 import { CheckoutReviewRequestSchema } from "@/lib/checkout/api-contracts";
 import {
   clearCheckoutCookie,
+  readCheckoutBrowserId,
+  setCheckoutBrowserId,
   setCheckoutCookie,
 } from "@/lib/checkout/cookies";
 import { verifyCheckoutOrder } from "@/lib/checkout/order";
@@ -45,7 +49,7 @@ function errorResponse(
   );
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   let environment: ReturnType<typeof getServerEnvironment>;
 
   try {
@@ -104,6 +108,8 @@ export async function POST(request: Request) {
   }
 
   try {
+    const browserId =
+      (await readCheckoutBrowserId(request)) ?? randomUUID();
     const token = issueCheckoutToken(
       verified.order,
       environment.checkoutSigningSecret,
@@ -122,6 +128,11 @@ export async function POST(request: Request) {
       response,
       "review",
       token,
+      environment.nodeEnv,
+    );
+    await setCheckoutBrowserId(
+      response,
+      browserId,
       environment.nodeEnv,
     );
     await clearCheckoutCookie(

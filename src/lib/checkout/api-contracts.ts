@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { OutfitReferenceSchema } from "@/lib/catalogue/schemas";
+import { CheckoutAttemptIdSchema } from "@/lib/checkout/attempt-id";
 
 export const CheckoutReviewRequestSchema = z
   .object({
@@ -11,6 +12,8 @@ export const CheckoutReviewRequestSchema = z
 export const CheckoutApprovalRequestSchema = z
   .object({
     email: z.string().trim().max(254).pipe(z.email()),
+    attemptId: CheckoutAttemptIdSchema,
+    reviewId: z.string().uuid(),
   })
   .strict();
 
@@ -90,7 +93,11 @@ export const CHECKOUT_API_ERROR_CODES = [
   "CHECKOUT_ORDER_UNAVAILABLE",
   "CHECKOUT_CONFIGURATION_INVALID",
   "PAYMENT_PROVIDER_UNAVAILABLE",
+  "PAYMENT_ATTEMPT_LIMIT_REACHED",
+  "PAYMENT_SESSION_ACTIVE",
+  "PAYMENT_FINALIZE_NOT_ALLOWED",
   "PAYMENT_SESSION_FAILED",
+  "PAYMENT_SESSION_UNCERTAIN",
   "PAYMENT_FINALIZE_FAILED",
 ] as const;
 

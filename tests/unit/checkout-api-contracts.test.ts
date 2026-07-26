@@ -12,6 +12,8 @@ const reference = {
   bottom: { productId: "bottom-01", selectedSize: "M" },
   shoes: { productId: "shoes-01", selectedSize: "42" },
 };
+const reviewId = "50000000-0000-4000-8000-000000000005";
+const attemptId = "d0000000-0000-4000-8000-00000000000d";
 
 describe("checkout API contracts", () => {
   it("accepts compact product references and rejects client commerce facts", () => {
@@ -25,18 +27,54 @@ describe("checkout API contracts", () => {
     ).toBe(false);
   });
 
-  it("trims and validates the approval email without accepting extra fields", () => {
+  it("binds approval to a review ID and rejects invalid or extra fields", () => {
     expect(
-      CheckoutApprovalRequestSchema.parse({ email: "  person@example.com " }),
-    ).toEqual({ email: "person@example.com" });
+      CheckoutApprovalRequestSchema.parse({
+        email: "  person@example.com ",
+        attemptId,
+        reviewId,
+      }),
+    ).toEqual({ attemptId, email: "person@example.com", reviewId });
     expect(
       CheckoutApprovalRequestSchema.safeParse({
         email: "not-an-email",
+        attemptId,
+        reviewId,
       }).success,
     ).toBe(false);
     expect(
       CheckoutApprovalRequestSchema.safeParse({
         email: "person@example.com",
+        attemptId,
+        reviewId: "not-a-review-id",
+      }).success,
+    ).toBe(false);
+    expect(
+      CheckoutApprovalRequestSchema.safeParse({
+        email: "person@example.com",
+        attemptId: "not-an-attempt-id",
+        reviewId,
+      }).success,
+    ).toBe(false);
+    expect(
+      CheckoutApprovalRequestSchema.safeParse({
+        email: "person@example.com",
+        attemptId: attemptId.toUpperCase(),
+        reviewId,
+      }).success,
+    ).toBe(false);
+    expect(
+      CheckoutApprovalRequestSchema.safeParse({
+        email: "person@example.com",
+        attemptId: "00000000-0000-0000-0000-000000000000",
+        reviewId,
+      }).success,
+    ).toBe(false);
+    expect(
+      CheckoutApprovalRequestSchema.safeParse({
+        email: "person@example.com",
+        attemptId,
+        reviewId,
         approved: true,
       }).success,
     ).toBe(false);

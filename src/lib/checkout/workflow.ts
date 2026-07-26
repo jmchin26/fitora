@@ -7,6 +7,7 @@ import {
   VerifiedOrderSchema,
   type VerifiedOrder,
 } from "@/lib/checkout/order";
+import { CheckoutAttemptIdSchema } from "@/lib/checkout/attempt-id";
 import {
   CHECKOUT_TOKEN_FUTURE_IAT_TOLERANCE_SECONDS,
   CHECKOUT_TOKEN_VERSION,
@@ -79,9 +80,11 @@ export const PaymentSessionTokenClaimsSchema = z
     jti: z.string().uuid(),
     iat: z.number().int().nonnegative(),
     exp: z.number().int().positive(),
+    attemptId: CheckoutAttemptIdSchema,
     checkoutJti: z.string().uuid(),
     provider: PaymentProviderNameSchema,
     sessionId: HostedSessionSchema.shape.sessionId,
+    order: VerifiedOrderSchema,
   })
   .strict()
   .superRefine((claims, context) => {
@@ -257,7 +260,9 @@ export type CheckoutResultTokenClaims = z.infer<
 >;
 
 export type IssuePaymentSessionTokenInput = {
+  attemptId: string;
   checkoutClaims: CheckoutTokenClaims;
+  order: VerifiedOrder;
   session: HostedSession;
 };
 
@@ -314,6 +319,8 @@ export function issuePaymentSessionToken(
   const checkoutClaims = CheckoutTokenClaimsSchema.safeParse(
     input.checkoutClaims,
   );
+  const attemptId = CheckoutAttemptIdSchema.safeParse(input.attemptId);
+  const order = VerifiedOrderSchema.safeParse(input.order);
   const session = HostedSessionSchema.safeParse(input.session);
   const nowEpochSeconds =
     options.nowEpochSeconds ?? Math.floor(Date.now() / 1_000);
@@ -322,13 +329,21 @@ export function issuePaymentSessionToken(
   const jti = options.jti ?? randomUUID();
 
   if (
+    !attemptId.success ||
     !checkoutClaims.success ||
+    !order.success ||
     !session.success ||
     !isNonnegativeSafeInteger(nowEpochSeconds) ||
     !isPositiveSafeInteger(ttlSeconds) ||
     ttlSeconds > PAYMENT_SESSION_TOKEN_MAX_TTL_SECONDS
   ) {
     invalidClaims("The payment-session token claims are invalid.");
+  }
+
+  if (!compareCheckoutClaimsToOrder(checkoutClaims.data, order.data).ok) {
+    invalidClaims(
+      "The payment-session order does not match the reviewed checkout.",
+    );
   }
 
   const providerExpiresAt = Math.floor(
@@ -357,9 +372,11 @@ export function issuePaymentSessionToken(
     jti,
     iat: nowEpochSeconds,
     exp,
+    attemptId: attemptId.data,
     checkoutJti: checkoutClaims.data.jti,
     provider: session.data.provider,
     sessionId: session.data.sessionId,
+    order: order.data,
   };
 
   return signStrictClaims(
@@ -393,6 +410,7 @@ export function verifyPaymentSessionToken(
 export const PAYMENT_SESSION_BINDING_MISMATCH_REASONS = [
   "INVALID_STATE",
   "CHECKOUT_JTI",
+  "ORDER",
 ] as const;
 
 export type PaymentSessionBindingMismatchReason =
@@ -438,6 +456,15 @@ export function comparePaymentSessionClaimsToCheckout(
 
   if (parsedSession.data.checkoutJti !== parsedCheckout.data.jti) {
     return sessionBindingMismatch("CHECKOUT_JTI");
+  }
+
+  if (
+    !compareCheckoutClaimsToOrder(
+      parsedCheckout.data,
+      parsedSession.data.order,
+    ).ok
+  ) {
+    return sessionBindingMismatch("ORDER");
   }
 
   return { ok: true };

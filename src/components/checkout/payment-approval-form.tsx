@@ -7,12 +7,22 @@ import {
   CheckoutApprovalRequestSchema,
   CheckoutSessionStartedSchema,
 } from "@/lib/checkout/api-contracts";
+import {
+  releasePravaBrowserAttempt,
+  reservePravaBrowserAttempt,
+} from "@/lib/checkout/prava-browser-lease";
 
 type PaymentApprovalFormProps = {
+  attemptId: string;
+  provider?: "mock" | "prava";
+  reviewId: string;
   onNavigate?: (url: string) => void;
 };
 
-const REQUEST_TIMEOUT_MS = 8_000;
+// The Prava client has a 10-second server-side timeout. Keep the browser
+// boundary longer so an authoritative server failure arrives before the UI
+// labels the side-effecting request as ambiguous.
+const REQUEST_TIMEOUT_MS = 15_000;
 
 async function readJson(response: Response): Promise<unknown> {
   try {
@@ -23,11 +33,15 @@ async function readJson(response: Response): Promise<unknown> {
 }
 
 export function PaymentApprovalForm({
+  attemptId,
+  provider = "mock",
+  reviewId,
   onNavigate,
 }: PaymentApprovalFormProps) {
   const [email, setEmail] = useState("");
   const [isApproved, setIsApproved] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAmbiguous, setIsAmbiguous] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [approvalError, setApprovalError] = useState<string | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
@@ -49,11 +63,15 @@ export function PaymentApprovalForm({
   async function submitApproval(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (isSubmitting) {
+    if (isSubmitting || isAmbiguous) {
       return;
     }
 
-    const parsed = CheckoutApprovalRequestSchema.safeParse({ email });
+    const parsed = CheckoutApprovalRequestSchema.safeParse({
+      attemptId,
+      email,
+      reviewId,
+    });
     const nextEmailError = parsed.success
       ? null
       : "Enter a valid email address for the payment receipt.";
@@ -75,6 +93,27 @@ export function PaymentApprovalForm({
       return;
     }
 
+    setIsSubmitting(true);
+
+    if (provider === "prava") {
+      const reserved = await reservePravaBrowserAttempt(attemptId);
+
+      if (!mounted.current) {
+        if (reserved) {
+          releasePravaBrowserAttempt(attemptId);
+        }
+        return;
+      }
+
+      if (!reserved) {
+        setRequestError(
+          "Another Prava checkout is already active in this browser. Finish it or wait for it to expire before starting another payment.",
+        );
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     activeRequest.current?.abort();
     const controller = new AbortController();
     let didTimeOut = false;
@@ -83,7 +122,6 @@ export function PaymentApprovalForm({
       controller.abort();
     }, REQUEST_TIMEOUT_MS);
     activeRequest.current = controller;
-    setIsSubmitting(true);
 
     try {
       const response = await fetch("/api/checkout/create-session", {
@@ -105,6 +143,19 @@ export function PaymentApprovalForm({
 
       if (!response.ok) {
         const parsedError = CheckoutApiErrorSchema.safeParse(body);
+
+        if (
+          provider === "prava" &&
+          (!parsedError.success ||
+            parsedError.data.error.code ===
+              "PAYMENT_SESSION_UNCERTAIN" ||
+            parsedError.data.error.code === "PAYMENT_SESSION_ACTIVE")
+        ) {
+          setIsAmbiguous(true);
+        } else if (provider === "prava") {
+          releasePravaBrowserAttempt(attemptId);
+        }
+
         setRequestError(
           parsedError.success
             ? parsedError.data.error.message
@@ -115,9 +166,13 @@ export function PaymentApprovalForm({
 
       const parsedSession = CheckoutSessionStartedSchema.safeParse(body);
 
-      if (!parsedSession.success) {
+      if (
+        !parsedSession.success ||
+        parsedSession.data.provider !== provider
+      ) {
+        setIsAmbiguous(true);
         setRequestError(
-          "Fitora returned an unexpected payment response. No checkout page was opened.",
+          "Fitora returned an unexpected payment response, so the session status is uncertain. Do not reload, retry, or start another checkout until this attempt expires.",
         );
         return;
       }
@@ -134,8 +189,9 @@ export function PaymentApprovalForm({
         didTimeOut ||
         (controller.signal.aborted && activeRequest.current === controller)
       ) {
+        setIsAmbiguous(true);
         setRequestError(
-          "The payment session request timed out. No session was confirmed; try again.",
+          "The payment session response timed out, so its status is uncertain. Do not reload, retry, or start another checkout until this attempt expires.",
         );
         return;
       }
@@ -144,8 +200,9 @@ export function PaymentApprovalForm({
         return;
       }
 
+      setIsAmbiguous(true);
       setRequestError(
-        "Fitora could not reach the payment service. No session was confirmed; try again.",
+        "Fitora could not confirm the payment-session response. Do not reload, retry, or start another checkout until this attempt expires.",
       );
     } finally {
       window.clearTimeout(timeout);
@@ -197,7 +254,7 @@ export function PaymentApprovalForm({
             aria-invalid={Boolean(emailError)}
             autoComplete="email"
             className="mt-2 min-h-12 w-full border border-[var(--line)] bg-white px-4 py-3 text-base transition-colors placeholder:text-[#7a8075] hover:border-[var(--sage)] disabled:cursor-wait disabled:opacity-60"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isAmbiguous}
             id="checkout-email"
             inputMode="email"
             maxLength={254}
@@ -235,7 +292,7 @@ export function PaymentApprovalForm({
               aria-invalid={Boolean(approvalError)}
               checked={isApproved}
               className="mt-1 h-5 w-5 shrink-0 accent-[var(--sage-dark)]"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isAmbiguous}
               onChange={(event) => {
                 setIsApproved(event.target.checked);
                 setApprovalError(null);
@@ -270,10 +327,14 @@ export function PaymentApprovalForm({
 
         <button
           className="min-h-12 w-full bg-[var(--ink)] px-5 py-3 font-bold text-white transition-colors hover:bg-[var(--sage-dark)] disabled:cursor-wait disabled:opacity-60 sm:w-auto"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isAmbiguous}
           type="submit"
         >
-          {isSubmitting ? "Creating secure session…" : "Continue to payment"}
+          {isAmbiguous
+            ? "Session status uncertain"
+            : isSubmitting
+              ? "Creating secure session…"
+              : "Continue to payment"}
         </button>
       </form>
     </section>

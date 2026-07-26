@@ -7,6 +7,9 @@ import {
 } from "@/lib/config/env";
 
 const STRONG_SIGNING_SECRET = "test-signing-secret-with-at-least-32-characters";
+const PRAVA_TEST_SECRET = ["sk", "test", "unit-test-placeholder"].join(
+  "_",
+);
 
 function expectInvalid(
   environment: Readonly<Record<string, string | undefined>>,
@@ -39,6 +42,7 @@ describe("checkout server environment", () => {
       usesDevelopmentSigningSecret: true,
       prava: {
         baseUrl: "https://sandbox.api.prava.space",
+        hostedCheckoutOrigin: "https://sandbox.collect.prava.space",
         ready: false,
       },
       merchant: {
@@ -213,7 +217,7 @@ describe("checkout server environment", () => {
     expectInvalid(
       {
         ...pravaBase,
-        PRAVA_SECRET_KEY: "unit-test-prava-placeholder",
+        PRAVA_SECRET_KEY: PRAVA_TEST_SECRET,
         PRAVA_BASE_URL: "http://sandbox.api.prava.space",
       },
       "pravaBaseUrl",
@@ -221,12 +225,33 @@ describe("checkout server environment", () => {
 
     const config = getServerEnvironment({
       ...pravaBase,
-      PRAVA_SECRET_KEY: "unit-test-prava-placeholder",
+      PRAVA_SECRET_KEY: PRAVA_TEST_SECRET,
       PRAVA_BASE_URL: "https://sandbox.api.prava.space",
     });
     expect(config.paymentProvider).toBe("prava");
     expect(config.prava.ready).toBe(true);
+    expect(config.prava.hostedCheckoutOrigin).toBe(
+      "https://sandbox.collect.prava.space",
+    );
     expect(config.usesDevelopmentSigningSecret).toBe(false);
+
+    expectInvalid(
+      {
+        ...pravaBase,
+        PRAVA_SECRET_KEY: PRAVA_TEST_SECRET,
+        PRAVA_HOSTED_CHECKOUT_ORIGIN:
+          "http://sandbox.collect.prava.space",
+      },
+      "pravaHostedCheckoutOrigin",
+    );
+
+    expectInvalid(
+      {
+        ...pravaBase,
+        PRAVA_SECRET_KEY: "unit-test-prava-placeholder",
+      },
+      "pravaSecretKey",
+    );
   });
 
   it("requires HTTPS application and merchant origins whenever Prava is selected", () => {
@@ -234,7 +259,7 @@ describe("checkout server environment", () => {
       NODE_ENV: "development",
       PAYMENT_PROVIDER: "prava",
       CHECKOUT_SIGNING_SECRET: STRONG_SIGNING_SECRET,
-      PRAVA_SECRET_KEY: "unit-test-prava-placeholder",
+      PRAVA_SECRET_KEY: PRAVA_TEST_SECRET,
     } as const;
 
     expectInvalid(
@@ -251,6 +276,36 @@ describe("checkout server environment", () => {
         DEMO_MERCHANT_URL: "http://merchant.fitora.example",
       },
       "merchantUrl",
+    );
+  });
+
+  it("rejects live keys and production Prava origins in the sandbox-only application mode", () => {
+    const liveSecret = ["sk", "live", "unit-test-placeholder"].join(
+      "_",
+    );
+    const base = {
+      NODE_ENV: "production",
+      PAYMENT_PROVIDER: "prava",
+      NEXT_PUBLIC_APP_URL: "https://fitora.example",
+      CHECKOUT_SIGNING_SECRET: STRONG_SIGNING_SECRET,
+      DEMO_MERCHANT_URL: "https://merchant.fitora.example",
+    } as const;
+
+    expectInvalid(
+      {
+        ...base,
+        PRAVA_SECRET_KEY: liveSecret,
+      },
+      "pravaSecretKey",
+    );
+    expectInvalid(
+      {
+        ...base,
+        PRAVA_SECRET_KEY: PRAVA_TEST_SECRET,
+        PRAVA_BASE_URL: "https://api.prava.space",
+        PRAVA_HOSTED_CHECKOUT_ORIGIN: "https://collect.prava.space",
+      },
+      "pravaBaseUrl",
     );
   });
 

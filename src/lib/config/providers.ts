@@ -1,3 +1,5 @@
+import { parseServerEnvironment } from "@/lib/config/env";
+
 export const AI_PROVIDERS = ["rules", "gemini", "ollama"] as const;
 export const PAYMENT_PROVIDERS = ["mock", "prava"] as const;
 
@@ -10,6 +12,10 @@ export type ProviderModes = {
   ai: AiProvider;
   payment: PaymentProvider;
 };
+
+type ProviderEnvironment = Readonly<
+  Record<string, string | undefined>
+>;
 
 export function safeAiProvider(value = process.env.AI_PROVIDER): AiProvider {
   const candidate = value ?? "rules";
@@ -31,10 +37,21 @@ export function safePaymentProvider(
     : "invalid";
 }
 
-export function getProviderModes(): ProviderModes {
+/**
+ * Returns a public, secret-free projection of provider readiness. Payment
+ * mode is valid only when the complete server checkout environment parses;
+ * allowlisting PAYMENT_PROVIDER alone is not enough to claim readiness.
+ */
+export function getProviderModes(
+  source: ProviderEnvironment = process.env,
+): ProviderModes {
+  const paymentEnvironment = parseServerEnvironment(source);
+
   return {
-    ai: safeAiProvider(),
-    payment: safePaymentProvider(),
+    ai: safeAiProvider(source.AI_PROVIDER),
+    payment: paymentEnvironment.success
+      ? paymentEnvironment.config.paymentProvider
+      : "invalid",
   };
 }
 

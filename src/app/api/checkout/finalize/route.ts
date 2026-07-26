@@ -37,6 +37,7 @@ type FinalizeErrorCode =
   | "CHECKOUT_PRICE_CHANGED"
   | "CHECKOUT_ORDER_UNAVAILABLE"
   | "CHECKOUT_CONFIGURATION_INVALID"
+  | "PAYMENT_FINALIZE_NOT_ALLOWED"
   | "PAYMENT_PROVIDER_UNAVAILABLE"
   | "PAYMENT_FINALIZE_FAILED"
   | CheckoutRequestGuardErrorCode;
@@ -167,6 +168,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (environment.paymentProvider !== "mock") {
+    return errorResponse(
+      409,
+      "PAYMENT_FINALIZE_NOT_ALLOWED",
+      "Real hosted payments are finalized only after the provider callback.",
+    );
+  }
+
   let body: unknown;
 
   try {
@@ -248,6 +257,7 @@ export async function POST(request: NextRequest) {
 
   const resolution = resolvePaymentProvider({
     provider: environment.paymentProvider,
+    serverEnvironment: environment,
     appUrl: environment.appUrl,
     forceMerchantDecline: environment.merchant.forceDecline,
   });

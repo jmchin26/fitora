@@ -13,6 +13,17 @@ import {
 
 const originalAiProvider = process.env.AI_PROVIDER;
 const originalPaymentProvider = process.env.PAYMENT_PROVIDER;
+const STRONG_SIGNING_SECRET =
+  "provider-readiness-unit-test-signing-secret-123456";
+const PRAVA_TEST_SECRET = ["sk", "test", "unit-test-placeholder"].join(
+  "_",
+);
+const VALID_PRODUCTION_PAYMENT_ENVIRONMENT = {
+  NODE_ENV: "production",
+  NEXT_PUBLIC_APP_URL: "https://fitora.example",
+  DEMO_MERCHANT_URL: "https://merchant.fitora.example",
+  CHECKOUT_SIGNING_SECRET: STRONG_SIGNING_SECRET,
+} as const;
 
 function restoreEnvironmentVariable(
   key: "AI_PROVIDER" | "PAYMENT_PROVIDER",
@@ -38,6 +49,10 @@ describe("provider configuration", () => {
 
     expect(safeAiProvider()).toBe("rules");
     expect(safePaymentProvider()).toBe("mock");
+    expect(getProviderModes({ NODE_ENV: "test" })).toEqual({
+      ai: "rules",
+      payment: "mock",
+    });
   });
 
   it.each(AI_PROVIDERS)("accepts the supported AI provider %s", (provider) => {
@@ -66,18 +81,70 @@ describe("provider configuration", () => {
   );
 
   it("resolves configured environment modes without silently falling back", () => {
-    process.env.AI_PROVIDER = "ollama";
-    process.env.PAYMENT_PROVIDER = "prava";
+    expect(
+      getProviderModes({
+        ...VALID_PRODUCTION_PAYMENT_ENVIRONMENT,
+        AI_PROVIDER: "ollama",
+        PAYMENT_PROVIDER: "prava",
+        PRAVA_SECRET_KEY: PRAVA_TEST_SECRET,
+      }),
+    ).toEqual({ ai: "ollama", payment: "prava" });
 
-    expect(getProviderModes()).toEqual({ ai: "ollama", payment: "prava" });
-
-    process.env.AI_PROVIDER = "unsupported-ai";
-    process.env.PAYMENT_PROVIDER = "unsupported-payment";
-
-    expect(getProviderModes()).toEqual({
+    expect(
+      getProviderModes({
+        NODE_ENV: "test",
+        AI_PROVIDER: "unsupported-ai",
+        PAYMENT_PROVIDER: "unsupported-payment",
+      }),
+    ).toEqual({
       ai: "invalid",
       payment: "invalid",
     });
+  });
+
+  it.each([
+    [
+      "Prava without its server secret",
+      {
+        ...VALID_PRODUCTION_PAYMENT_ENVIRONMENT,
+        PAYMENT_PROVIDER: "prava",
+      },
+    ],
+    [
+      "Prava with an insecure application origin",
+      {
+        ...VALID_PRODUCTION_PAYMENT_ENVIRONMENT,
+        PAYMENT_PROVIDER: "prava",
+        PRAVA_SECRET_KEY: PRAVA_TEST_SECRET,
+        NEXT_PUBLIC_APP_URL: "http://fitora.example",
+      },
+    ],
+    [
+      "Prava with an insecure merchant origin",
+      {
+        ...VALID_PRODUCTION_PAYMENT_ENVIRONMENT,
+        PAYMENT_PROVIDER: "prava",
+        PRAVA_SECRET_KEY: PRAVA_TEST_SECRET,
+        DEMO_MERCHANT_URL: "http://merchant.fitora.example",
+      },
+    ],
+    [
+      "production mock without a signing secret",
+      {
+        NODE_ENV: "production",
+        PAYMENT_PROVIDER: "mock",
+        NEXT_PUBLIC_APP_URL: "https://fitora.example",
+        DEMO_MERCHANT_URL: "https://merchant.fitora.example",
+      },
+    ],
+  ] as const)("marks payment invalid for %s", (_name, environment) => {
+    const modes = getProviderModes(environment);
+
+    expect(modes).toEqual({ ai: "rules", payment: "invalid" });
+    expect(providerModeLabels(modes)).toEqual([
+      "Rules fallback",
+      "Invalid payment configuration",
+    ]);
   });
 });
 

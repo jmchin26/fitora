@@ -23,6 +23,7 @@ export type CheckoutResultViewModel = {
   currency?: "USD";
   completedAt?: string;
   itemCount?: number;
+  retryUrl?: string;
 };
 
 type CheckoutResultProps = {
@@ -124,9 +125,18 @@ function formatCompletedAt(value: string): string | null {
 
 export function CheckoutResult({ result }: CheckoutResultProps) {
   const content = RESULT_CONTENT[result.status];
+  const isPravaStatusCheck =
+    result.provider === "prava" &&
+    (result.status === "pending" ||
+      result.status === "reconciliation_required");
   const primaryAction =
     result.status === "awaiting_payment" && result.provider === "mock"
       ? { href: "/checkout/mock", label: "Return to mock payment" }
+      : isPravaStatusCheck
+        ? {
+            href: result.retryUrl ?? "/checkout/callback",
+            label: "Check with Prava again",
+          }
       : content.primary;
   const completedAt = result.completedAt
     ? formatCompletedAt(result.completedAt)
@@ -230,6 +240,7 @@ export function CheckoutResult({ result }: CheckoutResultProps) {
           <Link
             className="flex min-h-12 items-center justify-center bg-[var(--ink)] px-5 py-3 text-center font-bold text-white no-underline transition-colors hover:bg-[var(--sage-dark)]"
             href={primaryAction.href}
+            prefetch={isPravaStatusCheck ? false : undefined}
           >
             {primaryAction.label}
           </Link>

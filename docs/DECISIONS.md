@@ -130,8 +130,8 @@
 
 - Date: 2026-07-26
 - Status: Accepted
-- Decision: Issue distinct HMAC-signed review, payment-session, and terminal-result claims. Transport them only in bounded HTTP-only, SameSite=Lax, Path=/ cookies, add `Secure` in production, bind session state to the reviewed checkout JTI, and rehydrate the canonical order from the server catalogue at every commerce transition.
-- Reason: A browser must bridge redirects without becoming an authority for product, stock, price, merchant, total, provider session, or result facts. Separate strict claims limit scope and lifetime while repeated rehydration detects catalogue changes and tampering.
+- Decision: Issue distinct HMAC-signed review, payment-session, and terminal-result claims. Transport them only in bounded HTTP-only, SameSite=Lax, Path=/ cookies, add `Secure` in production, and isolate each Prava form with a fresh lowercase RFC UUID used in its cookie names and callback path. Bind payment state to both that attempt ID and the reviewed checkout JTI, and include the canonical order snapshot in the signed payment-session claim. Rehydrate the current catalogue at commerce transitions, but retain the signed snapshot as the callback authority when the catalogue later drifts.
+- Reason: A browser must bridge redirects without becoming an authority for product, stock, price, merchant, total, provider session, or result facts. Per-form signed binding prevents tabs from selecting each other's state. The signed snapshot lets a legitimate provider callback be safely declined and reported even when the mutable catalogue no longer matches it.
 
 ## D-020 — Create hosted sessions only after visible review and explicit approval
 
@@ -144,15 +144,15 @@
 
 - Date: 2026-07-26
 - Status: Accepted
-- Decision: Keep create-session and finalize behavior behind one typed provider interface with schema-validated inputs and outputs. `mock` is implemented and ready; `prava` remains an explicit `NOT_IMPLEMENTED` unavailable state until Phase 5. A selected but unavailable Prava provider must never fall back to mock.
-- Reason: A common boundary allows the full transaction architecture to be proven locally without misrepresenting external integration status or allowing malformed provider data into checkout state.
+- Decision: Keep create-session behavior behind one typed provider interface with schema-validated inputs and outputs. `mock` and `prava` are implemented as distinct providers, while real Prava finalization is callback-only and cannot be invoked through the browser-controlled mock finalize endpoint. An invalid or unavailable Prava configuration must never fall back to mock.
+- Reason: A common creation boundary preserves explicit provider selection, while a separate callback finalization boundary prevents a browser decision from controlling a real provider outcome.
 
 ## D-022 — Make terminal finalization retry-safe within the cookie-only MVP boundary
 
 - Date: 2026-07-26
 - Status: Accepted
-- Decision: Before invoking a provider or merchant during finalization, accept an already valid signed terminal result only when no review/session cookies indicate a newer checkout. On first terminal completion, issue a one-hour sanitized result cookie and clear transient review/session cookies. A real provider-pending response issues a separate short-lived marker bound to both checkout JTI and payment-attempt JTI; a merely created session remains `awaiting_payment`. Do not claim global replay protection across copied cookies, browsers, concurrent requests, lost responses, or independent server instances without shared storage/provider idempotency.
-- Reason: This prevents ordinary double-click, retry, and refresh duplication while preserving the no-database MVP constraint. The limitation is explicit so cookie-local idempotency is not mistaken for a durable distributed transaction ledger.
+- Decision: Before invoking a provider or merchant during finalization, accept an already valid signed terminal result only when no review/session cookies indicate a newer checkout. On first terminal completion, issue a one-hour sanitized result cookie and clear transient review/session cookies. A real provider-pending response issues a separate short-lived marker bound to checkout and payment-attempt JTIs; a merely created session remains `awaiting_payment`. Side-effecting Prava creation uses a 10-second server timeout; the browser waits 15 seconds, then locks an ambiguous form attempt. A same-process uncertain tombstone prevents automatic duplication until expiry. Do not claim global replay protection across copied cookies, browsers, lost responses, or independent server instances without shared storage/provider idempotency.
+- Reason: This prevents ordinary double-click, retry, refresh, and delayed-response duplication while preserving the no-database MVP constraint. The longer browser boundary gives the server a chance to return an authoritative failure, while the locked UI and tombstone treat an unknown create outcome conservatively. The limitation is explicit so local idempotency is not mistaken for a durable distributed transaction ledger.
 
 ## D-023 — Persist only a bounded sanitized terminal history
 
@@ -165,5 +165,40 @@
 
 - Date: 2026-07-26
 - Status: Accepted
-- Decision: Every checkout POST must use JSON and any supplied browser Origin must exactly match the configured Fitora origin; production also rejects an omitted Origin. Production and Prava configurations require HTTPS app and merchant origins. Mock hosted navigation is same-origin only, while Prava navigation must match the exact configured HTTPS Prava origin until the live provider contract establishes any separate documented hosted origin.
+- Decision: Every checkout POST must use JSON and any supplied browser Origin must exactly match the configured Fitora origin; production also rejects an omitted Origin. Production and Prava configurations require HTTPS app and merchant origins. Mock hosted navigation is same-origin only. The Fitora application permits Prava only with the exact official sandbox API and hosted-checkout origins plus an `sk_test_*` key. Production-origin and `sk_live_*` constants remain isolated low-level client capability and are not accepted by application configuration.
 - Reason: SameSite cookies are site-scoped rather than origin-scoped. Explicit media-type/origin checks block sibling-subdomain mutation attempts, and exact redirect pinning prevents a provider-output error from becoming an open redirect.
+
+## D-025 — Follow the current Prava Hosted Checkout REST lifecycle
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Create a Prava session only after explicit checkout approval using `integration_type: "full_checkout"`, canonical USD decimal totals, server-rehydrated merchant/product facts, and an attempt-scoped HTTPS callback at `/checkout/callback/<lowercase-RFC-attempt-UUID>`. Construct the hosted redirect from the returned `iframe_url` and set its `session_token` query parameter. After the callback, poll the payment result and report the demo merchant outcome as exactly `APPROVED` or `DECLINED` whenever one canonical transaction can be safely identified.
+- Reason: This matches the current official [create-session](https://docs.prava.space/api-reference/create-session), [hosted integration](https://docs.prava.space/sdk/integration-modes), [payment-result](https://docs.prava.space/api-reference/get-payment-result), and [report-status](https://docs.prava.space/api-reference/report-status) contracts while keeping sessions short-lived and provider facts schema-validated.
+
+## D-026 — Treat browser callback data as a signal, never payment truth
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Ignore every callback query parameter. Require the lowercase RFC attempt UUID in the callback path, bind it to the signed payment-session claim, and fail closed on the bare `/checkout/callback` route or any invalid/mismatched locator. Resolve payment state from attempt-scoped HMAC cookies, then obtain status server-to-server. Derive Prava `user_id` from a domain-separated HMAC of normalized email rather than using email itself as the externally visible identifier.
+- Reason: The documented callback does not provide a browser value that Fitora can safely treat as authenticated payment state. The opaque path locator selects only a signed, matching cookie set; it grants no authority by itself. Signed binding plus provider polling prevents attacker-controlled query, status, token, session, or order data from authorizing merchant execution.
+
+## D-027 — Keep Prava credentials transient and make retries resumable
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Parse one-time token, dynamic CVV, expiry, transaction reference, and product context into a narrow server-only credential object; pass it directly to the demo merchant adapter; and never log, stringify for diagnostics, persist, return, or expose it to a client component. Before merchant execution, check current Prava state and compare provider context with the signed canonical order snapshot. Catalogue drift disables merchant execution and produces a safe `DECLINED` report. A unique canonical merchant/amount/product mismatch also declines and reports; ambiguous multi-transaction or multi-line context enters reconciliation because no transaction reference can be safely selected. Use signed progress/reconciliation markers and in-process promise coalescing so callback retries can resume reporting without intentionally executing the merchant again.
+- Reason: Prava credentials are ultra-sensitive, while reporting may fail after merchant execution. Fail-closed context handling prevents incorrect merchant execution without inventing a transaction reference. A signed expected outcome supports safe local retry progress without inventing a durable distributed transaction ledger; cross-instance and lost-cookie guarantees still require shared storage or provider idempotency and are not claimed.
+
+## D-028 — Preserve the truthful Phase 6 placeholder asset set
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Retain the 30 project-authored, project-owned, brand-neutral 640×800 SVG placeholders and their strict manifest until a generated or clearly licensed final image pack is actually supplied and verified.
+- Reason: Replacing assets without source, license, dimensions, and exact product mapping would create unsupported provenance claims. The manifest-backed placeholders remain a complete, safe fallback rather than being misrepresented as photography.
+
+## D-029 — Bound Prava session creation at browser, cookie, process, and deployment layers
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Use a 20-minute cooperative browser lease to serialize tabs and a one-hour HTTP-only random UUID to scope server reservations to one browser without storing customer data. Before creating a session, enumerate attempt-scoped cookies, prune invalid, expired, orphaned, and terminal sets, and atomically union valid active IDs with outstanding reservations across reviews; reject any addition beyond three. Also limit one signed review to three distinct attempts and apply a separate best-effort production client threshold of 20 attempts per 10 minutes. Before public Vercel deployment, require a WAF rule on `POST /api/checkout/create-session`, initially 20 requests per 10 minutes per source IP and adjustable downward after observing demo traffic.
+- Reason: Root-scoped signed cookies are large enough that unbounded attempts could exhaust request headers, while concurrent tabs and distinct reviews can race before new cookies arrive. The opaque browser scope closes that same-process aggregate race but grants no payment authority. The WAF is still authoritative across independent serverless instances because application memory and browser cooperation cannot provide a distributed rate limit.

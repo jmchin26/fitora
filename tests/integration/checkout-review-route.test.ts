@@ -1,3 +1,4 @@
+import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { POST } from "@/app/api/checkout/review/route";
@@ -5,9 +6,15 @@ import {
   CheckoutApiErrorSchema,
   CheckoutReviewStartedSchema,
 } from "@/lib/checkout/api-contracts";
-import { CHECKOUT_COOKIE_NAMES } from "@/lib/checkout/cookies";
+import {
+  CHECKOUT_BROWSER_ID_COOKIE_NAME,
+  CHECKOUT_COOKIE_NAMES,
+  checkoutAttemptCookieName,
+} from "@/lib/checkout/cookies";
 import { verifyCheckoutOrder } from "@/lib/checkout/order";
-import { verifyCheckoutTokenForOrder } from "@/lib/checkout/token";
+import {
+  verifyCheckoutTokenForOrder,
+} from "@/lib/checkout/token";
 
 const TEST_SIGNING_SECRET =
   "fitora-checkout-review-route-test-signing-secret";
@@ -33,32 +40,36 @@ type JsonRequestOptions = {
   requestOrigin?: string;
   originHeader?: string;
   contentType?: string | null;
+  cookieHeader?: string;
 };
 
 function jsonRequest(
   body: unknown,
   options: JsonRequestOptions = {},
-): Request {
+): NextRequest {
   const requestOrigin = options.requestOrigin ?? "http://localhost:3000";
   const contentType =
     options.contentType === undefined
       ? "application/json"
       : options.contentType;
 
-  return new Request(`${requestOrigin}/api/checkout/review`, {
+  return new NextRequest(`${requestOrigin}/api/checkout/review`, {
     method: "POST",
     headers: {
       ...(contentType ? { "Content-Type": contentType } : {}),
       ...(options.originHeader
         ? { Origin: options.originHeader }
         : {}),
+      ...(options.cookieHeader
+        ? { Cookie: options.cookieHeader }
+        : {}),
     },
     body: JSON.stringify(body),
   });
 }
 
-function malformedJsonRequest(): Request {
-  return new Request("http://localhost/api/checkout/review", {
+function malformedJsonRequest(): NextRequest {
+  return new NextRequest("http://localhost/api/checkout/review", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -90,12 +101,18 @@ describe("POST /api/checkout/review", () => {
     const reviewCookie = response.cookies.get(
       CHECKOUT_COOKIE_NAMES.review,
     );
+    const browserCookie = response.cookies.get(
+      CHECKOUT_BROWSER_ID_COOKIE_NAME,
+    );
     const verifiedOrder = verifyCheckoutOrder(validRequestBody);
 
     expect(response.status).toBe(200);
     expect(parsed.success).toBe(true);
     expectNoStore(response);
     expect(reviewCookie?.value).toBeTruthy();
+    expect(browserCookie?.value).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+    );
     expect(
       response.cookies.get(CHECKOUT_COOKIE_NAMES.session),
     ).toMatchObject({ value: "" });
@@ -117,12 +134,27 @@ describe("POST /api/checkout/review", () => {
 
     const setCookie = response.headers.get("Set-Cookie") ?? "";
     expect(setCookie).toContain(`${CHECKOUT_COOKIE_NAMES.review}=`);
+    expect(setCookie).toContain(`${CHECKOUT_BROWSER_ID_COOKIE_NAME}=`);
     expect(setCookie).toContain(`${CHECKOUT_COOKIE_NAMES.session}=`);
     expect(setCookie).toContain(`${CHECKOUT_COOKIE_NAMES.result}=`);
     expect(setCookie).toContain("HttpOnly");
     expect(setCookie).toContain("SameSite=lax");
     expect(setCookie).toContain("Path=/");
     expect(setCookie).toContain("Max-Age=0");
+  });
+
+  it("preserves an existing opaque browser scope across fresh reviews", async () => {
+    const browserId = "f0000000-0000-4000-8000-00000000000f";
+    const response = await POST(
+      jsonRequest(validRequestBody, {
+        cookieHeader: `${CHECKOUT_BROWSER_ID_COOKIE_NAME}=${browserId}`,
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(
+      response.cookies.get(CHECKOUT_BROWSER_ID_COOKIE_NAME),
+    ).toMatchObject({ value: browserId });
   });
 
   it("sets Secure on checkout cookies in production", async () => {
@@ -139,6 +171,39 @@ describe("POST /api/checkout/review", () => {
 
     expect(response.status).toBe(200);
     expect(setCookie).toContain("Secure");
+    expectNoStore(response);
+  });
+
+  it("creates a new review without overwriting another Prava attempt's scoped cookies", async () => {
+    vi.stubEnv("PAYMENT_PROVIDER", "prava");
+    vi.stubEnv(
+      "PRAVA_SECRET_KEY",
+      ["sk", "test", "review-active-placeholder"].join("_"),
+    );
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://fitora.example");
+    vi.stubEnv("DEMO_MERCHANT_URL", "https://merchant.fitora.example");
+    const attemptId = "a0000000-0000-4000-8000-00000000000a";
+    const attemptReviewName = checkoutAttemptCookieName(
+      "review",
+      attemptId,
+    );
+    const attemptSessionName = checkoutAttemptCookieName(
+      "session",
+      attemptId,
+    );
+    const response = await POST(
+      jsonRequest(validRequestBody, {
+        requestOrigin: "https://fitora.example",
+        originHeader: "https://fitora.example",
+        cookieHeader: `${attemptReviewName}=signed-attempt-review; ${attemptSessionName}=signed-attempt-session`,
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    const setCookie = response.headers.get("Set-Cookie") ?? "";
+    expect(setCookie).toContain(`${CHECKOUT_COOKIE_NAMES.review}=`);
+    expect(setCookie).not.toContain(attemptReviewName);
+    expect(setCookie).not.toContain(attemptSessionName);
     expectNoStore(response);
   });
 
