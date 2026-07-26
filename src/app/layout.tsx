@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     template: "%s · Fitora",
   },
   description:
-    "Build a complete, catalogue-verified outfit for the moment, then approve a secure sandbox checkout.",
+    "Build a complete, catalogue-verified outfit for the moment, then review any demo checkout before continuing.",
 };
 
 export default function RootLayout({
@@ -18,8 +18,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <a className="skip-link" href="#main-content">
+          Skip to content
+        </a>
+        {children}
+      </body>
     </html>
   );
 }
-

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800">
+  <rect width="640" height="800" fill="#F4EFE5"/>
+  <circle cx="500" cy="178" r="120" fill="#20211F" opacity=".18"/>
+  <path d="M0 660Q160 622 320 660T640 638V800H0Z" fill="#76513F" opacity=".10"/>
+  <text x="56" y="76" fill="#252925" font-family="sans-serif" font-size="18" font-weight="700" letter-spacing="4">SHOES · 02</text>
+  <text x="584" y="76" text-anchor="end" fill="#252925" font-family="sans-serif" font-size="15" letter-spacing="2">FITORA EDIT</text>
+  <g stroke-linejoin="round">
+    <ellipse cx="322" cy="550" rx="190" ry="28" fill="#252925" opacity=".12"/>
+    <path d="M138 404Q196 394 249 328L341 396Q378 420 416 432L464 448Q488 458 494 491L486 526Q346 558 150 525Q126 516 128 482Z" fill="#76513F" stroke="#252925" stroke-width="8"/>
+    <path d="M133 490Q322 532 494 486L486 526Q342 560 146 526Q126 518 128 495Z" fill="#20211F" stroke="#252925" stroke-width="6"/>
+    <path d="M246 381Q292 417 337 440" fill="none" stroke="#20211F" stroke-width="13" stroke-linecap="round"/>
+    <path d="M211 466Q269 485 335 477" fill="none" stroke="#252925" stroke-width="6" opacity=".55"/>
+    <path d="M194 531Q190 566 220 575H350Q376 573 392 546" fill="none" stroke="#252925" stroke-width="8" opacity=".72"/>
+  </g>
+  <line x1="56" y1="646" x2="584" y2="646" stroke="#252925" stroke-width="2" opacity=".25"/>
+  <text x="56" y="698" fill="#252925" font-family="serif" font-size="29" font-weight="700"><tspan x="56" dy="0">Plain-Toe Loafers</tspan></text>
+  <text x="56" y="742" fill="#252925" font-family="sans-serif" font-size="15" letter-spacing="2">BROWN / BLACK</text>
+</svg>
+

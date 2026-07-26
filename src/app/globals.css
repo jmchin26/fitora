@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 :root {
+  color-scheme: light;
   --canvas: #f3efe7;
   --surface: #fbf9f4;
   --ink: #20231e;
@@ -35,72 +36,54 @@ a {
   color: inherit;
 }
 
+button,
+input,
+select,
+textarea {
+  color: inherit;
+  font: inherit;
+}
+
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  background: #cbd3c4;
+  color: var(--ink);
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 100;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.65rem 0.9rem;
+  transform: translateY(-200%);
+  border: 1px solid var(--sage-dark);
+  background: var(--surface);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
 :focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 4px;
-}
-
-.baseline-shell {
-  display: grid;
-  min-height: 100dvh;
-  place-content: center;
-  justify-items: start;
-  padding: clamp(1.5rem, 6vw, 6rem);
-}
-
-.baseline-kicker,
-.baseline-status {
-  color: var(--muted-ink);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.baseline-shell h1 {
-  margin: 0.75rem 0 0;
-  font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
-  font-size: clamp(4rem, 16vw, 10rem);
-  font-weight: 500;
-  letter-spacing: -0.07em;
-  line-height: 0.86;
-}
-
-.baseline-tagline {
-  margin: 1.75rem 0 0;
-  font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
-  line-height: 1.1;
-}
-
-.baseline-copy {
-  max-width: 42rem;
-  margin: 1.5rem 0 0;
-  color: var(--muted-ink);
-}
-
-.baseline-action {
-  display: inline-flex;
-  min-height: 3rem;
-  align-items: center;
-  justify-content: center;
-  margin-top: 2rem;
-  padding: 0.75rem 1.25rem;
-  border: 1px solid var(--sage-dark);
-  background: var(--sage-dark);
-  color: #fff;
-  font-weight: 700;
-  text-decoration: none;
-  transition: background-color 180ms ease-out, color 180ms ease-out;
-}
-
-.baseline-action:hover {
-  background: transparent;
-  color: var(--sage-dark);
-}
-
-.baseline-status {
-  margin: 2.5rem 0 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -113,4 +96,3 @@ a {
     animation-iteration-count: 1 !important;
   }
 }
-

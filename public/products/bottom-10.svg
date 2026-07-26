@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800">
+  <rect width="640" height="800" fill="#F4EFE5"/>
+  <circle cx="500" cy="178" r="136" fill="#263449" opacity=".18"/>
+  <path d="M0 660Q160 630 320 660T640 630V800H0Z" fill="#20211F" opacity=".10"/>
+  <text x="56" y="76" fill="#252925" font-family="sans-serif" font-size="18" font-weight="700" letter-spacing="4">BOTTOM · 10</text>
+  <text x="584" y="76" text-anchor="end" fill="#252925" font-family="sans-serif" font-size="15" letter-spacing="2">FITORA EDIT</text>
+  <g stroke-linejoin="round">
+    <path d="M218 247Q320 224 422 247L405 360L390 579L324 579L320 389L316 579L250 579L235 360Z" fill="#20211F" stroke="#252925" stroke-width="8"/>
+    <path d="M218 247Q320 272 422 247L416 296Q320 318 224 296Z" fill="#263449" opacity=".72" stroke="#252925" stroke-width="6"/>
+    <path d="M286 284L274 502M354 284L366 502" stroke="#252925" stroke-width="5" opacity=".35"/>
+    <path d="M250 579H316M324 579H390" stroke="#252925" stroke-width="10" stroke-linecap="round"/>
+  </g>
+  <line x1="56" y1="646" x2="584" y2="646" stroke="#252925" stroke-width="2" opacity=".25"/>
+  <text x="56" y="698" fill="#252925" font-family="serif" font-size="29" font-weight="700"><tspan x="56" dy="0">Structured Wide</tspan><tspan x="56" dy="34">Trousers</tspan></text>
+  <text x="56" y="764" fill="#252925" font-family="sans-serif" font-size="15" letter-spacing="2">BLACK / NAVY</text>
+</svg>
+

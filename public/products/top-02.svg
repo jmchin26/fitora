@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800">
+  <rect width="640" height="800" fill="#F4EFE5"/>
+  <circle cx="500" cy="178" r="120" fill="#E8DDC8" opacity=".18"/>
+  <path d="M0 660Q160 622 320 660T640 638V800H0Z" fill="#263449" opacity=".10"/>
+  <text x="56" y="76" fill="#252925" font-family="sans-serif" font-size="18" font-weight="700" letter-spacing="4">TOP · 02</text>
+  <text x="584" y="76" text-anchor="end" fill="#252925" font-family="sans-serif" font-size="15" letter-spacing="2">FITORA EDIT</text>
+  <g stroke-linejoin="round">
+    <path d="M236 244L282 216Q320 238 358 216L404 244L500 335L452 406L405 366L424 566Q320 602 216 566L235 366L188 406L140 335Z" fill="#263449" stroke="#252925" stroke-width="8"/>
+    <path d="M282 216L320 290L358 216" fill="#E8DDC8" opacity=".75" stroke="#252925" stroke-width="6"/>
+    <path d="M320 295V520" stroke="#252925" stroke-width="5" opacity=".55"/><circle cx="320" cy="342" r="5" fill="#252925"/><circle cx="320" cy="402" r="5" fill="#252925"/><circle cx="320" cy="462" r="5" fill="#252925"/>
+    <path d="M225 544Q320 570 415 544" fill="none" stroke="#252925" stroke-width="5" opacity=".45"/>
+  </g>
+  <line x1="56" y1="646" x2="584" y2="646" stroke="#252925" stroke-width="2" opacity=".25"/>
+  <text x="56" y="698" fill="#252925" font-family="serif" font-size="29" font-weight="700"><tspan x="56" dy="0">Harbor Knit Polo</tspan></text>
+  <text x="56" y="742" fill="#252925" font-family="sans-serif" font-size="15" letter-spacing="2">NAVY / CREAM</text>
+</svg>
+

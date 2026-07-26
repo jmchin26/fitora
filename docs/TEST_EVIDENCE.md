@@ -55,3 +55,34 @@ Date: 2026-07-26 (Asia/Kuala_Lumpur)
 | `git diff --check` | Pass | No whitespace errors detected before the milestone commit |
 
 Phase 1 exit criteria are satisfied: catalogue facts are typed and immutable, recommendations are deterministic and budget-safe, untrusted selections are canonically rehydrated, route contracts are tested, and the complete quality gate passes.
+
+## Phase 2 — Editorial preference and outfit experience
+
+Date: 2026-07-26 (Asia/Kuala_Lumpur)
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Landing journey | Pass | Exact Fitora tagline, primary build action, three required journey steps, fixed-local-catalogue wording, and active provider disclosures are rendered |
+| Preference validation | Pass | Occasion, USD budget, separate top/bottom sizes, EU shoe size, style, preferred colours, and excluded colours have labelled controls and precise recovery errors |
+| Result contract | Pass | Client validates one to three unique `OutfitSchema` results and rejects duplicate IDs/combinations, malformed totals, malformed payloads, and non-contract errors |
+| Outfit presentation | Pass | Each card shows three meaningful local images, product names, requested sizes, stock, prices, verified total, budget remaining, explanation, and score breakdown |
+| Selection state | Pass | A native radio group keeps one selection; stale requests/results cannot overwrite current preferences or remain selectable |
+| Safe persistence | Pass | Only validated preferences and product IDs/sizes are stored; corrupt/unavailable storage degrades to a truthful session-only state under React Strict Mode |
+| Provider truthfulness | Pass | Rules/Gemini/Ollama and Mock/Prava labels resolve from validated server configuration; invalid values are explicitly labelled |
+| Product assets | Pass | Exactly 30 4:5 project-authored SVG placeholders exist, all catalogue paths and manifest entries match, and automated checks reject scripts/external/data URLs |
+| Responsive keyboard journey | Pass | Playwright verifies landing-to-results-to-selection, low-budget recovery, real skip-link focus, keyboard selection, and no horizontal overflow at 375 px |
+| Browser errors | Pass | No page exceptions or unexpected console errors; the known 422 network message for an intentionally impossible budget is explicitly distinguished |
+
+## Phase 2 quality gates
+
+| Command or check | Result | Evidence |
+| --- | --- | --- |
+| `npm run lint` | Pass | ESLint completed with no findings |
+| `npm run typecheck` | Pass | TypeScript strict no-emit check completed |
+| `npm test` | Pass | Vitest 4.1.10: 14 files and 88 tests passed |
+| `npm run build` | Pass | Next.js 16.2.12 production build compiled all pages and dynamic routes |
+| `npm run test:e2e` | Pass | Playwright 1.61.1: 4 desktop/mobile cases passed; direct runner cleaned up its Windows server process |
+| In-app browser structure | Pass | Landing and build pages expose the expected semantic headings, labels, provider modes, simulated-inventory disclosures, and navigation |
+| `git diff --check` | Pass | No whitespace errors detected before the milestone commit |
+
+Phase 2 exit criteria are satisfied: the journey works at mobile and desktop widths, keyboard and form validation paths pass, no unexpected browser errors remain, persistence is non-sensitive and failure-safe, and all quality gates are green.

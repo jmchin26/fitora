@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800">
+  <rect width="640" height="800" fill="#F4EFE5"/>
+  <circle cx="130" cy="178" r="122" fill="#888782" opacity=".18"/>
+  <path d="M0 660Q160 623 320 660T640 637V800H0Z" fill="#F8F6F0" opacity=".10"/>
+  <text x="56" y="76" fill="#252925" font-family="sans-serif" font-size="18" font-weight="700" letter-spacing="4">SHOES · 03</text>
+  <text x="584" y="76" text-anchor="end" fill="#252925" font-family="sans-serif" font-size="15" letter-spacing="2">FITORA EDIT</text>
+  <g stroke-linejoin="round">
+    <ellipse cx="322" cy="550" rx="190" ry="28" fill="#252925" opacity=".12"/>
+    <path d="M142 415Q208 391 253 341L330 389Q377 430 445 444Q486 451 500 485L491 527Q342 560 146 526Q122 512 126 478Z" fill="#F8F6F0" stroke="#252925" stroke-width="8"/>
+    <path d="M133 490Q322 532 494 486L486 526Q342 560 146 526Q126 518 128 495Z" fill="#888782" stroke="#252925" stroke-width="6"/>
+    <path d="M259 365L328 418M240 386L306 438M222 406L283 453" stroke="#888782" stroke-width="12" stroke-linecap="round"/>
+    <path d="M211 466Q269 485 335 477" fill="none" stroke="#252925" stroke-width="6" opacity=".55"/>
+    <path d="M194 531Q190 566 220 575H350Q376 573 392 546" fill="none" stroke="#252925" stroke-width="8" opacity=".72"/>
+  </g>
+  <line x1="56" y1="646" x2="584" y2="646" stroke="#252925" stroke-width="2" opacity=".25"/>
+  <text x="56" y="698" fill="#252925" font-family="serif" font-size="29" font-weight="700"><tspan x="56" dy="0">Minimal Court Sneakers</tspan></text>
+  <text x="56" y="742" fill="#252925" font-family="sans-serif" font-size="15" letter-spacing="2">WHITE / GREY</text>
+</svg>
+

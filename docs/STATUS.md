@@ -4,17 +4,17 @@ Last updated: 2026-07-26 (Asia/Kuala_Lumpur)
 
 ## Current state
 
-- Current phase: Phase 1 — typed catalogue and deterministic styling engine (complete); Phase 2 is next.
-- Latest milestone: `feat: add typed product catalogue and styling engine`.
+- Current phase: Phase 2 — editorial preference and outfit experience (complete); Phase 3 is next.
+- Latest milestone: `feat: build preference and outfit experience`.
 - Git branch: `main`.
-- Application state: Next.js 16.2.12 builds successfully and exposes validated health and outfit-generation APIs over the canonical 30-product catalogue.
+- Application state: the responsive landing/build journey generates one to three schema-verified outfits, presents full score and commerce facts, and safely persists only validated preferences plus product references.
 - Current AI provider: `rules` planned safe default.
 - Current payment provider: `mock` planned safe default.
 - Real Prava gate: not started.
 - Gemini gate: not started.
 - GitHub status: GitHub CLI is unavailable; no remote is configured.
 - Deployment status: not started; Vercel preparation is planned, but production deployment requires human approval.
-- Next automatic action: build the responsive guided input journey, recommendation cards, selection state, and browser-level tests.
+- Next automatic action: implement strict agent intents, deterministic revision tools, rules/Gemini/Ollama provider adapters, and the constrained revision panel.
 
 ## Environment audit
 
@@ -29,15 +29,16 @@ Last updated: 2026-07-26 (Asia/Kuala_Lumpur)
 | GitHub CLI | Not installed or not on `PATH` |
 | Port 3000 | Available at audit time |
 | Local Python | Not on `PATH`; Codex bundled Python is available for development tooling |
-| Browser tooling | Edge 150.0.4078.99, Chrome 150.0.7871.182, and Codex browser automation are available; project Playwright dependencies are not installed yet |
+| Browser tooling | Edge 150.0.4078.99, Chrome 150.0.7871.182, Codex browser automation, and the project Playwright runtime are available and verified |
 | Workspace permissions | Project files are writable; Git metadata writes require the approved Git permission boundary |
 
 ## Passing commands
 
 - `npm run lint`
 - `npm run typecheck`
-- `npm test` — 8 files and 40 tests passed
+- `npm test` — 14 files and 88 tests passed
 - `npm run build` — Next.js production build completed successfully, including `/api/health` and `/api/outfits/generate`
+- `npm run test:e2e` — 4 desktop/mobile browser journeys passed and the Windows runner exited cleanly
 - Local HTTP smoke check — `/` returned 200 and contained the Fitora and mode labels
 - In-app browser smoke check — title, primary heading, build action, and mock-mode disclosure were present
 - Environment inspection and execution-pack integrity checks completed
@@ -69,6 +70,13 @@ None. External accounts and credentials are intentionally deferred while local d
 - Added canonical server-side outfit rehydration so client-provided price, stock, category, and product facts are never trusted.
 - Added health and outfit-generation route handlers with structured error responses.
 - Passed the complete Phase 1 quality gate: lint, strict type-check, 40 tests, and production build.
+- Built a responsive editorial landing page and guided preference form with precise USD-to-cents validation.
+- Added loading, recoverable no-result, malformed-response, stale-request, and storage-unavailable states.
+- Added accessible outfit cards with local 4:5 product imagery, meaningful alt text, verified prices/sizes/stock/totals, score detail, and native single selection.
+- Added service-configured provider badges so the interface never hard-codes a stale AI or payment mode.
+- Added 30 project-authored placeholder SVGs and a complete source/license manifest.
+- Added component and Playwright coverage, including one/two/three-result contracts, 375 px overflow, skip-link focus, keyboard selection, and no unexpected browser errors.
+- Passed the complete Phase 2 quality gate: lint, strict type-check, 88 tests, production build, and 4 browser journeys.
 
 ### Blocked
 
@@ -80,4 +88,4 @@ None. External accounts and credentials are intentionally deferred while local d
 
 ### Future work
 
-- Phase 2 through Phase 8 remain pending.
+- Phase 3 through Phase 8 remain pending.
