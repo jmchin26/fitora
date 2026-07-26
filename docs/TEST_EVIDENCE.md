@@ -122,3 +122,40 @@ Date: 2026-07-26 (Asia/Kuala_Lumpur)
 | `npm run test:e2e` | Pass | Playwright 1.61.1: 6 desktop/mobile cases passed; the project-owned Windows server process exited cleanly |
 
 Phase 3 exit criteria are satisfied: model output remains an untrusted intent proposal, semantic evidence and canonical catalogue data bound every action, deterministic tools own every state change, fallback is visible and truthful, chat is not persisted, and checkout review remains non-transactional.
+
+## Phase 4 — Checkout review and provider abstraction
+
+Date: 2026-07-26 (Asia/Kuala_Lumpur)
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Checkout review boundary | Pass | The selected outfit is reduced to three product ID/size references; `/api/checkout/review` rejects extra commerce facts, rebuilds the order from the trusted catalogue, recomputes the USD total, and creates no payment session |
+| Repeated server authority | Pass | Review rendering, payment-session creation, and finalization each resolve signed state and rehydrate current catalogue product, category, merchant, size, stock, price, currency, and total facts; unknown, unavailable, changed, or forged orders fail closed |
+| Explicit user approval | Pass | The review page shows exactly three canonical items, selected sizes, line prices, demo merchant, and total. A validated email plus a separate visible confirmation checkbox and click are required before `/api/checkout/create-session` runs |
+| Signed checkout state | Pass | Strict HMAC claims cover review, provider session, and terminal result state. Tests reject malformed segments, invalid signatures, oversized tokens, invalid timestamps/lifetimes, future-issued state, expiry, order mismatches, and session-to-review binding mismatches |
+| Cookie policy | Pass | Review, session, and result tokens use separate HTTP-only, SameSite=Lax, Path=/ cookies with bounded maximum ages; `Secure` is enabled in production and terminal completion clears transient review/session cookies |
+| Configuration boundary | Pass | Mock development can use a conspicuous development-only signing fallback. Production and non-mock configurations require a server-only signing secret of at least 32 characters; malformed origins, merchant settings, provider values, and Prava prerequisites fail validation |
+| Provider abstraction | Pass | A typed provider contract validates create/finalize inputs and outputs. Mock resolves as ready; selecting Prava resolves to explicit `NOT_IMPLEMENTED` unavailability and never masquerades as or silently falls back to mock |
+| Mock hosted checkout | Pass | The separate `/checkout/mock` page persistently states “Mock payment mode — Prava credentials are not configured.”, exposes approve/decline simulation controls, and contains no card, CVV, expiry, OTP, Passkey, or credential input |
+| Demo merchant | Pass | The server-only adapter independently verifies the canonical order and provider-session context before producing a deterministic sanitized order reference or typed decline |
+| Retry-safe terminal result | Pass | `/api/checkout/finalize` returns an existing valid signed terminal result before any repeated provider or merchant invocation. Playwright confirms result refresh preserves the same order reference and does not issue a second finalize request |
+| Result state machine | Pass | Schema and UI coverage includes awaiting-payment, provider-confirmed pending, approved, declined, expired, reconciliation-required, and mock-success presentation. A created-but-unused session is not called pending; invalid signed-cookie combinations become reconciliation-required rather than false success |
+| Mutation request guard | Pass | Every checkout POST requires `application/json`; supplied Origin must exactly match the configured app origin, production requires Origin, and sibling-origin/text-plain attack tests fail before cookie or payment state mutation |
+| Redirect and HTTPS policy | Pass | Mock redirects collapse to same-origin `/checkout/mock`; future Prava redirects must match the exact configured HTTPS Prava origin, while production and every Prava configuration require HTTPS app and merchant origins |
+| Sanitized local history | Pass | Browser history accepts only a strict terminal summary containing provider, status, approved order reference when applicable, USD total, item count, and completion time; it deduplicates and caps history at five entries |
+| Sensitive-data exclusion | Pass | Tests and browser assertions verify that email, signed tokens, provider session IDs, raw product data, card terms, CVV, and expiry do not enter local history or the public result view |
+| Full mock journey | Pass | Desktop and mobile Playwright journeys cover preferences → outfits → optional agent revision → selection → review → explicit email/checkbox approval → mock hosted page → approve or decline → sanitized result, with no unexpected console or page errors |
+
+## Phase 4 quality gates
+
+| Command or check | Result | Evidence |
+| --- | --- | --- |
+| `npm run lint` | Pass | ESLint completed with no findings as part of the final Phase 4 gate |
+| `npm run typecheck` | Pass | TypeScript strict no-emit check completed as part of the final Phase 4 gate |
+| `npm test` | Pass | Vitest 4.1.10: 49 files and 378 tests passed |
+| `npm run build` | Pass | Next.js 16.2.12 production build compiled the checkout APIs and review, mock-hosted, and result pages |
+| `npm run check` | Pass | Lint, type-check, all 49 files/378 tests, and production build completed successfully in one run |
+| `npm run test:e2e` | Pass | Playwright 1.61.1: 10/10 desktop/mobile cases passed, including four checkout approval/decline runs |
+| Refresh idempotency browser proof | Pass | Approved mock result retained its sanitized order reference after reload and the observed `/api/checkout/finalize` request count remained one |
+
+Phase 4 exit criteria are satisfied for the mock provider: the complete explicitly approved mock transaction path passes on desktop and mobile, and mock mode cannot be mistaken for Prava. Retry safety is deliberately bounded to the signed-cookie MVP because no shared database exists; global replay protection across copied cookies, browsers, or server instances is not claimed. Real Prava Hosted Checkout, callback polling, merchant-status reporting to Prava, and live sandbox proof remain Phase 5 work.

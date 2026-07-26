@@ -125,3 +125,45 @@
 - Status: Accepted
 - Decision: Support Ollama through a validated server-side HTTP(S) base URL and model setting, but do not assume a local developer instance is reachable from Vercel. Hosted deployments use rules or Gemini unless a separately secured, server-reachable Ollama endpoint is intentionally provisioned.
 - Reason: `localhost` in a Vercel function refers to the deployment environment, not the developer's computer. Making this limitation explicit prevents a local-only integration from being presented as deployable or encourages unsafe public exposure.
+
+## D-019 — Carry checkout state in three short-lived signed cookie stages
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Issue distinct HMAC-signed review, payment-session, and terminal-result claims. Transport them only in bounded HTTP-only, SameSite=Lax, Path=/ cookies, add `Secure` in production, bind session state to the reviewed checkout JTI, and rehydrate the canonical order from the server catalogue at every commerce transition.
+- Reason: A browser must bridge redirects without becoming an authority for product, stock, price, merchant, total, provider session, or result facts. Separate strict claims limit scope and lifetime while repeated rehydration detects catalogue changes and tampering.
+
+## D-020 — Create hosted sessions only after visible review and explicit approval
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Showing a selected outfit or interpreting checkout intent may prepare review state only. Session creation requires the complete canonical order summary, a validated email, a separate visible confirmation checkbox, and a user click. Mock checkout lives on its own persistently labelled hosted page and never renders card-data fields.
+- Reason: Natural-language intent and selection are not payment authorization. The separate approval boundary keeps short-lived sessions fresh and makes the simulated provider impossible to confuse with Prava.
+
+## D-021 — Resolve payment providers explicitly and fail closed
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Keep create-session and finalize behavior behind one typed provider interface with schema-validated inputs and outputs. `mock` is implemented and ready; `prava` remains an explicit `NOT_IMPLEMENTED` unavailable state until Phase 5. A selected but unavailable Prava provider must never fall back to mock.
+- Reason: A common boundary allows the full transaction architecture to be proven locally without misrepresenting external integration status or allowing malformed provider data into checkout state.
+
+## D-022 — Make terminal finalization retry-safe within the cookie-only MVP boundary
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Before invoking a provider or merchant during finalization, accept an already valid signed terminal result only when no review/session cookies indicate a newer checkout. On first terminal completion, issue a one-hour sanitized result cookie and clear transient review/session cookies. A real provider-pending response issues a separate short-lived marker bound to both checkout JTI and payment-attempt JTI; a merely created session remains `awaiting_payment`. Do not claim global replay protection across copied cookies, browsers, concurrent requests, lost responses, or independent server instances without shared storage/provider idempotency.
+- Reason: This prevents ordinary double-click, retry, and refresh duplication while preserving the no-database MVP constraint. The limitation is explicit so cookie-local idempotency is not mistaken for a durable distributed transaction ledger.
+
+## D-023 — Persist only a bounded sanitized terminal history
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Local order history may contain at most five schema-validated, deduplicated terminal summaries: provider, approved/declined status, approved order reference when present, USD total, item count, and completion time. Never persist email, signed tokens, provider session IDs, decline internals, product presentation data, or payment credentials.
+- Reason: A small local recap improves demo continuity without turning browser storage into a payment-state authority or exposing checkout-sensitive material.
+
+## D-024 — Guard checkout mutations and hosted navigation by origin
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Every checkout POST must use JSON and any supplied browser Origin must exactly match the configured Fitora origin; production also rejects an omitted Origin. Production and Prava configurations require HTTPS app and merchant origins. Mock hosted navigation is same-origin only, while Prava navigation must match the exact configured HTTPS Prava origin until the live provider contract establishes any separate documented hosted origin.
+- Reason: SameSite cookies are site-scoped rather than origin-scoped. Explicit media-type/origin checks block sibling-subdomain mutation attempts, and exact redirect pinning prevents a provider-output error from becoming an open redirect.

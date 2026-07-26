@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 
 import { AgentPanel } from "@/components/agent/agent-panel";
+import { CheckoutReviewButton } from "@/components/checkout/checkout-review-button";
 import type { AgentSuccessResponse } from "@/lib/agent/contracts";
 import {
   OutfitSchema,
@@ -505,6 +506,13 @@ export function BuildExperience() {
     persistState(nextPreferences, safeSelection);
   }
 
+  const visibleSelectedOutfit =
+    requestState.status === "success" && selectedOutfitId
+      ? (requestState.outfits.find(
+          (outfit) => outfit.id === selectedOutfitId,
+        ) ?? null)
+      : null;
+
   let liveMessage = "Ready to build up to three verified outfits.";
 
   if (requestState.status === "loading") {
@@ -619,7 +627,7 @@ export function BuildExperience() {
                 </div>
               </fieldset>
 
-              {selectedOutfitId && !resultsAreStale ? (
+              {visibleSelectedOutfit && !resultsAreStale ? (
                 <div className="mt-6 flex flex-col justify-between gap-3 border border-[var(--sage-dark)] bg-[#e5e8df] p-5 sm:flex-row sm:items-center">
                   <div>
                     <p className="font-serif text-xl text-[var(--sage-dark)]">
@@ -633,9 +641,10 @@ export function BuildExperience() {
                       before checkout.
                     </p>
                   </div>
-                  <span className="shrink-0 text-xs font-bold uppercase tracking-[0.12em] text-[var(--sage-dark)]">
-                    Ready for review
-                  </span>
+                  <CheckoutReviewButton
+                    outfit={visibleSelectedOutfit}
+                    key={visibleSelectedOutfit.id}
+                  />
                 </div>
               ) : null}
             </>

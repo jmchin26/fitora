@@ -1,8 +1,8 @@
 # Fitora
 
-> Implementation in progress. Phase 3 is complete: Fitora can interpret one bounded revision at a time, rehydrate every submitted product reference from the trusted catalogue, execute deterministic styling tools, verify the final state again, and prepare a non-transactional checkout review.
+> Implementation in progress. Phase 4 is complete: Fitora can generate and revise catalogue-verified outfits, require a visible order review and explicit approval, and complete an unmistakably labelled mock hosted checkout through a sanitized, retry-safe terminal result.
 
-Fitora is an AI shopping and styling agent for students and young professionals seeking gender-neutral smart-casual outfits. It turns an occasion, budget, sizes, colour preferences, and style into three complete catalogue-verified looks, supports controlled revisions, and proceeds to an explicitly approved sandbox checkout.
+Fitora is an AI shopping and styling agent for students and young professionals seeking gender-neutral smart-casual outfits. It turns an occasion, budget, sizes, colour preferences, and style into up to three complete catalogue-verified looks, supports controlled revisions, and currently completes an explicitly approved mock checkout while real Prava sandbox integration remains pending.
 
 ## Planned MVP
 
@@ -21,10 +21,13 @@ Fitora is an AI shopping and styling agent for students and young professionals 
 - Experience: users can generate, select, and safely refine up to three catalogue-verified looks on mobile or desktop.
 - Agent: strict Zod intents and semantic evidence checks constrain each message to one supported action. Provider output proposes an intent only; it cannot supply products, prices, stock, totals, approval, or payment results.
 - AI: deterministic rules are the safe default. Gemini and local Ollama adapters support bounded structured output, timeouts, validation, and truthful rules fallback. Adapter and mocked integration tests pass; a genuine Gemini credential test has not started and is intentionally deferred.
-- State: browser storage contains only validated preferences and product ID/size references, including the selected reference. Agent messages, provider output, product presentation facts, and payment data are not persisted.
-- Checkout: the Phase 3 checkout intent only produces a review-ready event after a visible outfit is selected. It does not create a payment session or navigate to payment.
-- Payment: mock mode remains the safe default until the Phase 4 provider architecture and later Prava sandbox flow are implemented and proven end to end.
-- Merchant: simulated Fitora demo merchant with simulated inventory.
+- State: normal builder storage contains only validated preferences and product ID/size references. Terminal local history is separately schema-limited to five sanitized provider/status/order-reference/total/item-count/time summaries. Agent messages, email, signed tokens, session IDs, raw provider output, product presentation facts, and payment credentials are not persisted.
+- Checkout: the browser submits only selected product IDs and sizes. The server rehydrates current catalogue facts and recomputes the order at review, session creation, and finalization. A complete three-item summary, validated email, explicit confirmation checkbox, and click are required before a hosted session is created.
+- Checkout security: strict HMAC review, payment-session, and terminal-result claims use short-lived HTTP-only, SameSite=Lax cookies that are Secure in production. Session state is bound to the reviewed checkout, and invalid, expired, mismatched, changed, or tampered state fails closed.
+- Payment: the typed provider architecture and full mock path are implemented. Mock mode uses a separate persistently labelled hosted page with approve/decline controls and no card fields. `PAYMENT_PROVIDER=prava` currently fails closed—configuration is invalid without its required secret, and the provider factory reports explicit `NOT_IMPLEMENTED` unavailability once selected; it never silently falls back to mock.
+- Merchant: the server-only demo merchant revalidates the canonical order and provider-session context before producing a deterministic sanitized order reference or decline.
+- Result: terminal finalization returns an existing valid signed result before repeating provider or merchant work, so ordinary retries and refreshes are idempotent within the cookie-only MVP boundary. No database-backed cross-browser or distributed replay guarantee is claimed.
+- Prava: real Hosted Checkout, callback polling, merchant-result reporting to Prava, and live sandbox proof remain Phase 5. No Prava account, secret, allowed domain, card/OTP/Passkey action, or manual success has been claimed.
 
 See [`docs/STATUS.md`](docs/STATUS.md) for live delivery status and [`docs/PRODUCT_SPEC.md`](docs/PRODUCT_SPEC.md) for acceptance criteria.
 
@@ -66,6 +69,34 @@ OLLAMA_MODEL=your_local_model
 ```
 
 An ordinary Vercel deployment cannot reach Ollama running on a developer's `localhost`. Use `rules` or Gemini for that deployment unless a separately secured, server-reachable Ollama endpoint is deliberately provisioned. Do not expose a local Ollama service publicly merely to make deployment connectivity work.
+
+## Checkout provider configuration
+
+The default local path needs no external payment account:
+
+```bash
+PAYMENT_PROVIDER=mock
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+Local mock development has a conspicuous development-only signing fallback. For a stable local setup, and for every production or non-mock runtime, set a strong server-only value with at least 32 characters in uncommitted environment settings:
+
+```bash
+CHECKOUT_SIGNING_SECRET=replace_with_a_strong_random_server_only_value
+```
+
+The mock flow is:
+
+1. Select one verified outfit and open checkout review.
+2. The server reloads all three products and recomputes the order.
+3. Review products, sizes, merchant, and USD total.
+4. Enter an email, check the explicit approval control, and continue.
+5. Choose approve or decline on the separate “Mock payment mode” page.
+6. View the sanitized result; refreshing an approved result does not finalize it again.
+
+Do not set `PAYMENT_PROVIDER=prava` for a working demo yet. The provider intentionally fails closed as not implemented until Phase 5 is completed from current official Prava documentation and the human prerequisites in [`docs/MANUAL_ACTIONS.md`](docs/MANUAL_ACTIONS.md) are satisfied.
+
+Latest verified quality evidence: Vitest 4.1.10 passed 49 files/378 tests, the production build passed, and Playwright 1.61.1 passed 10/10 desktop/mobile cases including four mock checkout approval/decline runs. See [`docs/TEST_EVIDENCE.md`](docs/TEST_EVIDENCE.md) for the sanitized evidence record.
 
 Quality gates:
 
