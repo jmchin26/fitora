@@ -1,6 +1,6 @@
 # Fitora
 
-> Implementation in progress. The Phase 0 application baseline is healthy; catalogue, recommendation, agent, and checkout features are still being built.
+> Implementation in progress. Phase 1 is complete: the typed catalogue, deterministic recommendation engine, canonical server rehydration, and outfit API are healthy. The guided shopping journey is next.
 
 Fitora is an AI shopping and styling agent for students and young professionals seeking gender-neutral smart-casual outfits. It turns an occasion, budget, sizes, colour preferences, and style into three complete catalogue-verified looks, supports controlled revisions, and proceeds to an explicitly approved sandbox checkout.
 
@@ -16,6 +16,8 @@ Fitora is an AI shopping and styling agent for students and young professionals 
 
 ## Current integration status
 
+- Catalogue: 30 validated fictional products (10 tops, 10 bottoms, and 10 pairs of shoes).
+- Styling: deterministic rules engine returns three ranked, diverse, budget-safe outfits or structured recovery guidance.
 - AI: rules fallback only until a genuine provider is configured and manually verified.
 - Payment: mock mode only until the Prava sandbox flow is configured and proven end to end.
 - Merchant: simulated Fitora demo merchant with simulated inventory.

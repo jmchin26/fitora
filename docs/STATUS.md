@@ -4,17 +4,17 @@ Last updated: 2026-07-26 (Asia/Kuala_Lumpur)
 
 ## Current state
 
-- Current phase: Phase 0 — workspace and evidence baseline (complete); Phase 1 is next.
-- Last successful commit: `chore: initialize fitora workspace` (current Phase 0 milestone).
+- Current phase: Phase 1 — typed catalogue and deterministic styling engine (complete); Phase 2 is next.
+- Latest milestone: `feat: add typed product catalogue and styling engine`.
 - Git branch: `main`.
-- Application state: Next.js 16.2.12 baseline is installed, builds successfully, and serves locally.
+- Application state: Next.js 16.2.12 builds successfully and exposes validated health and outfit-generation APIs over the canonical 30-product catalogue.
 - Current AI provider: `rules` planned safe default.
 - Current payment provider: `mock` planned safe default.
 - Real Prava gate: not started.
 - Gemini gate: not started.
 - GitHub status: GitHub CLI is unavailable; no remote is configured.
 - Deployment status: not started; Vercel preparation is planned, but production deployment requires human approval.
-- Next automatic action: build the typed 30-product catalogue and deterministic styling engine.
+- Next automatic action: build the responsive guided input journey, recommendation cards, selection state, and browser-level tests.
 
 ## Environment audit
 
@@ -36,8 +36,8 @@ Last updated: 2026-07-26 (Asia/Kuala_Lumpur)
 
 - `npm run lint`
 - `npm run typecheck`
-- `npm test` — 1 test passed
-- `npm run build` — Next.js production build completed successfully
+- `npm test` — 8 files and 40 tests passed
+- `npm run build` — Next.js production build completed successfully, including `/api/health` and `/api/outfits/generate`
 - Local HTTP smoke check — `/` returned 200 and contained the Fitora and mode labels
 - In-app browser smoke check — title, primary heading, build action, and mock-mode disclosure were present
 - Environment inspection and execution-pack integrity checks completed
@@ -64,6 +64,11 @@ None. External accounts and credentials are intentionally deferred while local d
 - Validated the stable framework, test, AI SDK, and CSS package lines against current official sources.
 - Installed a strict Next.js App Router, TypeScript, Tailwind CSS, ESLint, Vitest, Testing Library, and Playwright baseline.
 - Confirmed the baseline through lint, type-check, unit test, production build, HTTP, and browser smoke checks.
+- Added exactly 30 schema-validated fictional products with immutable repository access.
+- Added deterministic filtering, compatibility scoring, stable tie-breaking, outfit diversity, structured explanations, and low-budget recovery guidance.
+- Added canonical server-side outfit rehydration so client-provided price, stock, category, and product facts are never trusted.
+- Added health and outfit-generation route handlers with structured error responses.
+- Passed the complete Phase 1 quality gate: lint, strict type-check, 40 tests, and production build.
 
 ### Blocked
 
@@ -75,4 +80,4 @@ None. External accounts and credentials are intentionally deferred while local d
 
 ### Future work
 
-- Phase 1 through Phase 8 remain pending.
+- Phase 2 through Phase 8 remain pending.

@@ -41,3 +41,17 @@
 - Status: Accepted
 - Decision: Use the stable ESLint 9 line with `eslint-config-next@16.2.12` instead of ESLint 10.
 - Reason: The official Next.js 16.2 scaffold selects ESLint 9, and transitive accessibility/import/react plugins currently declare peer support through ESLint 9. Installing ESLint 10 produced invalid peer-resolution evidence, so the compatible line is safer for a clean quality gate.
+
+## D-007 — Rehydrate all commerce selections at the server boundary
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Accept only product IDs and requested sizes from recommendation or checkout clients, then reload category, price, stock, and all other facts from the immutable server catalogue before validation or total calculation.
+- Reason: Client-visible outfit objects are presentation data and can be tampered with. Canonical rehydration prevents forged price, inventory, category, and total values from entering commerce logic.
+
+## D-008 — Treat the first catalogue colour as the dominant styling colour
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Score outfit colour compatibility from each product's first listed colour while retaining all listed colours for preference and exclusion filtering.
+- Reason: Taking the best score across every colour pair collapsed much of the real catalogue to the same maximum score. An explicit dominant-colour convention produces meaningful, deterministic variation without hidden AI judgment.
