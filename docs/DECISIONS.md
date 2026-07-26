@@ -1,0 +1,37 @@
+# Fitora Decisions
+
+## D-001 — Preserve deterministic authority
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Catalogue data, filtering, outfit scoring, totals, inventory validation, intent execution, and payment state remain deterministic server-controlled logic. AI providers may interpret or explain but never become a source of commerce truth.
+- Reason: This is the central safety and truthfulness requirement of the execution pack.
+
+## D-002 — Safe local defaults
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: The application will boot with `AI_PROVIDER=rules` and `PAYMENT_PROVIDER=mock`. Both modes will be visibly labelled. Genuine Gemini and Prava modes remain configurable server-side.
+- Reason: Local development and automated tests must remain unblocked without misrepresenting integration status.
+
+## D-003 — Editorial design direction
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Use a warm off-white canvas, near-black editorial typography, muted sage/taupe accents, generous whitespace, 4:5 product imagery, restrained motion, and a serif display face paired with a highly legible sans-serif system stack.
+- Reason: This applies the product brief while preserving contrast, mobile usability, and reduced-motion support.
+
+## D-004 — Prava integration source
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Do not install the external Prava coding-agent repository globally after the security review rejected that persistent trust boundary. Implement against current official Prava documentation and isolate the integration behind a provider adapter.
+- Reason: The execution pack explicitly permits proceeding from official documentation when skill installation is unavailable.
+
+## D-005 — Deployment target precedence
+
+- Date: 2026-07-26
+- Status: Accepted
+- Decision: Preserve the authoritative Next.js App Router and Vercel architecture. General site-building guidance informs UX and validation but does not replace the requested framework or hosting target.
+- Reason: The supplied project specification takes precedence over generic website scaffolding defaults.
+

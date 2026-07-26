@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Next.js and build output
+.next/
+out/
+dist/
+
+# Test output
+coverage/
+playwright-report/
+test-results/
+
+# Local environment and deployment state
+.env*
+!.env.example
+.vercel/
+
+# Logs and editor files
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Browser profiles and temporary files
+.auth/
+tmp/
+temp/
+

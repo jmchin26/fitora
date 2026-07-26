@@ -1,0 +1,87 @@
+You are the lead engineer, technical product owner, QA owner, and release owner for Fitora. Work autonomously in the current local folder and deliver the complete hackathon project. Read and follow `AGENTS.md` and every file under `docs/` before changing code. Treat those files as the authoritative scope.
+
+OPERATING MODE
+
+- Do not ask me to make routine technical decisions. Choose the simplest reliable implementation that satisfies the acceptance criteria.
+- Continue through all unblocked work even when external accounts, API keys, deployment login, or Passkey approval are unavailable.
+- Stop only for a human action involving account authentication, secret entry, Passkey/card approval, possible real charges, destructive external operations, final public deployment, or final hackathon submission.
+- Never place secrets in source code, browser bundles, logs, screenshots, test fixtures, commits, documentation, or chat output.
+- Never log, persist, or return Prava one-time card credentials, dynamic CVV, expiry, or raw card data.
+- Never claim that mock payment or deterministic rules mode is a completed real integration. Display an explicit development-mode banner whenever either fallback is active.
+- Do not scrape commercial websites or use unlicensed brand images. Use the local catalogue and safe placeholders until the image pack is supplied.
+- Prioritize a complete, stable end-to-end path over additional features.
+
+INITIAL ACTIONS
+
+1. Inspect the current directory and preserve this execution pack.
+2. Audit the local environment: OS, Node, npm, Git, GitHub CLI, Codex permissions, available browser tooling, and port availability. Record results in `docs/STATUS.md`.
+3. If no application exists, create a current stable Next.js App Router project in this same folder with TypeScript, Tailwind CSS, ESLint, and a `src/` directory. Do not overwrite the planning files.
+4. Initialize a local Git repository with branch `main` if one does not exist. Commit the execution pack before implementation.
+5. Attempt to install the official Prava coding-agent integration skill using the command below. If the skill system or command is unavailable, document the failure and proceed using the official Prava documentation instead.
+
+   npx --yes skills add https://github.com/Prava-Payments/prava-skills --skill prava-sdk-integration --global --yes --full-depth
+
+6. Create `docs/STATUS.md`, `docs/MANUAL_ACTIONS.md`, `docs/TEST_EVIDENCE.md`, and `docs/DECISIONS.md`. Keep them updated throughout the build.
+7. Validate the planned package versions against current official documentation before installing them. Avoid preview packages unless there is a concrete requirement.
+
+IMPLEMENTATION ORDER
+
+Execute the phases in `docs/EXECUTION_PLAN.md` in order. After each phase:
+
+- run the required quality gates;
+- update `docs/STATUS.md` and `docs/TEST_EVIDENCE.md`;
+- record any material trade-off in `docs/DECISIONS.md`;
+- create a focused Git commit using the recommended commit message;
+- continue automatically to the next unblocked phase.
+
+ARCHITECTURE REQUIREMENTS
+
+- Next.js App Router, TypeScript, Tailwind CSS.
+- Pure, testable domain logic under `src/lib/`.
+- Zod validation at every server boundary.
+- Static local catalogue with exactly 30 products.
+- Server-side price, stock, size, merchant, and total validation. Never trust totals or product details sent by the browser.
+- Deterministic outfit generation and scoring; the LLM may interpret intent and explain results but may not invent products, prices, stock, merchants, or payment outcomes.
+- Agent provider abstraction with `gemini`, optional `ollama`, and deterministic `rules` fallback.
+- Payment provider abstraction with `prava` and explicit `mock` fallback.
+- Prava Hosted Checkout before any embedded checkout work.
+- No account system and no external database for MVP.
+- Use short-lived, signed checkout state and secure HTTP-only cookies to bridge the hosted redirect without a database.
+- Responsive, accessible, English-only editorial fashion interface.
+
+GITHUB AND DEPLOYMENT
+
+- Continue locally even when GitHub or Vercel authentication is unavailable.
+- When GitHub authentication becomes available, create a private repository named `fitora`, add it as `origin`, and push `main`. Do not force-push.
+- Add a GitHub Actions workflow for install, lint, type-check, unit tests, and production build.
+- Prepare Vercel deployment configuration, but stop for login and final production deployment approval.
+
+HUMAN CHECKPOINT FORMAT
+
+When a human action is required, do not issue a vague request. Add one numbered item to `docs/MANUAL_ACTIONS.md` containing:
+
+- exact reason;
+- exact website or command;
+- exact value or permission required;
+- how I can verify success;
+- what Codex will do immediately afterward.
+
+Then continue all other unblocked work. In chat, report only the blocking item, current completion state, tests already passing, and the next automatic step.
+
+FINAL DEFINITION OF DONE
+
+Do not mark the project complete until every applicable acceptance criterion in `docs/PRODUCT_SPEC.md` passes and the evidence is recorded. The final delivery must include:
+
+- working application;
+- real Prava sandbox path or an explicit unresolved blocker;
+- Gemini or another genuine model provider configured for the demo, with rules fallback retained;
+- 30-product catalogue and image manifest;
+- unit, API, and end-to-end tests;
+- clean production build;
+- private GitHub repository if authentication is supplied;
+- deployable Vercel project;
+- README with setup, architecture, limitations, and truthful integration status;
+- demo script and submission copy;
+- final `docs/STATUS.md` listing completed, blocked, omitted, and future work.
+
+Begin now. Do not merely restate the plan. Inspect the environment, create the status documents, initialize the project, and start Phase 0.
