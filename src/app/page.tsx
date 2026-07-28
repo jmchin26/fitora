@@ -24,7 +24,7 @@ export default function Home() {
 
             <h1
               id="hero-title"
-              className="mt-5 max-w-[18ch] font-serif text-[clamp(3.5rem,5.7vw,5.7rem)] font-medium leading-[0.9] tracking-[-0.06em]"
+              className="mt-5 max-w-[18ch] font-serif text-[clamp(3.25rem,4.8vw,4.8rem)] font-medium leading-[0.9] tracking-[-0.055em]"
             >
               Complete outfits,{" "}
               <br />
@@ -73,12 +73,6 @@ export default function Home() {
         <ProcessSteps />
       </main>
 
-      <footer className="mx-auto flex w-full max-w-[88rem] items-center justify-between border-t border-[var(--line)] px-5 py-8 sm:px-8 lg:px-12">
-        <p className="font-['Iowan_Old_Style','Palatino_Linotype',Georgia,serif] text-xl tracking-[-0.03em]">
-          Fitora
-        </p>
-        <p className="text-sm text-[var(--muted-ink)]">Style, verified.</p>
-      </footer>
     </div>
   );
 }
