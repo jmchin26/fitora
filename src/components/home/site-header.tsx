@@ -2,8 +2,6 @@ import Link from "next/link";
 
 import { brand } from "@/lib/brand";
 
-import { ModeBadges } from "./mode-badges";
-
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[color:rgba(243,239,231,0.92)] backdrop-blur-xl">
@@ -34,9 +32,6 @@ export function SiteHeader() {
         </Link>
       </nav>
 
-      <div className="w-full border-t border-[var(--line)] pt-3 sm:w-auto sm:border-0 sm:pt-0">
-        <ModeBadges />
-      </div>
       </div>
     </header>
   );

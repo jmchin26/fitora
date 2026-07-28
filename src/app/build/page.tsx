@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { BuildExperience } from "@/components/build/build-experience";
-import { ModeBadges } from "@/components/home/mode-badges";
 
 export const metadata: Metadata = {
   title: "Build an outfit",
@@ -21,7 +20,12 @@ export default function BuildPage() {
           >
             Fitora
           </Link>
-          <ModeBadges />
+          <Link
+            className="text-sm font-semibold underline decoration-[var(--line)] underline-offset-4 hover:decoration-[var(--ink)]"
+            href="/"
+          >
+            Back to home
+          </Link>
         </div>
       </header>
 

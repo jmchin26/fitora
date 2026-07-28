@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { EditorialLookPreview } from "@/components/home/editorial-look-preview";
-import { ModeBadges } from "@/components/home/mode-badges";
 import { ProcessSteps } from "@/components/home/process-steps";
 import { SiteHeader } from "@/components/home/site-header";
 import { brand } from "@/lib/brand";
@@ -88,11 +87,11 @@ export default function Home() {
         <ProcessSteps />
       </main>
 
-      <footer className="mx-auto flex w-full max-w-[88rem] flex-col gap-5 border-t border-[var(--line)] px-5 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-12">
+      <footer className="mx-auto flex w-full max-w-[88rem] items-center justify-between border-t border-[var(--line)] px-5 py-8 sm:px-8 lg:px-12">
         <p className="font-['Iowan_Old_Style','Palatino_Linotype',Georgia,serif] text-xl tracking-[-0.03em]">
           Fitora
         </p>
-        <ModeBadges compact />
+        <p className="text-sm text-[var(--muted-ink)]">Style, verified.</p>
       </footer>
     </div>
   );

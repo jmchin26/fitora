@@ -1,8 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { ModeBadges } from "@/components/home/mode-badges";
-
 export function CheckoutShell({
   children,
   eyebrow,
@@ -21,7 +19,7 @@ export function CheckoutShell({
           >
             Fitora
           </Link>
-          <ModeBadges />
+          <p className="text-sm text-[var(--muted-ink)]">Secure checkout</p>
         </div>
       </header>
 
