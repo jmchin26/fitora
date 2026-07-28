@@ -285,7 +285,7 @@ export function BuildExperience() {
           );
         } else if (restored.status === "corrupt") {
           setStorageNotice(
-            "Saved preferences could not be verified, so the demo defaults were loaded.",
+            "Saved preferences could not be verified, so the standard preferences were loaded.",
           );
         } else {
           setStorageAvailable(false);

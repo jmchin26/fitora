@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     template: "%s · Fitora",
   },
   description:
-    "Build a complete, catalogue-verified outfit for the moment, then review any demo checkout before continuing.",
+    "Build a complete, catalogue-verified outfit for the moment, then review your checkout before continuing.",
 };
 
 export default function RootLayout({

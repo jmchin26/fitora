@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Mock hosted checkout",
   description:
-    "A clearly labelled local payment simulation for the Fitora demo flow.",
+    "A clearly labelled local payment simulation for the Fitora checkout flow.",
 };
 
 export default async function MockCheckoutPage() {

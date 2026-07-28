@@ -185,7 +185,7 @@ export function MockCheckout({
         <dl className="mt-7 border-y border-[var(--line)] py-5 text-sm">
           <div className="flex items-center justify-between gap-4">
             <dt className="text-[var(--muted-ink)]">Merchant</dt>
-            <dd className="font-semibold">Fitora demo merchant</dd>
+            <dd className="font-semibold">Fitora Merchant</dd>
           </div>
           <div className="mt-3 flex items-center justify-between gap-4">
             <dt className="text-[var(--muted-ink)]">Items</dt>
@@ -208,7 +208,7 @@ export function MockCheckout({
         <fieldset className="mt-7" disabled={Boolean(activeDecision)}>
           <legend className="text-sm font-bold">Choose a mock outcome</legend>
           <p className="mt-1 text-sm text-[var(--muted-ink)]">
-            Both actions are simulations. Approve is the primary demo path.
+            Both actions are simulations. Approve is the primary test path.
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <button

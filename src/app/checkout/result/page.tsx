@@ -21,7 +21,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Checkout result",
-  description: "View a sanitized Fitora payment and demo-order result.",
+  description: "View a sanitized Fitora payment and order result.",
 };
 
 type CheckoutResultPageProps = Readonly<{

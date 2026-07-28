@@ -65,7 +65,7 @@ export default function Home() {
                 <span aria-hidden="true" className="mx-2 text-[var(--line)]">
                   /
                 </span>
-                30-piece demo catalogue
+                30-piece curated catalogue
               </p>
             </div>
           </div>

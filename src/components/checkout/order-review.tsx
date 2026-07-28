@@ -90,7 +90,7 @@ export function OrderReview({ order }: OrderReviewProps) {
             <dt className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--muted-ink)]">
               Merchant
             </dt>
-            <dd className="mt-1 font-semibold">Fitora demo merchant</dd>
+            <dd className="mt-1 font-semibold">Fitora Merchant</dd>
             <dd className="text-xs text-[var(--muted-ink)]">
               ID {order.merchantId} · {order.currency}
             </dd>

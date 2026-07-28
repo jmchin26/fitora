@@ -41,7 +41,7 @@ export default function BuildPage() {
             </p>
             <p className="mt-5 max-w-xl text-[var(--muted-ink)]">
               Set your occasion, sizes, colours, style, and total budget. Fitora
-              will rank in-stock pieces from one simulated demo merchant and
+              will rank in-stock pieces from one curated merchant and
               return up to three verified combinations in USD.
             </p>
           </div>
@@ -52,7 +52,7 @@ export default function BuildPage() {
 
       <footer className="border-t border-[var(--line)] px-5 py-8 text-sm text-[var(--muted-ink)] sm:px-8 lg:px-12">
         <div className="mx-auto flex w-full max-w-[90rem] flex-col justify-between gap-2 sm:flex-row">
-          <p>Fictional products · Simulated inventory · Demo merchant</p>
+          <p>Curated products · Checked availability · Fitora merchant</p>
           <p>No account or personal profile required.</p>
         </div>
       </footer>

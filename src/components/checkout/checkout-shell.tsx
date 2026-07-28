@@ -46,7 +46,7 @@ export function CheckoutShell({
 
       <footer className="border-t border-[var(--line)] px-5 py-7 text-sm text-[var(--muted-ink)] sm:px-8 lg:px-12">
         <div className="mx-auto flex w-full max-w-[82rem] flex-col justify-between gap-2 sm:flex-row">
-          <p>Fictional products · Simulated inventory · Demo merchant</p>
+          <p>Curated products · Checked availability · Fitora merchant</p>
           <p>No card data is collected by Fitora.</p>
         </div>
       </footer>

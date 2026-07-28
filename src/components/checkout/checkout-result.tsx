@@ -45,7 +45,7 @@ const RESULT_CONTENT: Record<CheckoutResultStatus, ResultContent> = {
     eyebrow: "Payment approved",
     title: "Your outfit order is confirmed.",
     message:
-      "The payment and demo merchant order both completed successfully.",
+      "The payment and Fitora merchant order both completed successfully.",
     primary: { href: "/build", label: "Build another outfit" },
     secondary: { href: "/", label: "Return home" },
     toneClassName: "border-[var(--sage-dark)] bg-[#e5e8df] text-[#31402e]",
@@ -54,8 +54,8 @@ const RESULT_CONTENT: Record<CheckoutResultStatus, ResultContent> = {
     eyebrow: "Mock payment completed",
     title: "The checkout simulation worked.",
     message:
-      "Fitora completed the mock provider and demo merchant path. No real payment was made.",
-    primary: { href: "/build", label: "Run another demo" },
+      "Fitora completed the mock provider and merchant path. No real payment was made.",
+    primary: { href: "/build", label: "Start another checkout" },
     secondary: { href: "/", label: "Return home" },
     toneClassName: "border-[#87662c] bg-[#f5e8c8] text-[#5f471d]",
   },
@@ -63,7 +63,7 @@ const RESULT_CONTENT: Record<CheckoutResultStatus, ResultContent> = {
     eyebrow: "Payment declined",
     title: "The order was not placed.",
     message:
-      "No approved payment was recorded and the demo merchant did not complete the order.",
+      "No approved payment was recorded and the Fitora merchant did not complete the order.",
     primary: { href: "/build", label: "Start a fresh checkout" },
     secondary: { href: "/", label: "Return home" },
     toneClassName: "border-[#8a352d] bg-[#f5e9e4] text-[#783129]",
