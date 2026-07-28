@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function BuildPage() {
   return (
     <div className="min-h-dvh bg-[var(--canvas)] text-[var(--ink)]">
-      <header className="border-b border-[var(--line)]">
+      <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[color:rgba(243,239,231,0.92)] backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-[90rem] flex-wrap items-center justify-between gap-4 px-5 py-5 sm:px-8 lg:px-12">
           <Link
             className="font-serif text-2xl font-semibold tracking-[-0.04em]"
@@ -26,8 +26,9 @@ export default function BuildPage() {
       </header>
 
       <main id="main-content" tabIndex={-1}>
-        <section className="mx-auto grid w-full max-w-[90rem] gap-8 px-5 pb-12 pt-12 sm:px-8 sm:pt-16 lg:grid-cols-[minmax(0,0.8fr)_minmax(24rem,1.2fr)] lg:gap-16 lg:px-12 lg:pb-16 lg:pt-24">
-          <div>
+        <section className="relative mx-auto grid w-full max-w-[96rem] gap-8 overflow-hidden px-5 pb-12 pt-12 sm:px-8 sm:pt-16 lg:grid-cols-[minmax(0,0.8fr)_minmax(24rem,1.2fr)] lg:gap-20 lg:px-16 lg:pb-16 lg:pt-20">
+          <div aria-hidden="true" className="editorial-grid pointer-events-none absolute inset-0 z-0" />
+          <div className="relative z-10">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--sage-dark)]">
               The outfit edit
             </p>
@@ -35,7 +36,7 @@ export default function BuildPage() {
               Fit your moment.
             </h1>
           </div>
-          <div className="max-w-2xl self-end lg:pb-2">
+          <div className="relative z-10 max-w-2xl self-end lg:pb-2">
             <p className="font-serif text-2xl leading-tight tracking-[-0.025em] sm:text-3xl">
               Up to three complete looks, coordinated around the details that matter.
             </p>

@@ -17,7 +17,7 @@ export function ProcessSteps() {
   return (
     <section
       aria-labelledby="process-title"
-      className="border-t border-[var(--line)] bg-[var(--surface)]"
+      className="border-y border-[var(--line)] bg-[var(--surface)]"
       id="how-it-works"
     >
       <div className="mx-auto w-full max-w-[88rem] px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
@@ -37,13 +37,13 @@ export function ProcessSteps() {
           <ol className="mt-4 grid border-t border-[var(--line)] sm:grid-cols-3 lg:mt-0">
             {steps.map((step, index) => (
               <li
-                className="border-b border-[var(--line)] py-7 sm:border-r sm:px-6 sm:last:border-r-0 lg:py-3 lg:pb-8"
+                className="group border-b border-[var(--line)] py-7 sm:border-r sm:px-7 sm:last:border-r-0 lg:py-3 lg:pb-8"
                 key={step.title}
               >
                 <span className="font-['Iowan_Old_Style','Palatino_Linotype',Georgia,serif] text-2xl text-[var(--sage)]">
                   {String(index + 1).padStart(2, "0")}
                 </span>
-                <h3 className="mt-12 text-lg font-bold leading-6">
+                <h3 className="mt-12 text-lg font-bold leading-6 transition-transform duration-200 group-hover:translate-x-1">
                   {step.title}
                 </h3>
                 <p className="mt-3 max-w-[28rem] leading-7 text-[var(--muted-ink)]">

@@ -368,7 +368,7 @@ export function PreferenceForm({
 
   return (
     <form
-      className="border border-[var(--line)] bg-[#ece7dd] p-5 sm:p-7 xl:sticky xl:top-6"
+      className="border border-[var(--line)] bg-[var(--surface-muted)] p-5 shadow-[var(--shadow-soft)] sm:p-7 xl:sticky xl:top-24"
       id="preference-form"
       noValidate
       onSubmit={handleSubmit}
@@ -543,7 +543,7 @@ export function PreferenceForm({
         <ErrorMessage id="form-error" message={errors.form} />
 
         <button
-          className="flex min-h-12 w-full items-center justify-center bg-[var(--sage-dark)] px-5 py-3 font-bold text-white transition-colors hover:bg-[var(--ink)] disabled:cursor-wait disabled:opacity-70"
+          className="flex min-h-13 w-full items-center justify-center bg-[var(--sage-dark)] px-5 py-3 font-bold text-white shadow-[0_10px_24px_rgba(70,81,65,0.18)] transition-[background-color,transform,box-shadow] hover:-translate-y-0.5 hover:bg-[var(--ink)] hover:shadow-[0_14px_28px_rgba(32,35,30,0.20)] disabled:cursor-wait disabled:translate-y-0 disabled:opacity-70"
           disabled={isSubmitting}
           type="submit"
         >

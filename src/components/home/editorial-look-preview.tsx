@@ -56,14 +56,14 @@ export function EditorialLookPreview() {
   return (
     <figure
       aria-label="A sample catalogue-verified Fitora outfit"
-      className="relative mx-auto w-full max-w-[44rem] lg:mx-0 lg:justify-self-end"
+      className="relative z-10 mx-auto w-full max-w-[46rem] lg:mx-0 lg:justify-self-end"
     >
       <div
         aria-hidden="true"
         className="absolute -right-10 -top-10 hidden h-36 w-36 rounded-full border border-[var(--line)] lg:block"
       />
 
-      <div className="relative grid overflow-hidden border border-[var(--line)] bg-[var(--surface)] shadow-[0_24px_70px_rgba(32,35,30,0.10)] sm:grid-cols-[minmax(0,1.45fr)_minmax(12rem,0.7fr)]">
+      <div className="relative grid overflow-hidden border border-[var(--line)] bg-[var(--surface)] shadow-[var(--shadow-lifted)] sm:grid-cols-[minmax(0,1.45fr)_minmax(12rem,0.7fr)]">
         <div className="relative flex min-h-[31rem] items-center border-b border-[var(--line)] p-6 sm:min-h-[38rem] sm:border-b-0 sm:border-r sm:p-8">
           <div className="absolute left-6 top-6 flex w-[calc(100%-3rem)] items-start justify-between sm:left-8 sm:top-8 sm:w-[calc(100%-4rem)]">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--muted-ink)]">

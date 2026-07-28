@@ -101,10 +101,10 @@ export function OutfitCard({
   return (
     <article
       aria-labelledby={titleId}
-      className={`flex h-full flex-col border bg-[var(--surface)] transition-colors ${
+      className={`flex h-full flex-col border bg-[var(--surface-strong)] transition-[border-color,box-shadow,transform] duration-200 ${
         selected
-          ? "border-[var(--sage-dark)] ring-2 ring-[var(--sage-dark)] ring-offset-2 ring-offset-[var(--canvas)]"
-          : "border-[var(--line)]"
+          ? "-translate-y-1 border-[var(--sage-dark)] shadow-[var(--shadow-lifted)] ring-2 ring-[var(--sage-dark)] ring-offset-2 ring-offset-[var(--surface)]"
+          : "border-[var(--line)] hover:-translate-y-1 hover:border-[var(--sage)] hover:shadow-[var(--shadow-soft)]"
       }`}
     >
       <div className="grid grid-cols-3 gap-px bg-[var(--line)]">

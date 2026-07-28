@@ -14,8 +14,9 @@ export default function Home() {
       <main id="main-content" tabIndex={-1}>
         <section
           aria-labelledby="hero-title"
-          className="mx-auto grid w-full max-w-[88rem] items-center gap-12 px-5 pb-20 pt-10 sm:px-8 sm:pt-16 lg:grid-cols-[minmax(0,0.86fr)_minmax(30rem,1.14fr)] lg:gap-16 lg:px-12 lg:pb-28 lg:pt-20"
+          className="relative mx-auto grid min-h-[calc(100vh-77px)] w-full max-w-[96rem] items-center gap-12 overflow-hidden px-5 pb-20 pt-10 sm:px-8 sm:pt-16 lg:grid-cols-[minmax(0,0.88fr)_minmax(34rem,1.12fr)] lg:gap-20 lg:px-16 lg:pb-24 lg:pt-16"
         >
+          <div aria-hidden="true" className="editorial-grid pointer-events-none absolute inset-0 z-0 opacity-70" />
           <div className="relative z-10 max-w-2xl">
             <p className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.18em] text-[var(--muted-ink)]">
               <span
@@ -40,7 +41,7 @@ export default function Home() {
 
             <div className="mt-10 flex flex-col items-start gap-5 sm:flex-row sm:items-center">
               <Link
-                className="group inline-flex min-h-14 items-center justify-center gap-4 border border-[var(--sage-dark)] bg-[var(--sage-dark)] px-6 py-3 font-bold text-white no-underline transition-colors duration-200 hover:bg-transparent hover:text-[var(--sage-dark)]"
+                className="group inline-flex min-h-14 items-center justify-center gap-4 border border-[var(--sage-dark)] bg-[var(--sage-dark)] px-7 py-3 font-bold text-white no-underline shadow-[0_12px_30px_rgba(70,81,65,0.18)] transition-[background-color,color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-[var(--ink)] hover:shadow-[0_16px_36px_rgba(32,35,30,0.22)]"
                 href="/build"
               >
                 Build my outfit
@@ -68,6 +69,17 @@ export default function Home() {
                 30-piece curated catalogue
               </p>
             </div>
+
+            <ul className="mt-10 grid max-w-[39rem] grid-cols-3 border-y border-[var(--line)] py-4 text-sm text-[var(--muted-ink)]">
+              {["Catalogue checked", "Budget locked", "You approve payment"].map((item) => (
+                <li className="flex items-center gap-2 border-r border-[var(--line)] px-3 first:pl-0 last:border-r-0" key={item}>
+                  <svg aria-hidden="true" className="h-4 w-4 shrink-0 text-[var(--sage-dark)]" fill="none" viewBox="0 0 20 20">
+                    <path d="m4 10 3.5 3.5L16 5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
+                  </svg>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
 
           <EditorialLookPreview />

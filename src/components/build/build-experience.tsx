@@ -537,8 +537,8 @@ export function BuildExperience() {
   }
 
   return (
-    <section className="border-t border-[var(--line)] px-5 py-10 sm:px-8 lg:px-12 lg:py-16">
-      <div className="mx-auto grid w-full max-w-[90rem] gap-10 xl:grid-cols-[minmax(22rem,0.72fr)_minmax(0,1.6fr)] xl:items-start xl:gap-12">
+    <section className="border-t border-[var(--line)] bg-[var(--surface)] px-5 py-10 sm:px-8 lg:px-12 lg:py-16">
+      <div className="mx-auto grid w-full max-w-[96rem] gap-10 xl:grid-cols-[minmax(25rem,0.72fr)_minmax(0,1.55fr)] xl:items-start xl:gap-14">
         <div>
           {storageNotice ? (
             <p className="mb-4 border-l-2 border-[var(--sage)] pl-3 text-sm text-[var(--muted-ink)]">
@@ -553,7 +553,7 @@ export function BuildExperience() {
           />
         </div>
 
-        <div aria-busy={requestState.status === "loading"}>
+        <div aria-busy={requestState.status === "loading"} className="min-w-0">
           <div className="mb-7 flex flex-col justify-between gap-3 border-b border-[var(--line)] pb-5 sm:flex-row sm:items-end">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--sage-dark)]">
@@ -612,7 +612,7 @@ export function BuildExperience() {
               ) : null}
               <fieldset>
                 <legend className="sr-only">Choose one verified outfit</legend>
-                <div className="grid gap-5 md:grid-cols-2 2xl:grid-cols-3">
+                <div className="grid gap-5 lg:grid-cols-2 2xl:grid-cols-3">
                   {requestState.outfits.map((outfit, index) => (
                     <OutfitCard
                       budgetCents={requestState.preferences.budgetCents}
@@ -628,7 +628,7 @@ export function BuildExperience() {
               </fieldset>
 
               {visibleSelectedOutfit && !resultsAreStale ? (
-                <div className="mt-6 flex flex-col justify-between gap-3 border border-[var(--sage-dark)] bg-[#e5e8df] p-5 sm:flex-row sm:items-center">
+                <div className="sticky bottom-5 z-20 mt-6 flex flex-col justify-between gap-4 border border-[var(--sage-dark)] bg-[color:rgba(229,232,223,0.96)] p-5 shadow-[var(--shadow-soft)] backdrop-blur-lg sm:flex-row sm:items-center">
                   <div>
                     <p className="font-serif text-xl text-[var(--sage-dark)]">
                       Outfit selected
