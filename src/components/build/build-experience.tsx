@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { AgentPanel } from "@/components/agent/agent-panel";
 import { CheckoutReviewButton } from "@/components/checkout/checkout-review-button";
+import { LineIcon } from "@/components/ui/line-icon";
 import type { AgentSuccessResponse } from "@/lib/agent/contracts";
 import {
   OutfitSchema,
@@ -136,25 +137,15 @@ function readyMessage(outfitCount: number): string {
 
 function LoadingCards() {
   return (
-    <div
-      aria-hidden="true"
-      className="grid gap-5 md:grid-cols-2 2xl:grid-cols-3"
-    >
-      {[0, 1, 2].map((index) => (
+    <div aria-hidden="true" className="space-y-5">
+      {[0, 1].map((index) => (
         <div
-          className="min-h-[34rem] animate-pulse border border-[var(--line)] bg-[var(--surface)] p-5 motion-reduce:animate-none"
+          className="grid min-h-[25rem] animate-pulse overflow-hidden rounded-md border border-[var(--line)] bg-[var(--surface-strong)] motion-reduce:animate-none xl:grid-cols-[0.92fr_1.08fr]"
           key={index}
         >
-          <div className="grid grid-cols-3 gap-px bg-[var(--line)]">
-            {[0, 1, 2].map((imageIndex) => (
-              <div
-                className="aspect-[4/5] bg-[#e8e1d5]"
-                key={imageIndex}
-              />
-            ))}
-          </div>
-          <div className="mt-6 h-7 w-2/3 bg-[#e8e1d5]" />
-          <div className="mt-8 space-y-4">
+          <div className="bg-[#e8e1d5]" />
+          <div className="space-y-5 p-6">
+            <div className="h-7 w-2/3 bg-[#e8e1d5]" />
             <div className="h-14 bg-[#eee9e0]" />
             <div className="h-14 bg-[#eee9e0]" />
             <div className="h-14 bg-[#eee9e0]" />
@@ -166,19 +157,24 @@ function LoadingCards() {
 }
 
 function EmptyIntroduction() {
+  const items = [
+    ["filter" as const, "01", "Hard filters", "In-stock, your sizes, merchant, and excluded colours are checked first."],
+    ["award" as const, "02", "Verified ranking", "Eligible looks are scored for occasion, style, colour, and budget fit."],
+    ["heart" as const, "03", "Your choice", "Up to three refined looks are returned—no purchase action happens here."],
+  ] as const;
+
   return (
-    <div className="grid gap-5 border-y border-[var(--line)] py-8 sm:grid-cols-3">
-      {[
-        ["01", "Hard filters", "Requested size, stock, merchant, and excluded colours are checked first."],
-        ["02", "Verified ranking", "Eligible looks are scored for occasion, style, colour, and budget fit."],
-        ["03", "Your choice", "Up to three distinct looks are returned; no purchase action happens without you."],
-      ].map(([number, title, copy]) => (
-        <div className="border-l border-[var(--line)] pl-4" key={number}>
-          <p className="text-xs font-bold text-[var(--sage-dark)]">{number}</p>
-          <h3 className="mt-2 font-serif text-xl">{title}</h3>
-          <p className="mt-2 text-sm leading-relaxed text-[var(--muted-ink)]">
-            {copy}
-          </p>
+    <div className="grid overflow-hidden rounded-md border border-[var(--line)] bg-[var(--surface-strong)] sm:grid-cols-3">
+      {items.map(([icon, number, title, copy]) => (
+        <div className="grid grid-cols-[2.5rem_1fr] gap-4 border-b border-[var(--line)] p-5 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0" key={number}>
+          <div>
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--sage-dark)] text-xs font-bold text-white">{number}</span>
+            <LineIcon className="mt-5 h-7 w-7" name={icon} />
+          </div>
+          <div>
+            <h3 className="font-serif text-xl">{title}</h3>
+            <p className="mt-2 text-sm leading-6 text-[var(--muted-ink)]">{copy}</p>
+          </div>
         </div>
       ))}
     </div>
@@ -537,8 +533,8 @@ export function BuildExperience() {
   }
 
   return (
-    <section className="border-t border-[var(--line)] bg-[var(--surface)] px-5 py-10 sm:px-8 lg:px-12 lg:py-16">
-      <div className="mx-auto grid w-full max-w-[96rem] gap-10 xl:grid-cols-[minmax(25rem,0.72fr)_minmax(0,1.55fr)] xl:items-start xl:gap-14">
+    <section className="border-t border-[var(--line)] bg-[var(--surface)] px-6 py-8 lg:px-12 lg:py-10">
+      <div className="mx-auto grid w-full max-w-[96rem] gap-9 xl:grid-cols-[27.5rem_minmax(0,1fr)] xl:items-start xl:gap-10">
         <div>
           {storageNotice ? (
             <p className="mb-4 border-l-2 border-[var(--sage)] pl-3 text-sm text-[var(--muted-ink)]">
@@ -554,14 +550,12 @@ export function BuildExperience() {
         </div>
 
         <div aria-busy={requestState.status === "loading"} className="min-w-0">
-          <div className="mb-7 flex flex-col justify-between gap-3 border-b border-[var(--line)] pb-5 sm:flex-row sm:items-end">
+          <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--sage-dark)]">
-                Step 02
-              </p>
-              <h2 className="mt-2 font-serif text-3xl tracking-[-0.035em] sm:text-4xl">
+              <h2 className="font-serif text-3xl tracking-[-0.035em] sm:text-4xl">
                 Your verified edit
               </h2>
+              <p className="mt-2 text-sm text-[var(--muted-ink)]">We apply verified filters, rank the best matches, and return up to three coordinated looks.</p>
             </div>
             {requestState.status === "success" ? (
               <p className="text-sm capitalize text-[var(--muted-ink)]">
@@ -572,7 +566,7 @@ export function BuildExperience() {
 
           <p
             aria-live="polite"
-            className={`mb-6 text-sm font-semibold ${
+            className={`mb-5 border-t border-[var(--line)] pt-4 text-sm font-semibold ${
               requestState.status === "error"
                 ? "text-[#8a352d]"
                 : "text-[var(--muted-ink)]"
@@ -612,7 +606,7 @@ export function BuildExperience() {
               ) : null}
               <fieldset>
                 <legend className="sr-only">Choose one verified outfit</legend>
-                <div className="grid gap-5 lg:grid-cols-2 2xl:grid-cols-3">
+                <div className="space-y-6">
                   {requestState.outfits.map((outfit, index) => (
                     <OutfitCard
                       budgetCents={requestState.preferences.budgetCents}
@@ -628,7 +622,7 @@ export function BuildExperience() {
               </fieldset>
 
               {visibleSelectedOutfit && !resultsAreStale ? (
-                <div className="sticky bottom-5 z-20 mt-6 flex flex-col justify-between gap-4 border border-[var(--sage-dark)] bg-[color:rgba(229,232,223,0.96)] p-5 shadow-[var(--shadow-soft)] backdrop-blur-lg sm:flex-row sm:items-center">
+                <div className="mt-6 flex flex-col justify-between gap-4 rounded-md border border-[var(--sage-dark)] bg-[#e5e8df] p-5 shadow-[var(--shadow-soft)] sm:flex-row sm:items-center">
                   <div>
                     <p className="font-serif text-xl text-[var(--sage-dark)]">
                       Outfit selected

@@ -1,133 +1,77 @@
-const outfitItems = [
-  { name: "Harbor Knit Polo", price: "$40" },
-  { name: "Stone Straight Chinos", price: "$40" },
-  { name: "Minimal Court Sneakers", price: "$49" },
-] as const;
+import Image from "next/image";
 
-function OutfitSilhouettes() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-auto w-full"
-      fill="none"
-      viewBox="0 0 520 600"
-    >
-      <circle cx="232" cy="274" fill="var(--canvas)" r="190" />
-      <path
-        d="M122 74c25-18 45-26 67-31 11 25 28 37 50 37s39-12 50-37c23 5 44 14 69 31l-34 104-48-18v142H202V160l-47 18-33-104Z"
-        fill="#27364d"
-        stroke="var(--sage-dark)"
-        strokeLinejoin="round"
-        strokeWidth="2"
-      />
-      <path
-        d="M202 160c24 10 49 10 74 0M239 80v222"
-        stroke="var(--sage-dark)"
-        strokeWidth="1.5"
-      />
-      <circle cx="251" cy="111" fill="var(--surface)" r="3" />
-      <circle cx="251" cy="139" fill="var(--surface)" r="3" />
-      <path
-        d="M185 330h113l-10 211h-58l-6-132-7 132h-58l-4-211Z"
-        fill="var(--line)"
-        stroke="var(--muted-ink)"
-        strokeLinejoin="round"
-        strokeWidth="2"
-      />
-      <path d="m224 409 4-69" stroke="var(--muted-ink)" strokeWidth="1.5" />
-      <path
-        d="M95 523c38 0 60 9 83 31 8 7 6 24-8 28H80c-13-1-18-10-11-21l26-38Zm270 0c38 0 60 9 83 31 8 7 6 24-8 28h-90c-13-1-18-10-11-21l26-38Z"
-        fill="var(--surface)"
-        stroke="var(--ink)"
-        strokeLinejoin="round"
-        strokeWidth="2"
-      />
-      <path d="M73 565h108M343 565h108" stroke="var(--ink)" strokeWidth="2" />
-      <path
-        d="M388 93h72M388 105h45M55 275h75M82 287h48"
-        stroke="var(--line)"
-        strokeWidth="2"
-      />
-    </svg>
-  );
-}
+import { LineIcon } from "@/components/ui/line-icon";
+
+const outfitItems = [
+  { name: "Harbor Knit Polo", colour: "Navy", price: "$40", image: "/products/top-02.svg" },
+  { name: "Stone Straight Chinos", colour: "Stone", price: "$40", image: "/products/bottom-03.svg" },
+  { name: "Minimal Court Sneakers", colour: "White", price: "$49", image: "/products/shoes-03.svg" },
+] as const;
 
 export function EditorialLookPreview() {
   return (
     <figure
       aria-label="A sample catalogue-verified Fitora outfit"
-      className="relative z-10 mx-auto w-full max-w-[46rem] lg:mx-0 lg:justify-self-end"
+      className="relative z-10 grid min-h-[31rem] overflow-hidden rounded-md border border-[var(--line)] bg-[var(--surface-strong)] shadow-[var(--shadow-lifted)] lg:grid-cols-[1.15fr_0.85fr]"
     >
-      <div
-        aria-hidden="true"
-        className="absolute -right-10 -top-10 hidden h-36 w-36 rounded-full border border-[var(--line)] lg:block"
-      />
-
-      <div className="relative grid overflow-hidden border border-[var(--line)] bg-[var(--surface)] shadow-[var(--shadow-lifted)] sm:grid-cols-[minmax(0,1.45fr)_minmax(12rem,0.7fr)]">
-        <div className="relative flex min-h-[31rem] items-center border-b border-[var(--line)] p-6 sm:min-h-[38rem] sm:border-b-0 sm:border-r sm:p-8">
-          <div className="absolute left-6 top-6 flex w-[calc(100%-3rem)] items-start justify-between sm:left-8 sm:top-8 sm:w-[calc(100%-4rem)]">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--muted-ink)]">
-              Sample look 01
-            </p>
-            <p
-              aria-hidden="true"
-              className="font-['Iowan_Old_Style','Palatino_Linotype',Georgia,serif] text-3xl text-[var(--line)]"
-            >
-              01
-            </p>
-          </div>
-
-          <OutfitSilhouettes />
-
-          <p className="absolute bottom-6 left-6 text-xs font-bold uppercase tracking-[0.14em] text-[var(--muted-ink)] sm:bottom-8 sm:left-8">
-            Navy / Stone / White
-          </p>
+      <div className="relative overflow-hidden border-b border-[var(--line)] bg-[#f0ece4] lg:border-b-0 lg:border-r">
+        <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(255,255,255,0.9),transparent_60%)]" />
+        <div className="absolute left-[7%] top-[4%] h-[56%] w-[58%] -rotate-3 drop-shadow-[0_18px_20px_rgba(32,35,30,0.12)]">
+          <Image alt="Navy Harbor Knit Polo" className="object-contain" fill priority sizes="30vw" src="/products/top-02.svg" unoptimized />
         </div>
-
-        <figcaption className="flex flex-col justify-between p-6 sm:p-7">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--sage-dark)]">
-              Catalogue verified
-            </p>
-            <h2 className="mt-4 font-['Iowan_Old_Style','Palatino_Linotype',Georgia,serif] text-3xl leading-tight tracking-[-0.035em]">
-              Presentation,
-              <br />
-              smart casual
-            </h2>
-          </div>
-
-          <ol className="mt-8 divide-y divide-[var(--line)] border-y border-[var(--line)]">
-            {outfitItems.map((item) => (
-              <li
-                className="grid grid-cols-[1fr_auto] gap-4 py-4 text-sm leading-5"
-                key={item.name}
-              >
-                <span>{item.name}</span>
-                <span className="tabular-nums text-[var(--muted-ink)]">
-                  {item.price}
-                </span>
-              </li>
-            ))}
-          </ol>
-
-          <dl className="mt-7 flex items-end justify-between gap-4">
-            <div>
-              <dt className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--muted-ink)]">
-                Total
-              </dt>
-              <dd className="mt-1 font-['Iowan_Old_Style','Palatino_Linotype',Georgia,serif] text-3xl tabular-nums">
-                $129
-              </dd>
-            </div>
-            <div className="pb-1 text-right">
-              <dt className="sr-only">Items</dt>
-              <dd className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--muted-ink)]">
-                3 pieces
-              </dd>
-            </div>
-          </dl>
-        </figcaption>
+        <div className="absolute bottom-[4%] right-[4%] h-[60%] w-[56%] rotate-3 drop-shadow-[0_18px_20px_rgba(32,35,30,0.10)]">
+          <Image alt="Stone Straight Chinos" className="object-contain" fill priority sizes="28vw" src="/products/bottom-03.svg" unoptimized />
+        </div>
+        <div className="absolute bottom-[1%] left-[8%] h-[34%] w-[42%] -rotate-6 drop-shadow-[0_15px_16px_rgba(32,35,30,0.12)]">
+          <Image alt="White Minimal Court Sneakers" className="object-contain" fill priority sizes="22vw" src="/products/shoes-03.svg" unoptimized />
+        </div>
       </div>
+
+      <figcaption className="flex flex-col p-6 lg:p-7">
+        <p className="w-fit rounded-full bg-[#e7eadf] px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-[var(--sage-dark)]">
+          Outfit 1 of 3
+        </p>
+        <h2 className="mt-4 font-serif text-3xl leading-[1.05] tracking-[-0.035em]">
+          Smart casual
+          <br />
+          weekend
+        </h2>
+
+        <dl className="mt-5 space-y-3 border-b border-[var(--line)] pb-5 text-xs">
+          <div className="flex items-center justify-between gap-4">
+            <dt className="flex items-center gap-2"><LineIcon className="h-4 w-4" name="tag" /> Budget</dt>
+            <dd className="text-[var(--muted-ink)]">Up to $150</dd>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <dt className="flex items-center gap-2"><LineIcon className="h-4 w-4" name="hanger" /> Sizes</dt>
+            <dd className="text-[var(--muted-ink)]">M / 42</dd>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <dt className="flex items-center gap-2"><LineIcon className="h-4 w-4" name="shield" /> Verified</dt>
+            <dd className="text-[var(--muted-ink)]">All items checked</dd>
+          </div>
+        </dl>
+
+        <ol className="divide-y divide-[var(--line)]">
+          {outfitItems.map((item) => (
+            <li className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-3 py-3 text-xs" key={item.name}>
+              <span className="relative h-10 w-10 overflow-hidden bg-[#f0ece4]">
+                <Image alt="" className="object-contain p-1" fill sizes="40px" src={item.image} unoptimized />
+              </span>
+              <span>
+                <strong className="block font-semibold">{item.name}</strong>
+                <span className="text-[var(--muted-ink)]">{item.colour}</span>
+              </span>
+              <span className="tabular-nums">{item.price}</span>
+            </li>
+          ))}
+        </ol>
+
+        <dl className="mt-auto flex items-center justify-between border-t border-[var(--line)] pt-4">
+          <dt className="font-semibold">Total</dt>
+          <dd className="font-serif text-2xl font-semibold tabular-nums">$129</dd>
+        </dl>
+      </figcaption>
     </figure>
   );
 }

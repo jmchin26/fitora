@@ -11,6 +11,7 @@ import {
   type UserPreferences,
 } from "@/lib/catalogue/schemas";
 import { centsToDecimalString } from "@/lib/money";
+import { LineIcon } from "@/components/ui/line-icon";
 
 export type PreferenceDraft = {
   occasion: string;
@@ -223,13 +224,13 @@ function ChoiceGroup<T extends string>({
   return (
     <fieldset aria-describedby={describedBy}>
       <legend className="text-sm font-bold text-[var(--ink)]">{label}</legend>
-      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+      <div className="mt-2 grid gap-2 sm:grid-cols-3">
         {options.map((option) => {
           const checked = value === option;
 
           return (
             <label
-              className={`flex min-h-12 cursor-pointer items-center gap-3 border px-3.5 py-2.5 text-sm font-semibold transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus)] ${
+              className={`flex min-h-11 cursor-pointer items-center gap-2 border px-3 py-2 text-xs font-semibold transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus)] ${
                 checked
                   ? "border-[var(--sage-dark)] bg-[#e5e8df] text-[var(--sage-dark)]"
                   : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--sage)]"
@@ -272,13 +273,13 @@ function ColourGroup({
       aria-invalid={Boolean(describedBy)}
     >
       <legend className="text-sm font-bold text-[var(--ink)]">{label}</legend>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-2 flex flex-wrap gap-2">
         {PRODUCT_COLORS.map((color) => {
           const checked = selected.includes(color);
 
           return (
             <label
-              className={`flex min-h-11 cursor-pointer items-center gap-2 border px-3 py-2 text-sm transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus)] ${
+              className={`flex min-h-9 cursor-pointer items-center gap-2 border px-2.5 py-1.5 text-xs transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus)] ${
                 checked
                   ? "border-[var(--sage-dark)] bg-[#e5e8df] font-semibold text-[var(--sage-dark)]"
                   : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--sage)]"
@@ -364,29 +365,26 @@ export function PreferenceForm({
   }
 
   const controlClass =
-    "mt-2 min-h-12 w-full border border-[var(--line)] bg-[var(--surface)] px-3.5 py-2.5 text-base text-[var(--ink)] shadow-none transition-colors hover:border-[var(--sage)] focus:border-[var(--sage-dark)] focus:outline-none";
+    "mt-2 min-h-11 w-full border border-[var(--line)] bg-[var(--surface-strong)] px-3.5 py-2 text-sm text-[var(--ink)] shadow-none transition-colors hover:border-[var(--sage)] focus:border-[var(--sage-dark)] focus:outline-none";
 
   return (
     <form
-      className="border border-[var(--line)] bg-[var(--surface-muted)] p-5 shadow-[var(--shadow-soft)] sm:p-7 xl:sticky xl:top-24"
+      className="rounded-md border border-[var(--line)] bg-[var(--surface-strong)] p-6 shadow-[var(--shadow-soft)] xl:sticky xl:top-24"
       id="preference-form"
       noValidate
       onSubmit={handleSubmit}
     >
-      <div className="border-b border-[var(--line)] pb-5">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--sage-dark)]">
-          Step 01
-        </p>
-        <h2 className="mt-2 font-serif text-3xl tracking-[-0.035em]">
-          Tell us what fits
-        </h2>
-        <p className="mt-2 text-sm text-[var(--muted-ink)]">
-          All prices and stock are verified again by the server before an
-          outfit is shown.
-        </p>
+      <div className="flex items-center gap-4 border-b border-[var(--line)] pb-4">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#efebe2] text-[var(--sage-dark)]">
+          <LineIcon className="h-6 w-6" name="tag" />
+        </span>
+        <div>
+          <h2 className="font-serif text-2xl tracking-[-0.035em]">Tell us what fits</h2>
+          <p className="mt-1 text-xs text-[var(--muted-ink)]">Prices and stock are verified before an outfit is shown.</p>
+        </div>
       </div>
 
-      <div className="mt-6 space-y-7">
+      <div className="mt-5 space-y-5">
         <ChoiceGroup
           label="Occasion"
           name="occasion"
@@ -407,7 +405,7 @@ export function PreferenceForm({
           <label className="text-sm font-bold" htmlFor="budget-usd">
             Total outfit budget
           </label>
-          <p className="mt-1 text-sm text-[var(--muted-ink)]" id="budget-help">
+          <p className="mt-1 text-xs text-[var(--muted-ink)]" id="budget-help">
             One top, one bottom, and one pair of shoes · USD
           </p>
           <div className="relative">
@@ -438,7 +436,7 @@ export function PreferenceForm({
 
         <fieldset>
           <legend className="text-sm font-bold">Your sizes</legend>
-          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <div className="mt-2 grid gap-3 sm:grid-cols-3">
             <div>
               <label className="text-sm text-[var(--muted-ink)]" htmlFor="top-size">
                 Top
@@ -531,7 +529,7 @@ export function PreferenceForm({
             onToggle={(color) => toggleColour("excludedColors", color)}
             selected={draft.excludedColors}
           />
-          <p className="mt-2 text-sm text-[var(--muted-ink)]">
+          <p className="mt-1 text-xs text-[var(--muted-ink)]">
             Avoided colours are hard filters, not suggestions.
           </p>
           <ErrorMessage
@@ -543,11 +541,12 @@ export function PreferenceForm({
         <ErrorMessage id="form-error" message={errors.form} />
 
         <button
-          className="flex min-h-13 w-full items-center justify-center bg-[var(--sage-dark)] px-5 py-3 font-bold text-white shadow-[0_10px_24px_rgba(70,81,65,0.18)] transition-[background-color,transform,box-shadow] hover:-translate-y-0.5 hover:bg-[var(--ink)] hover:shadow-[0_14px_28px_rgba(32,35,30,0.20)] disabled:cursor-wait disabled:translate-y-0 disabled:opacity-70"
+          className="flex min-h-12 w-full items-center justify-center gap-3 bg-[var(--sage-dark)] px-5 py-3 font-bold text-white shadow-[0_10px_24px_rgba(70,81,65,0.18)] transition-[background-color,box-shadow] hover:bg-[var(--ink)] hover:shadow-[0_14px_28px_rgba(32,35,30,0.20)] disabled:cursor-wait disabled:opacity-70"
           disabled={isSubmitting}
           type="submit"
         >
           {isSubmitting ? "Building outfit options…" : "Build outfit options"}
+          {!isSubmitting ? <LineIcon className="h-5 w-5" name="arrow" /> : null}
         </button>
       </div>
     </form>

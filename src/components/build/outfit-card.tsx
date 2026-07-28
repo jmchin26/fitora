@@ -1,11 +1,8 @@
 import Image from "next/image";
 import { useState } from "react";
 
-import type {
-  Outfit,
-  ScoreBreakdown,
-  SelectedProduct,
-} from "@/lib/catalogue/schemas";
+import { LineIcon } from "@/components/ui/line-icon";
+import type { Outfit, ScoreBreakdown, SelectedProduct } from "@/lib/catalogue/schemas";
 import { formatUsd } from "@/lib/money";
 
 type OutfitCardProps = {
@@ -17,11 +14,7 @@ type OutfitCardProps = {
   onSelect: (outfit: Outfit) => void;
 };
 
-const SCORE_COMPONENTS: ReadonlyArray<{
-  key: keyof ScoreBreakdown;
-  label: string;
-  maximum: number;
-}> = [
+const SCORE_COMPONENTS: ReadonlyArray<{ key: keyof ScoreBreakdown; label: string; maximum: number }> = [
   { key: "occasion", label: "Occasion", maximum: 30 },
   { key: "style", label: "Style", maximum: 25 },
   { key: "colorCompatibility", label: "Colour harmony", maximum: 20 },
@@ -29,26 +22,22 @@ const SCORE_COMPONENTS: ReadonlyArray<{
   { key: "budgetEfficiency", label: "Budget efficiency", maximum: 10 },
 ];
 
-function ProductImage({ item }: { item: SelectedProduct }) {
+function ProductImage({ item, featured = false }: { item: SelectedProduct; featured?: boolean }) {
   const [failed, setFailed] = useState(false);
 
   return (
-    <div className="relative aspect-[4/5] overflow-hidden bg-[#e8e1d5]">
+    <div className={`relative overflow-hidden bg-[#eeeae2] ${featured ? "h-full min-h-[23rem]" : "min-h-0"}`}>
       {failed ? (
-        <div
-          aria-label={item.product.altText}
-          className="flex h-full items-center justify-center px-3 text-center text-xs font-semibold text-[var(--muted-ink)]"
-          role="img"
-        >
+        <div aria-label={item.product.altText} className="flex h-full items-center justify-center px-3 text-center text-xs font-semibold text-[var(--muted-ink)]" role="img">
           Product image unavailable
         </div>
       ) : (
         <Image
           alt={item.product.altText}
-          className="object-contain p-3"
+          className="object-contain p-4"
           fill
           onError={() => setFailed(true)}
-          sizes="(max-width: 639px) 30vw, (max-width: 1279px) 18vw, 11vw"
+          sizes={featured ? "(max-width: 1279px) 42vw, 25vw" : "(max-width: 1279px) 20vw, 10vw"}
           src={item.product.imagePath}
           unoptimized
         />
@@ -57,41 +46,19 @@ function ProductImage({ item }: { item: SelectedProduct }) {
   );
 }
 
-function ProductDetails({
-  item,
-  label,
-}: {
-  item: SelectedProduct;
-  label: string;
-}) {
+function ProductDetails({ item }: { item: SelectedProduct }) {
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 border-t border-[var(--line)] py-3.5 first:border-t-0">
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-5 border-t border-[var(--line)] py-3 first:border-t-0">
       <div className="min-w-0">
-        <p className="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-[var(--muted-ink)]">
-          {label}
-        </p>
-        <h4 className="mt-0.5 font-semibold leading-snug">
-          {item.product.name}
-        </h4>
-        <p className="mt-1 text-xs text-[var(--sage-dark)]">
-          In stock · Size {item.selectedSize}
-        </p>
+        <h4 className="font-semibold leading-snug">{item.product.name}</h4>
+        <p className="mt-0.5 text-xs text-[var(--muted-ink)]">In stock · Size {item.selectedSize}</p>
       </div>
-      <p className="font-semibold tabular-nums">
-        {formatUsd(item.product.priceCents)}
-      </p>
+      <p className="font-semibold tabular-nums">{formatUsd(item.product.priceCents)}</p>
     </div>
   );
 }
 
-export function OutfitCard({
-  index,
-  outfit,
-  budgetCents,
-  selected,
-  disabled = false,
-  onSelect,
-}: OutfitCardProps) {
+export function OutfitCard({ index, outfit, budgetCents, selected, disabled = false, onSelect }: OutfitCardProps) {
   const cardId = `outfit-option-${index + 1}`;
   const titleId = `${cardId}-title`;
   const explanationId = `${cardId}-explanation`;
@@ -101,110 +68,63 @@ export function OutfitCard({
   return (
     <article
       aria-labelledby={titleId}
-      className={`flex h-full flex-col border bg-[var(--surface-strong)] transition-[border-color,box-shadow,transform] duration-200 ${
-        selected
-          ? "-translate-y-1 border-[var(--sage-dark)] shadow-[var(--shadow-lifted)] ring-2 ring-[var(--sage-dark)] ring-offset-2 ring-offset-[var(--surface)]"
-          : "border-[var(--line)] hover:-translate-y-1 hover:border-[var(--sage)] hover:shadow-[var(--shadow-soft)]"
+      className={`overflow-hidden rounded-md border bg-[var(--surface-strong)] transition-[border-color,box-shadow] duration-200 ${
+        selected ? "border-[var(--sage-dark)] shadow-[var(--shadow-lifted)] ring-1 ring-[var(--sage-dark)]" : "border-[var(--line)] hover:border-[var(--sage)] hover:shadow-[var(--shadow-soft)]"
       }`}
     >
-      <div className="grid grid-cols-3 gap-px bg-[var(--line)]">
-        <ProductImage item={outfit.top} />
-        <ProductImage item={outfit.bottom} />
-        <ProductImage item={outfit.shoes} />
-      </div>
-
-      <div className="flex flex-1 flex-col p-5">
-        <div className="flex min-h-11 items-center justify-between gap-4">
-          <div>
-            <p className="text-[0.68rem] font-bold uppercase tracking-[0.14em] text-[var(--sage-dark)]">
-              Look {String(index + 1).padStart(2, "0")}
-            </p>
-            <h3
-              className="mt-1 font-serif text-2xl tracking-[-0.03em]"
-              id={titleId}
-            >
-              Verified outfit {String(index + 1).padStart(2, "0")}
-            </h3>
+      <div className="grid xl:grid-cols-[0.92fr_1.08fr]">
+        <div className="grid min-h-[25rem] grid-cols-[1fr_0.34fr] gap-2 border-b border-[var(--line)] bg-[#e8e3da] p-2 xl:border-b-0 xl:border-r">
+          <ProductImage featured item={outfit.top} />
+          <div className="grid grid-rows-2 gap-2">
+            <ProductImage item={outfit.bottom} />
+            <ProductImage item={outfit.shoes} />
           </div>
-          <label
-            className={`flex min-h-11 items-center gap-2 text-sm font-semibold ${
-              disabled ? "cursor-not-allowed" : "cursor-pointer"
-            }`}
-            htmlFor={cardId}
-          >
-            <span>Select</span>
-            <input
-              aria-describedby={`${explanationId} ${totalId}`}
-              checked={selected}
-              className="h-5 w-5 shrink-0 accent-[var(--sage-dark)]"
-              disabled={disabled}
-              id={cardId}
-              name="selectedOutfit"
-              onChange={() => onSelect(outfit)}
-              type="radio"
-              value={outfit.id}
-            />
-            <span className="sr-only">
-              verified outfit {String(index + 1).padStart(2, "0")}
-            </span>
-          </label>
         </div>
 
-        <div className="mt-5">
-          <ProductDetails item={outfit.top} label="Top" />
-          <ProductDetails item={outfit.bottom} label="Bottom" />
-          <ProductDetails item={outfit.shoes} label="Shoes" />
-        </div>
-
-        <div className="mt-auto border-t-2 border-[var(--ink)] pt-4">
-          <div className="flex items-end justify-between gap-4" id={totalId}>
+        <div className="flex min-w-0 flex-col p-6">
+          <div className="flex items-start justify-between gap-5">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--muted-ink)]">
-                Verified total
-              </p>
-              <p className="mt-1 text-sm text-[var(--muted-ink)]">
-                {formatUsd(budgetRemainingCents)} left in budget
-              </p>
+              <p className="text-[0.66rem] font-bold uppercase tracking-[0.14em] text-[var(--sage-dark)]">Outfit option {index + 1}</p>
+              <h3 className="mt-2 font-serif text-2xl tracking-[-0.03em]" id={titleId}>Verified outfit {String(index + 1).padStart(2, "0")}</h3>
             </div>
-            <p className="font-serif text-3xl tracking-[-0.04em] tabular-nums">
-              {formatUsd(outfit.totalCents)}
-            </p>
+            <span className="rounded-full bg-[#e7eadf] px-3 py-1 text-xs font-semibold text-[var(--sage-dark)]">{outfit.score}% match</span>
+          </div>
+
+          <p className="mt-4 text-sm leading-6 text-[var(--muted-ink)]" id={explanationId}>{outfit.explanation}</p>
+          <div className="mt-4"><ProductDetails item={outfit.top} /><ProductDetails item={outfit.bottom} /><ProductDetails item={outfit.shoes} /></div>
+
+          <div className="mt-auto grid grid-cols-3 border-y border-[var(--line)] py-4 text-xs">
+            <div className="flex items-center gap-2 border-r border-[var(--line)] pr-3">
+              <LineIcon className="h-5 w-5" name="tag" />
+              <span><strong className="block">Total</strong><span className="tabular-nums">{formatUsd(outfit.totalCents)}</span></span>
+            </div>
+            <div className="flex items-center gap-2 border-r border-[var(--line)] px-3">
+              <LineIcon className="h-5 w-5" name="package" />
+              <span><strong className="block">In stock</strong><span className="text-[var(--muted-ink)]">All items</span></span>
+            </div>
+            <div className="flex items-center gap-2 pl-3">
+              <LineIcon className="h-5 w-5" name="shield" />
+              <span><strong className="block">Budget</strong><span className="text-[var(--muted-ink)]">{formatUsd(budgetRemainingCents)} left</span></span>
+            </div>
+          </div>
+
+          <div className="mt-4 flex items-center justify-between gap-4" id={totalId}>
+            <details className="group relative">
+              <summary className="cursor-pointer list-none text-sm font-semibold underline decoration-[var(--line)] underline-offset-4 [&::-webkit-details-marker]:hidden">Why it ranks</summary>
+              <dl className="absolute z-10 mt-2 w-64 space-y-2 border border-[var(--line)] bg-[var(--surface-strong)] p-4 shadow-[var(--shadow-soft)]">
+                {SCORE_COMPONENTS.map((component) => (
+                  <div className="flex justify-between gap-4 text-xs" key={component.key}><dt className="text-[var(--muted-ink)]">{component.label}</dt><dd className="font-semibold tabular-nums">{outfit.scoreBreakdown[component.key]} / {component.maximum}</dd></div>
+                ))}
+              </dl>
+            </details>
+
+            <label className={`inline-flex min-h-11 items-center gap-3 bg-[var(--sage-dark)] px-5 font-bold text-white ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:bg-[var(--ink)]"}`} htmlFor={cardId}>
+              <span>{selected ? "Selected" : "Select look"}</span>
+              <input aria-describedby={`${explanationId} ${totalId}`} aria-label={`Select verified outfit ${String(index + 1).padStart(2, "0")}`} checked={selected} className="sr-only" disabled={disabled} id={cardId} name="selectedOutfit" onChange={() => onSelect(outfit)} type="radio" value={outfit.id} />
+              <LineIcon className="h-4 w-4" name={selected ? "shield" : "arrow"} />
+            </label>
           </div>
         </div>
-
-        <div className="mt-5 border-l-2 border-[var(--sage)] pl-4">
-          <p
-            className="text-sm leading-relaxed text-[var(--muted-ink)]"
-            id={explanationId}
-          >
-            {outfit.explanation}
-          </p>
-        </div>
-
-        <details className="group mt-5 border-t border-[var(--line)] pt-4">
-          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 text-sm font-bold [&::-webkit-details-marker]:hidden">
-            <span>Why it ranks · {outfit.score}/100</span>
-            <span
-              aria-hidden="true"
-              className="text-lg font-normal transition-transform group-open:rotate-45"
-            >
-              +
-            </span>
-          </summary>
-          <dl className="space-y-2 pb-1 pt-3">
-            {SCORE_COMPONENTS.map((component) => (
-              <div
-                className="flex items-center justify-between gap-4 text-sm"
-                key={component.key}
-              >
-                <dt className="text-[var(--muted-ink)]">{component.label}</dt>
-                <dd className="font-semibold tabular-nums">
-                  {outfit.scoreBreakdown[component.key]} / {component.maximum}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </details>
       </div>
     </article>
   );
