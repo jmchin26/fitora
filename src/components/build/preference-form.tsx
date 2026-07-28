@@ -267,6 +267,47 @@ function ColourGroup({
   selected: readonly ProductColor[];
   onToggle: (color: ProductColor) => void;
 }) {
+  const featuredColors: ProductColor[] =
+    name === "preferredColors"
+      ? ["black", "white", "navy", "charcoal", "olive"]
+      : ["stone", "beige", "brown", "grey", "burgundy"];
+  const moreColors = PRODUCT_COLORS.filter(
+    (color) => !featuredColors.includes(color),
+  );
+  const hiddenSelectionCount = moreColors.filter((color) =>
+    selected.includes(color),
+  ).length;
+
+  function colorChoice(color: ProductColor) {
+    const checked = selected.includes(color);
+
+    return (
+      <label
+        className={`flex min-h-9 cursor-pointer items-center gap-2 border px-2.5 py-1.5 text-xs transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus)] ${
+          checked
+            ? "border-[var(--sage-dark)] bg-[#e5e8df] font-semibold text-[var(--sage-dark)]"
+            : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--sage)]"
+        }`}
+        key={color}
+      >
+        <input
+          checked={checked}
+          className="sr-only"
+          name={name}
+          onChange={() => onToggle(color)}
+          type="checkbox"
+          value={color}
+        />
+        <span
+          aria-hidden="true"
+          className="h-3.5 w-3.5 rounded-full border border-black/20"
+          style={{ backgroundColor: COLOR_SWATCHES[color] }}
+        />
+        {capitalize(color)}
+      </label>
+    );
+  }
+
   return (
     <fieldset
       aria-describedby={describedBy}
@@ -274,36 +315,15 @@ function ColourGroup({
     >
       <legend className="text-sm font-bold text-[var(--ink)]">{label}</legend>
       <div className="mt-2 flex flex-wrap gap-2">
-        {PRODUCT_COLORS.map((color) => {
-          const checked = selected.includes(color);
-
-          return (
-            <label
-              className={`flex min-h-9 cursor-pointer items-center gap-2 border px-2.5 py-1.5 text-xs transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus)] ${
-                checked
-                  ? "border-[var(--sage-dark)] bg-[#e5e8df] font-semibold text-[var(--sage-dark)]"
-                  : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--sage)]"
-              }`}
-              key={color}
-            >
-              <input
-                checked={checked}
-                className="sr-only"
-                name={name}
-                onChange={() => onToggle(color)}
-                type="checkbox"
-                value={color}
-              />
-              <span
-                aria-hidden="true"
-                className="h-3.5 w-3.5 rounded-full border border-black/20"
-                style={{ backgroundColor: COLOR_SWATCHES[color] }}
-              />
-              {capitalize(color)}
-            </label>
-          );
-        })}
+        {featuredColors.map(colorChoice)}
       </div>
+      <details className="group mt-2">
+        <summary className="min-h-9 cursor-pointer list-none text-xs font-semibold text-[var(--sage-dark)] underline decoration-[var(--line)] underline-offset-4 [&::-webkit-details-marker]:hidden">
+          More colours{hiddenSelectionCount > 0 ? ` (${hiddenSelectionCount} selected)` : ""}
+          <span aria-hidden="true" className="ml-2 inline-block transition-transform group-open:rotate-45">+</span>
+        </summary>
+        <div className="flex flex-wrap gap-2 pt-2">{moreColors.map(colorChoice)}</div>
+      </details>
     </fieldset>
   );
 }

@@ -533,7 +533,7 @@ export function BuildExperience() {
   }
 
   return (
-    <section className="border-t border-[var(--line)] bg-[var(--surface)] px-6 py-8 lg:px-12 lg:py-10">
+    <section className="border-t border-[var(--line)] bg-[var(--surface)] px-6 py-6 lg:px-12 lg:py-6">
       <div className="mx-auto grid w-full max-w-[96rem] gap-9 xl:grid-cols-[27.5rem_minmax(0,1fr)] xl:items-start xl:gap-10">
         <div>
           {storageNotice ? (
