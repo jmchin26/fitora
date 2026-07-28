@@ -26,7 +26,7 @@ function ProductImage({ item, featured = false }: { item: SelectedProduct; featu
   const [failed, setFailed] = useState(false);
 
   return (
-    <div className={`relative overflow-hidden bg-[#eeeae2] ${featured ? "h-full min-h-[23rem]" : "min-h-0"}`}>
+    <div className={`relative overflow-hidden bg-[#eeeae2] ${featured ? "h-full min-h-[22rem]" : "min-h-0"}`}>
       {failed ? (
         <div aria-label={item.product.altText} className="flex h-full items-center justify-center px-3 text-center text-xs font-semibold text-[var(--muted-ink)]" role="img">
           Product image unavailable
@@ -48,7 +48,7 @@ function ProductImage({ item, featured = false }: { item: SelectedProduct; featu
 
 function ProductDetails({ item }: { item: SelectedProduct }) {
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-5 border-t border-[var(--line)] py-3 first:border-t-0">
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-5 border-t border-[var(--line)] py-2 first:border-t-0">
       <div className="min-w-0">
         <h4 className="font-semibold leading-snug">{item.product.name}</h4>
         <p className="mt-0.5 text-xs text-[var(--muted-ink)]">In stock · Size {item.selectedSize}</p>
@@ -73,7 +73,7 @@ export function OutfitCard({ index, outfit, budgetCents, selected, disabled = fa
       }`}
     >
       <div className="grid xl:grid-cols-[0.92fr_1.08fr]">
-        <div className="grid min-h-[25rem] grid-cols-[1fr_0.34fr] gap-2 border-b border-[var(--line)] bg-[#e8e3da] p-2 xl:border-b-0 xl:border-r">
+        <div className="grid min-h-[22rem] grid-cols-[1fr_0.34fr] gap-2 border-b border-[var(--line)] bg-[#e8e3da] p-2 xl:border-b-0 xl:border-r">
           <ProductImage featured item={outfit.top} />
           <div className="grid grid-rows-2 gap-2">
             <ProductImage item={outfit.bottom} />
@@ -81,7 +81,7 @@ export function OutfitCard({ index, outfit, budgetCents, selected, disabled = fa
           </div>
         </div>
 
-        <div className="flex min-w-0 flex-col p-6">
+        <div className="flex min-w-0 flex-col p-5">
           <div className="flex items-start justify-between gap-5">
             <div>
               <p className="text-[0.66rem] font-bold uppercase tracking-[0.14em] text-[var(--sage-dark)]">Outfit option {index + 1}</p>
@@ -90,10 +90,10 @@ export function OutfitCard({ index, outfit, budgetCents, selected, disabled = fa
             <span className="rounded-full bg-[#e7eadf] px-3 py-1 text-xs font-semibold text-[var(--sage-dark)]">{outfit.score}% match</span>
           </div>
 
-          <p className="mt-4 text-sm leading-6 text-[var(--muted-ink)]" id={explanationId}>{outfit.explanation}</p>
-          <div className="mt-4"><ProductDetails item={outfit.top} /><ProductDetails item={outfit.bottom} /><ProductDetails item={outfit.shoes} /></div>
+          <p className="mt-3 line-clamp-2 text-sm leading-6 text-[var(--muted-ink)]" id={explanationId}>{outfit.explanation}</p>
+          <div className="mt-2"><ProductDetails item={outfit.top} /><ProductDetails item={outfit.bottom} /><ProductDetails item={outfit.shoes} /></div>
 
-          <div className="mt-auto grid grid-cols-3 border-y border-[var(--line)] py-4 text-xs">
+          <div className="mt-auto grid grid-cols-3 border-y border-[var(--line)] py-3 text-xs">
             <div className="flex items-center gap-2 border-r border-[var(--line)] pr-3">
               <LineIcon className="h-5 w-5" name="tag" />
               <span><strong className="block">Total</strong><span className="tabular-nums">{formatUsd(outfit.totalCents)}</span></span>
@@ -108,7 +108,7 @@ export function OutfitCard({ index, outfit, budgetCents, selected, disabled = fa
             </div>
           </div>
 
-          <div className="mt-4 flex items-center justify-between gap-4" id={totalId}>
+          <div className="mt-3 flex items-center justify-between gap-4" id={totalId}>
             <details className="group relative">
               <summary className="cursor-pointer list-none text-sm font-semibold underline decoration-[var(--line)] underline-offset-4 [&::-webkit-details-marker]:hidden">Why it ranks</summary>
               <dl className="absolute z-10 mt-2 w-64 space-y-2 border border-[var(--line)] bg-[var(--surface-strong)] p-4 shadow-[var(--shadow-soft)]">

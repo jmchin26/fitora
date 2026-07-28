@@ -9,7 +9,7 @@ const steps = [
 export function ProcessSteps() {
   return (
     <section aria-labelledby="process-title" className="border-y border-[var(--line)] bg-[var(--surface)]" id="how-it-works">
-      <div className="mx-auto grid w-full max-w-[96rem] grid-cols-[0.7fr_2.3fr] px-6 py-10 lg:px-12">
+      <div className="mx-auto grid w-full max-w-[96rem] grid-cols-[0.7fr_2.3fr] px-6 py-8 lg:px-12">
         <div className="border-r border-[var(--line)] pr-10">
           <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--sage-dark)]">How Fitora works</p>
           <h2 className="mt-4 max-w-[12ch] font-serif text-3xl leading-[1.05] tracking-[-0.04em]" id="process-title">

@@ -12,7 +12,7 @@ export function EditorialLookPreview() {
   return (
     <figure
       aria-label="A sample catalogue-verified Fitora outfit"
-      className="relative z-10 grid min-h-[31rem] overflow-hidden rounded-md border border-[var(--line)] bg-[var(--surface-strong)] shadow-[var(--shadow-lifted)] lg:grid-cols-[1.15fr_0.85fr]"
+      className="relative z-10 grid min-h-[28rem] overflow-hidden rounded-md border border-[var(--line)] bg-[var(--surface-strong)] shadow-[var(--shadow-lifted)] lg:grid-cols-[1.15fr_0.85fr]"
     >
       <div className="relative overflow-hidden border-b border-[var(--line)] bg-[#f0ece4] lg:border-b-0 lg:border-r">
         <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(255,255,255,0.9),transparent_60%)]" />

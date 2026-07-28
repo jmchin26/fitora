@@ -13,7 +13,7 @@ export default function Home() {
       <main id="main-content" tabIndex={-1}>
         <section
           aria-labelledby="hero-title"
-          className="relative mx-auto grid w-full max-w-[96rem] items-center gap-12 overflow-hidden px-6 py-12 lg:min-h-[42rem] lg:grid-cols-[0.86fr_1.14fr] lg:gap-16 lg:px-12 lg:py-10"
+          className="relative mx-auto grid w-full max-w-[96rem] items-center gap-12 overflow-hidden px-6 py-10 lg:grid-cols-[0.86fr_1.14fr] lg:gap-16 lg:px-12 lg:py-8"
         >
           <div aria-hidden="true" className="editorial-grid pointer-events-none absolute inset-0 z-0 opacity-70" />
           <div className="relative z-10 max-w-2xl">
@@ -24,7 +24,7 @@ export default function Home() {
 
             <h1
               id="hero-title"
-              className="mt-5 max-w-[13ch] font-serif text-[clamp(3.5rem,5.7vw,5.7rem)] font-medium leading-[0.9] tracking-[-0.06em]"
+              className="mt-5 max-w-[18ch] font-serif text-[clamp(3.5rem,5.7vw,5.7rem)] font-medium leading-[0.9] tracking-[-0.06em]"
             >
               Complete outfits,{" "}
               <br />

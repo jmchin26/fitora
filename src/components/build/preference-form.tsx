@@ -283,7 +283,7 @@ function ColourGroup({
 
     return (
       <label
-        className={`flex min-h-9 cursor-pointer items-center gap-2 border px-2.5 py-1.5 text-xs transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus)] ${
+        className={`flex min-h-9 cursor-pointer items-center gap-1 border px-1.5 py-1.5 text-[0.65rem] transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus)] ${
           checked
             ? "border-[var(--sage-dark)] bg-[#e5e8df] font-semibold text-[var(--sage-dark)]"
             : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--sage)]"
@@ -300,7 +300,7 @@ function ColourGroup({
         />
         <span
           aria-hidden="true"
-          className="h-3.5 w-3.5 rounded-full border border-black/20"
+          className="h-3 w-3 shrink-0 rounded-full border border-black/20"
           style={{ backgroundColor: COLOR_SWATCHES[color] }}
         />
         {capitalize(color)}
@@ -314,7 +314,7 @@ function ColourGroup({
       aria-invalid={Boolean(describedBy)}
     >
       <legend className="text-sm font-bold text-[var(--ink)]">{label}</legend>
-      <div className="mt-2 flex flex-wrap gap-2">
+      <div className="mt-2 grid grid-cols-5 gap-1">
         {featuredColors.map(colorChoice)}
       </div>
       <details className="group mt-2">
@@ -404,7 +404,7 @@ export function PreferenceForm({
         </div>
       </div>
 
-      <div className="mt-5 space-y-5">
+      <div className="mt-5 space-y-4">
         <ChoiceGroup
           label="Occasion"
           name="occasion"
