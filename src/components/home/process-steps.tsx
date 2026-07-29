@@ -8,22 +8,22 @@ const steps = [
 
 export function ProcessSteps() {
   return (
-    <section aria-labelledby="process-title" className="border-y border-[var(--line)] bg-[var(--surface)]" id="how-it-works">
-      <div className="mx-auto grid w-full max-w-[96rem] grid-cols-[0.7fr_2.3fr] px-6 py-8 lg:px-12">
-        <div className="border-r border-[var(--line)] pr-10">
+    <section aria-labelledby="process-title" className="border-t border-[var(--line)] bg-[var(--surface)]" id="how-it-works">
+      <div className="mx-auto grid w-full max-w-[96rem] grid-cols-[0.68fr_2.32fr] px-6 py-9 lg:px-12">
+        <div className="border-r border-[var(--line)] pr-9">
           <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--sage-dark)]">How Fitora works</p>
-          <h2 className="mt-4 max-w-[16ch] font-serif text-3xl leading-[1.05] tracking-[-0.04em]" id="process-title">
-            A better way to shop outfits.
+          <h2 className="mt-3 max-w-[16ch] font-serif text-3xl leading-[1.05] tracking-[-0.04em]" id="process-title">
+            Shopping, with a clearer next step.
           </h2>
-          <p className="mt-4 max-w-xs text-sm leading-6 text-[var(--muted-ink)]">
+          <p className="mt-3 max-w-xs text-sm leading-6 text-[var(--muted-ink)]">
             Verified catalogue items. Real outfit logic. You stay in control from start to finish.
           </p>
         </div>
 
         <ol className="grid grid-cols-3">
           {steps.map((step) => (
-            <li className="grid grid-cols-[3.5rem_1fr] gap-5 border-r border-[var(--line)] px-8 last:border-r-0" key={step.title}>
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#efebe2] text-[var(--sage-dark)]">
+            <li className="grid grid-cols-[3.25rem_1fr] gap-4 border-r border-[var(--line)] px-7 last:border-r-0" key={step.title}>
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--surface-muted)] text-[var(--sage-dark)]">
                 <LineIcon className="h-6 w-6" name={step.icon} />
               </span>
               <div>

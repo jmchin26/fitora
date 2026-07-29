@@ -2,18 +2,18 @@
 
 :root {
   color-scheme: light;
-  --canvas: #f7f4ee;
-  --surface: #fbfaf7;
+  --canvas: #f8f7f4;
+  --surface: #ffffff;
   --surface-strong: #ffffff;
-  --surface-muted: #f0ece4;
-  --ink: #20231e;
-  --muted-ink: #5f665b;
-  --sage: #667260;
-  --sage-dark: #465141;
-  --line: #d8d1c5;
+  --surface-muted: #f2f1ed;
+  --ink: #1d211d;
+  --muted-ink: #62665f;
+  --sage: #68745f;
+  --sage-dark: #34442f;
+  --line: #deded8;
   --focus: #33452f;
-  --shadow-soft: 0 18px 50px rgba(32, 35, 30, 0.08);
-  --shadow-lifted: 0 28px 80px rgba(32, 35, 30, 0.13);
+  --shadow-soft: 0 12px 30px rgba(29, 33, 29, 0.07);
+  --shadow-lifted: 0 20px 50px rgba(29, 33, 29, 0.1);
 }
 
 * {
@@ -59,14 +59,6 @@ button:disabled {
 button,
 a {
   -webkit-tap-highlight-color: transparent;
-}
-
-.editorial-grid {
-  background-image:
-    linear-gradient(rgba(70, 81, 65, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(70, 81, 65, 0.045) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: linear-gradient(to bottom, black, transparent 88%);
 }
 
 img,

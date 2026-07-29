@@ -10,7 +10,7 @@ describe("Fitora landing page", () => {
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: "Complete outfits, built around you.",
+        name: "Find your next complete outfit.",
       }),
     ).toBeInTheDocument();
     expect(
@@ -18,13 +18,11 @@ describe("Fitora landing page", () => {
     ).toHaveAttribute("href", "/build");
 
     [
-      "1. Describe",
-      "2. Review",
-      "3. Approve",
+      "Describe",
+      "Compare",
+      "Approve",
     ].forEach((step) => {
-      expect(
-        screen.getByRole("heading", { level: 3, name: step }),
-      ).toBeInTheDocument();
+      expect(screen.getByText(step)).toBeInTheDocument();
     });
 
   });

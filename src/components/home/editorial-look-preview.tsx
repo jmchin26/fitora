@@ -12,32 +12,33 @@ export function EditorialLookPreview() {
   return (
     <figure
       aria-label="A sample catalogue-verified Fitora outfit"
-      className="relative z-10 grid min-h-[28rem] overflow-hidden rounded-md border border-[var(--line)] bg-[var(--surface-strong)] shadow-[var(--shadow-lifted)] lg:grid-cols-[1.15fr_0.85fr]"
+      className="relative z-10 grid min-h-[29rem] overflow-hidden border border-[var(--line)] bg-[var(--surface-strong)] shadow-[var(--shadow-soft)] lg:grid-cols-[1.08fr_0.92fr]"
     >
-      <div className="relative overflow-hidden border-b border-[var(--line)] bg-[#f0ece4] lg:border-b-0 lg:border-r">
-        <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(255,255,255,0.9),transparent_60%)]" />
-        <div className="absolute left-[7%] top-[4%] h-[56%] w-[58%] -rotate-3 drop-shadow-[0_18px_20px_rgba(32,35,30,0.12)]">
+      <div className="relative overflow-hidden border-b border-[var(--line)] bg-[var(--surface-muted)] lg:border-b-0 lg:border-r">
+        <p className="absolute left-5 top-5 z-10 text-[0.65rem] font-bold uppercase tracking-[0.15em] text-[var(--muted-ink)]">Selected pieces</p>
+        <div aria-hidden="true" className="absolute inset-x-0 top-12 h-px bg-[var(--line)]" />
+        <div className="absolute left-[8%] top-[12%] h-[54%] w-[57%] -rotate-3 drop-shadow-[0_16px_18px_rgba(32,35,30,0.1)]">
           <Image alt="Navy Harbor Knit Polo" className="object-contain" fill priority sizes="30vw" src="/products/top-02.svg" unoptimized />
         </div>
-        <div className="absolute bottom-[4%] right-[4%] h-[60%] w-[56%] rotate-3 drop-shadow-[0_18px_20px_rgba(32,35,30,0.10)]">
+        <div className="absolute bottom-[5%] right-[5%] h-[58%] w-[55%] rotate-3 drop-shadow-[0_16px_18px_rgba(32,35,30,0.1)]">
           <Image alt="Stone Straight Chinos" className="object-contain" fill priority sizes="28vw" src="/products/bottom-03.svg" unoptimized />
         </div>
-        <div className="absolute bottom-[1%] left-[8%] h-[34%] w-[42%] -rotate-6 drop-shadow-[0_15px_16px_rgba(32,35,30,0.12)]">
+        <div className="absolute bottom-[3%] left-[8%] h-[33%] w-[42%] -rotate-6 drop-shadow-[0_15px_16px_rgba(32,35,30,0.1)]">
           <Image alt="White Minimal Court Sneakers" className="object-contain" fill priority sizes="22vw" src="/products/shoes-03.svg" unoptimized />
         </div>
       </div>
 
-      <figcaption className="flex flex-col p-6 lg:p-7">
-        <p className="w-fit rounded-full bg-[#e7eadf] px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-[var(--sage-dark)]">
+      <figcaption className="flex flex-col p-5 lg:p-6">
+        <p className="w-fit bg-[#e7eadf] px-2.5 py-1 text-[0.62rem] font-bold uppercase tracking-[0.12em] text-[var(--sage-dark)]">
           Outfit 1 of 3
         </p>
-        <h2 className="mt-4 font-serif text-3xl leading-[1.05] tracking-[-0.035em]">
+        <h2 className="mt-4 font-serif text-[1.8rem] leading-[1.05] tracking-[-0.035em]">
           Smart casual
           <br />
           weekend
         </h2>
 
-        <dl className="mt-5 space-y-3 border-b border-[var(--line)] pb-5 text-xs">
+        <dl className="mt-5 space-y-3 border-b border-[var(--line)] pb-4 text-xs">
           <div className="flex items-center justify-between gap-4">
             <dt className="flex items-center gap-2"><LineIcon className="h-4 w-4" name="tag" /> Budget</dt>
             <dd className="text-[var(--muted-ink)]">Up to $150</dd>
@@ -54,7 +55,7 @@ export function EditorialLookPreview() {
 
         <ol className="divide-y divide-[var(--line)]">
           {outfitItems.map((item) => (
-            <li className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-3 py-3 text-xs" key={item.name}>
+            <li className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-3 py-2.5 text-xs" key={item.name}>
               <span className="relative h-10 w-10 overflow-hidden bg-[#f0ece4]">
                 <Image alt="" className="object-contain p-1" fill sizes="40px" src={item.image} unoptimized />
               </span>
