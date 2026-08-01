@@ -593,7 +593,7 @@ export function BuildExperience() {
               ) : null}
               <fieldset>
                 <legend className="sr-only">Choose one outfit</legend>
-                <div className="space-y-6">
+                <div className="grid gap-4 lg:grid-cols-3">
                   {requestState.outfits.map((outfit, index) => (
                     <OutfitCard
                       budgetCents={requestState.preferences.budgetCents}
