@@ -62,7 +62,7 @@ function noChangeMessage(
     return "No in-stock replacement satisfies every current size, colour, merchant, and budget constraint, so the verified look is unchanged.";
   }
 
-  return "I couldn't match that request to a supported edit. Try one change at a time: replace an item, change the style or budget, or prefer or avoid a colour.";
+  return "Tell me whether you want to improve the price, style, colour, or one item.";
 }
 
 export function buildAgentMessage(

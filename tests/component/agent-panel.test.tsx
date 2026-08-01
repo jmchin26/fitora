@@ -134,13 +134,13 @@ describe("AgentPanel", () => {
     ).toHaveAttribute("maxlength", "280");
   });
 
-  it("presents unsupported requests as recoverable no-change feedback", async () => {
+  it("turns unsupported requests into an editable clarification", async () => {
     const user = userEvent.setup();
     const noChangeResponse = agentResponse({
       intent: { type: "UNSUPPORTED", reason: "UNRECOGNIZED_COMMAND" },
       event: { type: "NO_CHANGE", reason: "unsupported" },
       assistantMessage:
-        "I couldn't match that request to a supported edit. Try one change at a time: replace an item, change the style or budget, or prefer or avoid a colour.",
+        "Tell me whether you want to improve the price, style, colour, or one item.",
     });
     vi.stubGlobal(
       "fetch",
@@ -162,11 +162,27 @@ describe("AgentPanel", () => {
     );
     await user.click(screen.getByRole("button", { name: "Apply change" }));
 
-    expect(await screen.findByText("No changes made")).toBeInTheDocument();
     expect(
-      screen.getByText(/replace an item, change the style or budget/i),
+      await screen.findByText("What should I improve?"),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("group", { name: "Choose what to improve" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Price/i })).toBeEnabled();
+    expect(screen.getByRole("button", { name: /Style/i })).toBeEnabled();
+    expect(screen.getByRole("button", { name: /Colour/i })).toBeEnabled();
+    expect(screen.getByRole("button", { name: /Item/i })).toBeEnabled();
     expect(screen.queryByText("Your updated edit")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /Style/i }));
+
+    expect(
+      screen.getByRole("textbox", { name: "What would you change?" }),
+    ).toHaveValue("Make this outfit more relaxed");
+    expect(
+      screen.getByRole("textbox", { name: "What would you change?" }),
+    ).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Apply change" })).toBeEnabled();
   });
 
   it("sends only the message, preferences, outfit references, and selected reference", async () => {

@@ -27,6 +27,33 @@ const SUGGESTED_COMMANDS = [
   "Lower the budget to $130",
 ] as const;
 
+const CLARIFICATION_OPTIONS = [
+  {
+    label: "Price",
+    description: "Lower the outfit total",
+    draft: "Make this outfit cheaper",
+    icon: "tag",
+  },
+  {
+    label: "Style",
+    description: "Change the overall mood",
+    draft: "Make this outfit more relaxed",
+    icon: "hanger",
+  },
+  {
+    label: "Colour",
+    description: "Prefer or avoid a colour",
+    draft: "Prefer navy",
+    icon: "wave",
+  },
+  {
+    label: "Item",
+    description: "Replace one piece",
+    draft: "Replace the shoes",
+    icon: "shirt",
+  },
+] as const;
+
 type ActiveAgentRequest = {
   controller: AbortController;
   contextKey: string;
@@ -101,6 +128,7 @@ export function AgentPanel({
   const [latestResponse, setLatestResponse] =
     useState<AgentSuccessResponse | null>(null);
   const activeRequest = useRef<ActiveAgentRequest | null>(null);
+  const messageInput = useRef<HTMLTextAreaElement | null>(null);
   const nextToken = useRef(0);
   const latestDisabled = useRef(disabled);
   const latestOnVerifiedResponse = useRef(onVerifiedResponse);
@@ -242,6 +270,19 @@ export function AgentPanel({
   const isAvailable = !disabled && outfits.length > 0;
   const characterCount = message.length;
   const latestResponseIsNoChange = latestResponse?.event.type === "NO_CHANGE";
+  const latestResponseNeedsClarification =
+    latestResponse?.event.type === "NO_CHANGE" &&
+    (latestResponse.event.reason === "unsupported" ||
+      latestResponse.event.reason === "missing_target");
+
+  function prepareClarifiedRequest(draft: string) {
+    setMessage(draft);
+    setErrorMessage(null);
+    messageInput.current?.focus();
+    window.requestAnimationFrame(() => {
+      messageInput.current?.setSelectionRange(draft.length, draft.length);
+    });
+  }
 
   return (
     <section
@@ -292,6 +333,7 @@ export function AgentPanel({
           maxLength={280}
           onChange={(event) => setMessage(event.currentTarget.value)}
           placeholder="For example: make this outfit more relaxed"
+          ref={messageInput}
           rows={3}
           value={message}
         />
@@ -349,15 +391,58 @@ export function AgentPanel({
         >
           <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
             <p className="font-serif text-xl text-[var(--sage-dark)]">
-              {latestResponseIsNoChange ? "No changes made" : "Your updated edit"}
+              {latestResponseNeedsClarification
+                ? "What should I improve?"
+                : latestResponseIsNoChange
+                  ? "No changes made"
+                  : "Your updated edit"}
             </p>
             <p className="w-fit border border-[var(--line)] bg-[var(--surface-strong)] px-2.5 py-1 text-[0.68rem] font-semibold text-[var(--muted-ink)]">
               Styling mode: {providerLabel(latestResponse.provider.interpretedBy)}
             </p>
           </div>
-          <p className="mt-3 max-w-3xl text-sm leading-relaxed">
-            {latestResponse.assistantMessage}
-          </p>
+          {latestResponseNeedsClarification ? (
+            <>
+              <p className="mt-3 max-w-3xl text-sm leading-relaxed">
+                Choose one area. I’ll prepare a clear request for you to review
+                before anything changes.
+              </p>
+              <div
+                aria-label="Choose what to improve"
+                className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4"
+                role="group"
+              >
+                {CLARIFICATION_OPTIONS.map((option) => (
+                  <button
+                    className="group flex min-h-20 items-start gap-3 border border-[var(--line)] bg-[var(--surface)] p-3 text-left transition-colors hover:border-[var(--sage-dark)] hover:bg-[var(--surface-strong)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]"
+                    disabled={!isAvailable || isLoading}
+                    key={option.label}
+                    onClick={() => prepareClarifiedRequest(option.draft)}
+                    type="button"
+                  >
+                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center border border-[var(--line)] text-[var(--sage-dark)] group-hover:border-[var(--sage-dark)]">
+                      <LineIcon className="h-4 w-4" name={option.icon} />
+                    </span>
+                    <span>
+                      <span className="block text-sm font-bold">
+                        {option.label}
+                      </span>
+                      <span className="mt-0.5 block text-xs leading-5 text-[var(--muted-ink)]">
+                        {option.description}
+                      </span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <p className="mt-3 text-xs text-[var(--muted-ink)]">
+                You can edit the prepared request before applying it.
+              </p>
+            </>
+          ) : (
+            <p className="mt-3 max-w-3xl text-sm leading-relaxed">
+              {latestResponse.assistantMessage}
+            </p>
+          )}
 
           {latestResponse.event.type === "CHECKOUT_REVIEW_READY" ? (
             <p className="mt-4 border-l-2 border-[var(--sage-dark)] pl-3 text-sm font-bold text-[var(--sage-dark)]">
