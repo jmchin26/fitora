@@ -107,6 +107,25 @@ const CHEAPER_CUE = /\bmake\s+(?:it|(?:this|the|my)\s+(?:outfit|look))\s+(?:a\s+
 const REPLACEMENT_CUE = /\b(?:replace|swap|switch out)\b|\bchange\s+(?:(?:the|my|this)\s+)?(?:top|shirt|blouse|tee|t[ -]?shirt|bottoms?|pants?|trousers?|skirt|shoes?|footwear|sneakers?|loafers?|boots?)\b/;
 const CHEAPER_MODIFIER = /\b(?:cheaper|more affordable|less expensive|lower[ -]priced)\b/;
 
+const NATURAL_REPLACEMENT_ITEM_PATTERN =
+  "(?:top|shirt|blouse|tee|t[ -]?shirt|bottoms?|pants?|trousers?|skirt|shoes?|footwear|sneakers?|loafers?|boots?)";
+const NATURAL_REPLACEMENT_COLOR_PATTERN =
+  "(?:black|white|navy|charcoal|stone|olive|sage|cream|beige|brown|grey|burgundy)";
+const NATURAL_REPLACEMENT_PATTERNS = [
+  new RegExp(
+    `\\bmake\\s+(?:(?:the|my|this|these)\\s+)?${NATURAL_REPLACEMENT_ITEM_PATTERN}\\s+(?:more\\s+)?${NATURAL_REPLACEMENT_COLOR_PATTERN}\\b`,
+  ),
+  new RegExp(
+    `\\b(?:i\\s+(?:want|would\\s+like)|i'd\\s+like)\\s+(?:(?:the|my|this|these)\\s+)?${NATURAL_REPLACEMENT_ITEM_PATTERN}\\s+(?:(?:to\\s+be|in|more)\\s+)?${NATURAL_REPLACEMENT_COLOR_PATTERN}\\b`,
+  ),
+  new RegExp(
+    `\\b(?:i\\s+(?:want|would\\s+like)|i'd\\s+like)\\s+(?:(?:a|an|some|the|my)\\s+)?${NATURAL_REPLACEMENT_COLOR_PATTERN}\\s+${NATURAL_REPLACEMENT_ITEM_PATTERN}\\b`,
+  ),
+  new RegExp(
+    `\\b(?:can|could)\\s+(?:(?:the|my|this|these)\\s+)?${NATURAL_REPLACEMENT_ITEM_PATTERN}\\s+(?:be|become)\\s+(?:more\\s+)?${NATURAL_REPLACEMENT_COLOR_PATTERN}\\b`,
+  ),
+] as const;
+
 type ActionKind =
   | "generate"
   | "cheaper"
@@ -199,7 +218,28 @@ function replacementTargetSegment(userText: string): string {
   const text = normalizeAgentText(userText);
   const connector = /\b(?:with|for|to|in)\b(?<target>[^.!?]*)/.exec(text);
 
-  return connector?.groups?.target?.trim() ?? "";
+  if (connector?.groups?.target) {
+    return connector.groups.target.trim();
+  }
+
+  for (const pattern of NATURAL_REPLACEMENT_PATTERNS) {
+    const naturalReplacement = pattern.exec(text);
+
+    if (naturalReplacement) {
+      return text;
+    }
+  }
+
+  return "";
+}
+
+export function hasReplacementActionEvidence(userText: string): boolean {
+  const text = normalizeAgentText(userText);
+
+  return (
+    REPLACEMENT_CUE.test(text) ||
+    NATURAL_REPLACEMENT_PATTERNS.some((pattern) => pattern.test(text))
+  );
 }
 
 export function findReplacementTargetStyleEvidence(text: string): Style[] {
@@ -537,7 +577,7 @@ export function parseRuleIntent(userText: string): AgentIntent {
     return unsupported("UNSUPPORTED_VALUE");
   }
 
-  if (REPLACEMENT_CUE.test(text)) return parseReplacement(text);
+  if (hasReplacementActionEvidence(text)) return parseReplacement(text);
 
   const kinds = actionKinds(text);
   if (kinds.length > 1) return unsupported("MULTIPLE_ACTIONS");

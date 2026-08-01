@@ -10,6 +10,7 @@ import {
   findStyleEvidence,
   hasPromptInjectionMarker,
   hasExplicitOutfitPositionMention,
+  hasReplacementActionEvidence,
   hasReplacementCheaperEvidence,
   normalizeAgentText,
   parseRuleIntent,
@@ -180,9 +181,7 @@ export function guardIntentSemanticEvidence(
 
     case "REPLACE_ITEM": {
       requireAction(
-        /\b(?:replace|swap|switch out)\b|\bchange\b[^.!?]{0,28}\b(?:top|shirt|blouse|tee|bottoms?|pants?|trousers?|skirt|shoes?|footwear|sneakers?|loafers?|boots?)\b/.test(
-          text,
-        ),
+        hasReplacementActionEvidence(text),
         issues,
         intent.type,
       );

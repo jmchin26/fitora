@@ -288,6 +288,30 @@ describe("semantic intent evidence guard", () => {
     });
   });
 
+  it("accepts natural evidence for recolouring one item", () => {
+    for (const text of [
+      "I want this shoes more white",
+      "I want these shoes to be white",
+      "I'd like white shoes",
+      "Can the shoes be white?",
+      "Make the shoes white",
+    ]) {
+      const intent: AgentIntent = {
+        type: "REPLACE_ITEM",
+        category: "shoes",
+        requireCheaper: false,
+        targetStyle: null,
+        targetColor: "white",
+      };
+
+      expect(parseRuleIntent(text)).toEqual(intent);
+      expect(guardIntentSemanticEvidence(text, intent)).toEqual({
+        ok: true,
+        intent,
+      });
+    }
+  });
+
   it("rejects a different supported action family when rules parsed one clearly", () => {
     const result = guardIntentSemanticEvidence(
       "Replace shoes with a cheaper brown option",

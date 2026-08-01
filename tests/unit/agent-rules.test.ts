@@ -80,6 +80,24 @@ describe("rules intent parser", () => {
     });
   });
 
+  it("recognizes natural requests to recolour one item", () => {
+    for (const command of [
+      "I want this shoes more white",
+      "I want these shoes to be white",
+      "I'd like white shoes",
+      "Can the shoes be white?",
+      "Make the shoes white",
+    ]) {
+      expect(parseRuleIntent(command)).toEqual({
+        type: "REPLACE_ITEM",
+        category: "shoes",
+        requireCheaper: false,
+        targetStyle: null,
+        targetColor: "white",
+      });
+    }
+  });
+
   it("converts precise dollar amounts without floating-point parsing", () => {
     expect(parseDollarAmountToCents("$127.50")).toBe(12_750);
     expect(parseDollarAmountToCents("USD 1,000.05")).toBe(100_005);
@@ -191,11 +209,19 @@ describe("rules intent parser", () => {
       type: "UNSUPPORTED",
       reason: "AMBIGUOUS_TARGET",
     });
+    expect(parseRuleIntent("I want the shoes to be white or black")).toEqual({
+      type: "UNSUPPORTED",
+      reason: "AMBIGUOUS_TARGET",
+    });
     expect(parseRuleIntent("Select outfit 4")).toEqual({
       type: "UNSUPPORTED",
       reason: "UNSUPPORTED_VALUE",
     });
     expect(parseRuleIntent("Tell me a joke")).toEqual({
+      type: "UNSUPPORTED",
+      reason: "UNRECOGNIZED_COMMAND",
+    });
+    expect(parseRuleIntent("Make it better")).toEqual({
       type: "UNSUPPORTED",
       reason: "UNRECOGNIZED_COMMAND",
     });
@@ -215,6 +241,7 @@ describe("rules intent parser", () => {
       "Do not checkout",
       "Don't replace the shoes",
       "Don't make this outfit relaxed",
+      "Don't make the shoes white",
       "I don't want to select outfit 1",
       "I'm not ready to checkout",
       "I can't checkout",
