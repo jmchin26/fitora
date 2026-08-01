@@ -3,6 +3,7 @@ type LineIconName =
   | "award"
   | "briefcase"
   | "calendar"
+  | "chevron"
   | "clipboard"
   | "filter"
   | "hanger"
@@ -52,6 +53,7 @@ export function LineIcon({
           <path {...common} d="M7 3v4M17 3v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
         </>
       ) : null}
+      {name === "chevron" ? <path {...common} d="m7 9 5 5 5-5" /> : null}
       {name === "clipboard" ? (
         <>
           <rect {...common} height="17" rx="2" width="14" x="5" y="4" />

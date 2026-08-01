@@ -270,14 +270,60 @@ function ChoiceGroup<T extends string>({
   );
 }
 
+function SizeSelect<T extends string>({
+  id,
+  label,
+  name,
+  options,
+  value,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  name: string;
+  options: readonly T[];
+  value: string;
+  onChange: (value: T) => void;
+}) {
+  return (
+    <div className="relative min-w-0 has-[:focus-visible]:z-10 has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus)]">
+      <label
+        className="pointer-events-none absolute left-3 top-2 text-[0.65rem] font-semibold uppercase tracking-[0.08em] text-[var(--muted-ink)]"
+        htmlFor={id}
+      >
+        {label}
+      </label>
+      <select
+        className="min-h-14 w-full cursor-pointer appearance-none bg-transparent px-3 pb-1.5 pt-6 text-sm font-semibold text-[var(--ink)] outline-none"
+        id={id}
+        name={name}
+        onChange={(event) => onChange(event.currentTarget.value as T)}
+        value={value}
+      >
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+      <LineIcon
+        className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 text-[var(--muted-ink)]"
+        name="chevron"
+      />
+    </div>
+  );
+}
+
 function ColourGroup({
   describedBy,
+  helperText,
   label,
   name,
   selected,
   onToggle,
 }: {
   describedBy?: string;
+  helperText?: string;
   label: string;
   name: "preferredColors" | "excludedColors";
   selected: readonly ProductColor[];
@@ -299,9 +345,9 @@ function ColourGroup({
 
     return (
       <label
-        className={`flex min-h-9 cursor-pointer items-center gap-1 border px-1.5 py-1.5 text-[0.65rem] transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus)] ${
+        className={`flex min-h-10 cursor-pointer items-center gap-1.5 border px-1.5 py-2 text-[0.68rem] transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus)] ${
           checked
-            ? "border-[var(--sage-dark)] bg-[#e5e8df] font-semibold text-[var(--sage-dark)]"
+            ? "border-[var(--sage-dark)] bg-[#e5e8df] font-semibold text-[var(--sage-dark)] shadow-[inset_0_0_0_1px_var(--sage-dark)]"
             : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--sage)]"
         }`}
         key={color}
@@ -316,7 +362,7 @@ function ColourGroup({
         />
         <span
           aria-hidden="true"
-          className="h-3 w-3 shrink-0 rounded-full border border-black/20"
+          className="h-3.5 w-3.5 shrink-0 rounded-full border border-black/20"
           style={{ backgroundColor: COLOR_SWATCHES[color] }}
         />
         {capitalize(color)}
@@ -330,15 +376,28 @@ function ColourGroup({
       aria-invalid={Boolean(describedBy)}
     >
       <legend className="text-sm font-bold text-[var(--ink)]">{label}</legend>
-      <div className="mt-2 grid grid-cols-5 gap-1">
+      {helperText ? (
+        <p className="mt-1 text-xs leading-5 text-[var(--muted-ink)]">{helperText}</p>
+      ) : null}
+      <div className="mt-2 grid grid-cols-3 gap-1.5 sm:grid-cols-5">
         {featuredColors.map(colorChoice)}
       </div>
       <details className="group mt-2">
-        <summary className="min-h-9 cursor-pointer list-none text-xs font-semibold text-[var(--sage-dark)] underline decoration-[var(--line)] underline-offset-4 [&::-webkit-details-marker]:hidden">
-          More colours{hiddenSelectionCount > 0 ? ` (${hiddenSelectionCount} selected)` : ""}
-          <span aria-hidden="true" className="ml-2 inline-block transition-transform group-open:rotate-45">+</span>
+        <summary className="inline-flex min-h-9 cursor-pointer list-none items-center gap-1.5 text-xs font-semibold text-[var(--sage-dark)] transition-colors hover:text-[var(--ink)] [&::-webkit-details-marker]:hidden">
+          More colours
+          {hiddenSelectionCount > 0 ? (
+            <span className="rounded-full bg-[#e5e8df] px-2 py-0.5 text-[0.65rem]">
+              {hiddenSelectionCount} selected
+            </span>
+          ) : null}
+          <LineIcon
+            className="h-4 w-4 transition-transform group-open:rotate-180"
+            name="chevron"
+          />
         </summary>
-        <div className="flex flex-wrap gap-2 pt-2">{moreColors.map(colorChoice)}</div>
+        <div className="grid grid-cols-3 gap-1.5 pt-2 sm:grid-cols-4">
+          {moreColors.map(colorChoice)}
+        </div>
       </details>
     </fieldset>
   );
@@ -400,9 +459,6 @@ export function PreferenceForm({
     onValidSubmit(parsedDraft.preferences);
   }
 
-  const controlClass =
-    "mt-2 min-h-11 w-full border border-[var(--line)] bg-[var(--surface-strong)] px-3.5 py-2 text-sm text-[var(--ink)] shadow-none transition-colors hover:border-[var(--sage)] focus:border-[var(--sage-dark)] focus:outline-none";
-
   return (
     <form
       className="rounded-md border border-[var(--line)] bg-[var(--surface-strong)] p-6 shadow-[var(--shadow-soft)] xl:sticky xl:top-24"
@@ -444,10 +500,14 @@ export function PreferenceForm({
           <p className="mt-1 text-xs text-[var(--muted-ink)]" id="budget-help">
             One top, one bottom, and one pair of shoes · USD
           </p>
-          <div className="relative">
+          <div
+            className={`mt-2 flex min-h-12 overflow-hidden border bg-[var(--surface-strong)] transition-colors focus-within:border-[var(--sage-dark)] focus-within:outline focus-within:outline-3 focus-within:outline-offset-2 focus-within:outline-[var(--focus)] ${
+              errors.budgetUsd ? "border-[#8a352d]" : "border-[var(--line)]"
+            }`}
+          >
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute inset-y-2 left-0 flex w-10 items-center justify-center border-r border-[var(--line)] text-[var(--muted-ink)]"
+              className="flex w-11 shrink-0 items-center justify-center border-r border-[var(--line)] bg-[var(--surface)] font-serif text-lg text-[var(--sage-dark)]"
             >
               $
             </span>
@@ -455,7 +515,7 @@ export function PreferenceForm({
               aria-describedby={`budget-help${errors.budgetUsd ? " budget-error" : ""}`}
               aria-invalid={Boolean(errors.budgetUsd)}
               autoComplete="off"
-              className={`${controlClass} pl-12 tabular-nums`}
+              className="min-w-0 flex-1 bg-transparent px-3.5 py-2 text-sm font-semibold tabular-nums text-[var(--ink)] outline-none"
               id="budget-usd"
               inputMode="decimal"
               name="budgetUsd"
@@ -472,70 +532,31 @@ export function PreferenceForm({
 
         <fieldset>
           <legend className="text-sm font-bold">Your sizes</legend>
-          <div className="mt-2 grid gap-3 sm:grid-cols-3">
-            <div>
-              <label className="text-sm text-[var(--muted-ink)]" htmlFor="top-size">
-                Top
-              </label>
-              <select
-                className={controlClass}
-                id="top-size"
-                name="topSize"
-                onChange={(event) =>
-                  updateDraft({ topSize: event.currentTarget.value })
-                }
-                value={draft.topSize}
-              >
-                {CLOTHING_SIZES.map((size) => (
-                  <option key={size} value={size}>
-                    {size}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label
-                className="text-sm text-[var(--muted-ink)]"
-                htmlFor="bottom-size"
-              >
-                Bottom
-              </label>
-              <select
-                className={controlClass}
-                id="bottom-size"
-                name="bottomSize"
-                onChange={(event) =>
-                  updateDraft({ bottomSize: event.currentTarget.value })
-                }
-                value={draft.bottomSize}
-              >
-                {CLOTHING_SIZES.map((size) => (
-                  <option key={size} value={size}>
-                    {size}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="text-sm text-[var(--muted-ink)]" htmlFor="shoe-size">
-                Shoes · EU
-              </label>
-              <select
-                className={controlClass}
-                id="shoe-size"
-                name="shoeSize"
-                onChange={(event) =>
-                  updateDraft({ shoeSize: event.currentTarget.value })
-                }
-                value={draft.shoeSize}
-              >
-                {SHOE_SIZES.map((size) => (
-                  <option key={size} value={size}>
-                    {size}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="mt-2 grid grid-cols-3 divide-x divide-[var(--line)] border border-[var(--line)] bg-[var(--surface-strong)]">
+            <SizeSelect
+              id="top-size"
+              label="Top"
+              name="topSize"
+              onChange={(topSize) => updateDraft({ topSize })}
+              options={CLOTHING_SIZES}
+              value={draft.topSize}
+            />
+            <SizeSelect
+              id="bottom-size"
+              label="Bottom"
+              name="bottomSize"
+              onChange={(bottomSize) => updateDraft({ bottomSize })}
+              options={CLOTHING_SIZES}
+              value={draft.bottomSize}
+            />
+            <SizeSelect
+              id="shoe-size"
+              label="Shoes · EU"
+              name="shoeSize"
+              onChange={(shoeSize) => updateDraft({ shoeSize })}
+              options={SHOE_SIZES}
+              value={draft.shoeSize}
+            />
           </div>
         </fieldset>
 
@@ -544,6 +565,7 @@ export function PreferenceForm({
             describedBy={
               errors.preferredColors ? "preferred-colours-error" : undefined
             }
+            helperText="Choose colours you would like us to prioritise."
             label="Preferred colours (optional)"
             name="preferredColors"
             onToggle={(color) => toggleColour("preferredColors", color)}
@@ -560,14 +582,12 @@ export function PreferenceForm({
             describedBy={
               errors.excludedColors ? "excluded-colours-error" : undefined
             }
+            helperText="These colours will not appear in your outfits."
             label="Colours to avoid (optional)"
             name="excludedColors"
             onToggle={(color) => toggleColour("excludedColors", color)}
             selected={draft.excludedColors}
           />
-          <p className="mt-1 text-xs text-[var(--muted-ink)]">
-            Avoided colours are hard filters, not suggestions.
-          </p>
           <ErrorMessage
             id="excluded-colours-error"
             message={errors.excludedColors}
@@ -577,7 +597,7 @@ export function PreferenceForm({
         <ErrorMessage id="form-error" message={errors.form} />
 
         <button
-          className="flex min-h-12 w-full items-center justify-center gap-3 bg-[var(--sage-dark)] px-5 py-3 font-bold text-white shadow-[0_10px_24px_rgba(70,81,65,0.18)] transition-[background-color,box-shadow] hover:bg-[var(--ink)] hover:shadow-[0_14px_28px_rgba(32,35,30,0.20)] disabled:cursor-wait disabled:opacity-70"
+          className="mt-1 flex min-h-12 w-full items-center justify-center gap-3 bg-[var(--sage-dark)] px-5 py-3 font-bold text-white transition-colors hover:bg-[var(--ink)] active:bg-black disabled:cursor-wait disabled:opacity-70"
           disabled={isSubmitting}
           type="submit"
         >
