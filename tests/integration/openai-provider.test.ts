@@ -31,7 +31,11 @@ describe("OpenAI agent provider", () => {
   it("uses the Responses API with strict structured output", async () => {
     const request = vi.fn<OpenAIFetch>(async () =>
       responseWithJson(
-        output(JSON.stringify({ type: "CHANGE_STYLE", style: "relaxed" })),
+        output(
+          JSON.stringify({
+            intent: { type: "CHANGE_STYLE", style: "relaxed" },
+          }),
+        ),
       ),
     );
     const provider = new OpenAIAgentProvider({
@@ -68,6 +72,16 @@ describe("OpenAI agent provider", () => {
         },
       },
     });
+    const format = (body.text as { format: Record<string, unknown> }).format;
+    expect(format.schema).toMatchObject({
+      type: "object",
+      required: ["intent"],
+      additionalProperties: false,
+      properties: {
+        intent: { anyOf: expect.any(Array) },
+      },
+    });
+    expect(format.schema).not.toHaveProperty("anyOf");
     expect(init?.signal).toBeInstanceOf(AbortSignal);
     expect(String((init?.headers as Record<string, string>).Authorization)).toBe(
       "Bearer sk-test-openai-provider-placeholder",
@@ -80,7 +94,11 @@ describe("OpenAI agent provider", () => {
       .mockResolvedValueOnce(responseWithJson(output("not-json")))
       .mockResolvedValueOnce(
         responseWithJson(
-          output(JSON.stringify({ type: "PREFER_COLOR", color: "navy" })),
+          output(
+            JSON.stringify({
+              intent: { type: "PREFER_COLOR", color: "navy" },
+            }),
+          ),
         ),
       );
     const provider = new OpenAIAgentProvider({
@@ -99,8 +117,10 @@ describe("OpenAI agent provider", () => {
       responseWithJson(
         output(
           JSON.stringify({
-            type: "REQUEST_CHECKOUT",
-            paymentApproved: true,
+            intent: {
+              type: "REQUEST_CHECKOUT",
+              paymentApproved: true,
+            },
           }),
         ),
       ),
