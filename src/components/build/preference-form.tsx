@@ -46,6 +46,15 @@ const STYLE_LABELS: Record<(typeof STYLES)[number], string> = {
   relaxed: "Relaxed",
 };
 
+const CHOICE_ICONS = {
+  interview: "briefcase",
+  presentation: "presentation",
+  casual_event: "calendar",
+  minimal: "minimal",
+  smart_casual: "shirt",
+  relaxed: "wave",
+} as const;
+
 const COLOR_SWATCHES: Record<ProductColor, string> = {
   black: "#20211f",
   white: "#f8f7f2",
@@ -227,10 +236,11 @@ function ChoiceGroup<T extends string>({
       <div className="mt-2 grid gap-2 sm:grid-cols-3">
         {options.map((option) => {
           const checked = value === option;
+          const iconName = CHOICE_ICONS[option as keyof typeof CHOICE_ICONS];
 
           return (
             <label
-              className={`flex min-h-11 cursor-pointer items-center gap-2 border px-3 py-2 text-xs font-semibold transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus)] ${
+              className={`flex min-h-11 cursor-pointer items-center gap-2.5 border px-3 py-2 text-xs font-semibold transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus)] ${
                 checked
                   ? "border-[var(--sage-dark)] bg-[#e5e8df] text-[var(--sage-dark)]"
                   : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--sage)]"
@@ -239,13 +249,19 @@ function ChoiceGroup<T extends string>({
             >
               <input
                 checked={checked}
-                className="h-4 w-4 accent-[var(--sage-dark)]"
+                className="sr-only"
                 name={name}
                 onChange={() => onChange(option)}
                 type="radio"
                 value={option}
               />
-              {labels[option as keyof typeof labels]}
+              <LineIcon
+                className={`h-[1.125rem] w-[1.125rem] shrink-0 ${
+                  checked ? "text-[var(--sage-dark)]" : "text-[var(--muted-ink)]"
+                }`}
+                name={iconName}
+              />
+              <span>{labels[option as keyof typeof labels]}</span>
             </label>
           );
         })}
