@@ -1,35 +1,36 @@
-import { LineIcon } from "@/components/ui/line-icon";
+import Image from "next/image";
+import Link from "next/link";
 
 const steps = [
-  { icon: "clipboard" as const, title: "1. Describe", detail: "Tell us the occasion, size and budget. We will handle the styling." },
-  { icon: "hanger" as const, title: "2. Review", detail: "Receive up to three coordinated outfits made from verified catalogue items." },
-  { icon: "shield" as const, title: "3. Approve", detail: "Approve your favourite outfit and check out securely. Simple and transparent." },
+  { title: "For the interview", detail: "Quiet confidence in considered layers.", image: "/products/top-01.svg" },
+  { title: "For the presentation", detail: "Polished pieces with an easy point of view.", image: "/products/top-02.svg" },
+  { title: "For the weekend", detail: "Relaxed proportions, finished with intention.", image: "/products/top-09.svg" },
 ];
 
 export function ProcessSteps() {
   return (
-    <section aria-labelledby="process-title" className="border-t border-[var(--line)] bg-[var(--surface)]" id="how-it-works">
-      <div className="mx-auto grid w-full max-w-[96rem] grid-cols-[0.68fr_2.32fr] px-6 py-9 lg:px-12">
-        <div className="border-r border-[var(--line)] pr-9">
-          <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--sage-dark)]">How Fitora works</p>
-          <h2 className="mt-3 max-w-[16ch] font-serif text-3xl leading-[1.05] tracking-[-0.04em]" id="process-title">
-            Shopping, with a clearer next step.
-          </h2>
-          <p className="mt-3 max-w-xs text-sm leading-6 text-[var(--muted-ink)]">
-            Verified catalogue items. Real outfit logic. You stay in control from start to finish.
-          </p>
-        </div>
+    <section aria-labelledby="process-title" className="border-t border-[var(--line)] bg-[var(--surface)]" id="shop-the-moment">
+      <div className="mx-auto w-full max-w-[96rem] px-6 py-14 lg:px-12 lg:py-20">
+        <p className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-[var(--sage-dark)]">Shop the moment</p>
+        <h2 className="mt-3 font-serif text-4xl tracking-[-0.045em]" id="process-title">
+          Where are you headed?
+        </h2>
 
-        <ol className="grid grid-cols-3">
+        <ol className="mt-9 grid gap-px bg-[var(--line)] lg:grid-cols-3">
           {steps.map((step) => (
-            <li className="grid grid-cols-[3.25rem_1fr] gap-4 border-r border-[var(--line)] px-7 last:border-r-0" key={step.title}>
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--surface-muted)] text-[var(--sage-dark)]">
-                <LineIcon className="h-6 w-6" name={step.icon} />
-              </span>
-              <div>
-                <h3 className="font-semibold">{step.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-[var(--muted-ink)]">{step.detail}</p>
-              </div>
+            <li className="bg-[var(--surface)]" key={step.title}>
+              <Link className="group block" href="/build">
+                <div className="relative aspect-[4/3] overflow-hidden bg-[#ece7de]">
+                  <Image alt="" className="object-contain p-8 transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none" fill sizes="(max-width: 1023px) 100vw, 33vw" src={step.image} unoptimized />
+                </div>
+                <div className="flex items-end justify-between gap-6 p-6">
+                  <div>
+                    <h3 className="font-serif text-2xl">{step.title}</h3>
+                    <p className="mt-1 text-sm text-[var(--muted-ink)]">{step.detail}</p>
+                  </div>
+                  <span aria-hidden="true" className="text-xl transition-transform duration-200 group-hover:translate-x-1">→</span>
+                </div>
+              </Link>
             </li>
           ))}
         </ol>

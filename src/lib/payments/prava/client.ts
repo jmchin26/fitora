@@ -564,7 +564,7 @@ export function createPravaClient(
         throw new Error("Invalid UUID");
       }
 
-      externalOrderReference = `FITORA-${uuid}`;
+      externalOrderReference = `FITORA-${uuid.replaceAll("-", "").slice(0, 16).toUpperCase()}`;
       normalizedEmail = normalizePravaUserEmail(parsedInput.data.email);
       userId = derivePravaUserId(
         normalizedEmail,

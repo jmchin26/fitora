@@ -42,9 +42,6 @@ function OrderItem({ item }: { item: VerifiedOrderItem }) {
           <span aria-hidden="true"> · </span>
           Quantity {item.quantity}
         </p>
-        <p className="mt-1 break-all text-xs text-[var(--muted-ink)]">
-          Product {item.productId}
-        </p>
       </div>
 
       <p className="col-start-2 font-semibold tabular-nums sm:col-start-auto sm:text-right">
@@ -62,17 +59,16 @@ export function OrderReview({ order }: OrderReviewProps) {
     >
       <div className="border-b border-[var(--line)] px-5 py-6 sm:px-8 sm:py-8">
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--sage-dark)]">
-          Checkout · Step 1 of 2
+          Your order
         </p>
         <h1
           className="mt-2 font-serif text-3xl tracking-[-0.04em] sm:text-4xl"
           id="checkout-order-title"
         >
-          Review your verified order
+          Review your outfit
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--muted-ink)] sm:text-base">
-          Fitora rebuilt this summary from the server catalogue. Confirm every
-          product and size before a short-lived payment session is created.
+          Check each piece and size before continuing to payment.
         </p>
       </div>
 
@@ -88,16 +84,16 @@ export function OrderReview({ order }: OrderReviewProps) {
         <dl className="grid gap-3 text-sm sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
           <div>
             <dt className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--muted-ink)]">
-              Merchant
+              Sold by
             </dt>
-            <dd className="mt-1 font-semibold">Fitora Merchant</dd>
+            <dd className="mt-1 font-semibold">Fitora</dd>
             <dd className="text-xs text-[var(--muted-ink)]">
-              ID {order.merchantId} · {order.currency}
+              Prices shown in {order.currency}
             </dd>
           </div>
           <div className="sm:text-right">
             <dt className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--muted-ink)]">
-              Verified total
+              Order total
             </dt>
             <dd className="mt-1 font-serif text-3xl tracking-[-0.04em] tabular-nums">
               {formatUsd(order.totalCents)}

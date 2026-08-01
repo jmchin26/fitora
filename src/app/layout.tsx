@@ -4,11 +4,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Fitora — AI outfit planning",
+    default: "Fitora — Complete looks for every moment",
     template: "%s · Fitora",
   },
   description:
-    "Build a complete, catalogue-verified outfit for the moment, then review your checkout before continuing.",
+    "Discover complete outfits for interviews, presentations, and off-duty plans.",
 };
 
 export default function RootLayout({

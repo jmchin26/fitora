@@ -130,7 +130,7 @@ describe("AgentPanel", () => {
       screen.getByRole("button", { name: "Lower the budget to $130" }),
     ).toBeEnabled();
     expect(
-      screen.getByRole("textbox", { name: "One change for this edit" }),
+      screen.getByRole("textbox", { name: "What would you change?" }),
     ).toHaveAttribute("maxlength", "280");
   });
 
@@ -211,7 +211,7 @@ describe("AgentPanel", () => {
     await user.click(screen.getByRole("button", { name: "Avoid white" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
-      "unexpected agent response",
+      "Something went wrong while updating your look",
     );
     expect(onVerifiedResponse).not.toHaveBeenCalled();
   });
@@ -301,19 +301,17 @@ describe("AgentPanel", () => {
     );
 
     const input = screen.getByRole("textbox", {
-      name: "One change for this edit",
+      name: "What would you change?",
     });
     await user.type(input, "Take me to checkout");
-    await user.click(screen.getByRole("button", { name: "Ask Fitora" }));
+    await user.click(screen.getByRole("button", { name: "Apply change" }));
 
     expect(
       await screen.findByText(
         "Checkout review is ready. No payment session was created.",
       ),
     ).toBeInTheDocument();
-    expect(screen.getByText("Gemini")).toBeInTheDocument();
-    expect(screen.getByText("Rules fallback")).toBeInTheDocument();
-    expect(screen.getByText("Timeout")).toBeInTheDocument();
+    expect(screen.getByText("Styling mode: Rules fallback")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /pay|checkout/i })).not.toBeInTheDocument();
   });
 
@@ -344,16 +342,16 @@ describe("AgentPanel", () => {
     await user.click(
       screen.getByRole("button", { name: "Build outfit options" }),
     );
-    await screen.findByRole("heading", { name: "Refine with Fitora" });
+    await screen.findByRole("heading", { name: "Adjust your look" });
 
     const agentInput = screen.getByRole("textbox", {
-      name: "One change for this edit",
+      name: "What would you change?",
     });
     await user.type(agentInput, "Select outfit 2");
-    await user.click(screen.getByRole("button", { name: "Ask Fitora" }));
+    await user.click(screen.getByRole("button", { name: "Apply change" }));
 
     const choices = await screen.findAllByRole("radio", {
-      name: /Select verified outfit/,
+      name: /Select outfit/,
     });
     expect(choices[1]).toBeChecked();
     expect(choices[0]).not.toBeChecked();
@@ -414,13 +412,13 @@ describe("AgentPanel", () => {
     render(<BuildExperience />);
 
     expect(
-      screen.queryByRole("heading", { name: "Refine with Fitora" }),
+      screen.queryByRole("heading", { name: "Adjust your look" }),
     ).not.toBeInTheDocument();
     await user.click(
       screen.getByRole("button", { name: "Build outfit options" }),
     );
     expect(
-      await screen.findByRole("heading", { name: "Refine with Fitora" }),
+      await screen.findByRole("heading", { name: "Adjust your look" }),
     ).toBeInTheDocument();
 
     await user.click(
@@ -439,10 +437,10 @@ describe("AgentPanel", () => {
       screen.queryByText(/reflect your last submitted preferences/i),
     ).not.toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Refine with Fitora" }),
+      screen.getByRole("heading", { name: "Adjust your look" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("textbox", { name: "One change for this edit" }),
+      screen.getByRole("textbox", { name: "What would you change?" }),
     ).toBeDisabled();
 
     const persisted = window.localStorage.getItem(FITORA_BUILD_STATE_KEY);

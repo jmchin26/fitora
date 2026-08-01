@@ -59,7 +59,7 @@ describe("OrderReview", () => {
     render(<OrderReview order={order} />);
 
     expect(
-      screen.getByRole("heading", { name: "Review your verified order" }),
+      screen.getByRole("heading", { name: "Review your outfit" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Verified order items" })).toBeInTheDocument();
 
@@ -68,7 +68,7 @@ describe("OrderReview", () => {
       const itemElement = heading.closest("li");
 
       expect(itemElement).not.toBeNull();
-      expect(screen.getByText(`Product ${item.productId}`)).toBeInTheDocument();
+      expect(screen.queryByText(`Product ${item.productId}`)).not.toBeInTheDocument();
       expect(
         within(itemElement as HTMLLIElement).getByText(item.selectedSize, {
           selector: "span",
@@ -81,7 +81,8 @@ describe("OrderReview", () => {
       ).toBeInTheDocument();
     });
 
-    expect(screen.getByText(`ID ${order.merchantId} · USD`)).toBeInTheDocument();
+    expect(screen.getByText("Prices shown in USD")).toBeInTheDocument();
+    expect(screen.queryByText(order.merchantId)).not.toBeInTheDocument();
     expect(screen.getAllByText(formatUsd(order.totalCents)).length).toBeGreaterThan(0);
   });
 });

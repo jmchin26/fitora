@@ -57,7 +57,13 @@ function toOutfitReference(outfit: Outfit): OutfitReference {
   };
 }
 
-function providerLabel(provider: "rules" | "gemini" | "ollama" | "invalid") {
+function providerLabel(
+  provider: "rules" | "openai" | "gemini" | "ollama" | "invalid",
+) {
+  if (provider === "openai") {
+    return "OpenAI";
+  }
+
   if (provider === "gemini") {
     return "Gemini";
   }
@@ -71,14 +77,6 @@ function providerLabel(provider: "rules" | "gemini" | "ollama" | "invalid") {
   }
 
   return "Rules fallback";
-}
-
-function fallbackLabel(fallbackCode: string): string {
-  return fallbackCode
-    .toLowerCase()
-    .split("_")
-    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
-    .join(" ");
 }
 
 async function readJsonResponse(response: Response): Promise<unknown> {
@@ -205,7 +203,7 @@ export function AgentPanel({
 
       if (!parsedResponse.success) {
         setErrorMessage(
-          "Fitora returned an unexpected agent response. Your verified outfits were not changed.",
+          "Something went wrong while updating your look. Your outfits were not changed.",
         );
         return;
       }
@@ -225,7 +223,7 @@ export function AgentPanel({
       }
 
       setErrorMessage(
-        "Fitora could not reach the styling agent. Your verified outfits were not changed.",
+        "We could not update your look just now. Your outfits were not changed.",
       );
     } finally {
       if (activeRequest.current?.token === token) {
@@ -246,31 +244,25 @@ export function AgentPanel({
   return (
     <section
       aria-labelledby="agent-panel-title"
-      className="border border-[var(--line)] bg-[#e7e8e1] p-5 sm:p-7"
+      className="border border-[var(--line)] bg-[var(--surface-muted)] p-5 sm:p-7"
     >
       <div className="flex flex-col justify-between gap-3 border-b border-[var(--line)] pb-5 sm:flex-row sm:items-start">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--sage-dark)]">
-            Step 03
-          </p>
           <h2
-            className="mt-2 font-serif text-3xl tracking-[-0.035em]"
+            className="font-serif text-3xl tracking-[-0.035em]"
             id="agent-panel-title"
           >
-            Refine with Fitora
+            Adjust your look
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--muted-ink)]">
-            Ask for one controlled change at a time. Catalogue facts, prices,
-            stock, and totals are verified by deterministic tools.
+            Swap a colour, lower the budget or change the mood. Make one
+            request at a time.
           </p>
         </div>
-        <span className="w-fit border border-[var(--sage)] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.1em] text-[var(--sage-dark)]">
-          No autonomous checkout
-        </span>
       </div>
 
       <div className="mt-5">
-        <p className="text-sm font-bold">Try a verified revision</p>
+        <p className="text-sm font-bold">Popular changes</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {SUGGESTED_COMMANDS.map((command) => (
             <button
@@ -288,7 +280,7 @@ export function AgentPanel({
 
       <form className="mt-5" onSubmit={handleSubmit}>
         <label className="text-sm font-bold" htmlFor="agent-message">
-          One change for this edit
+          What would you change?
         </label>
         <textarea
           aria-describedby="agent-message-help agent-character-count"
@@ -302,8 +294,7 @@ export function AgentPanel({
         />
         <div className="mt-2 flex flex-col justify-between gap-2 text-xs text-[var(--muted-ink)] sm:flex-row">
           <p id="agent-message-help">
-            Only this message, safe preferences, and product ID/size references
-            are sent.
+            Keep it short and specific.
           </p>
           <p
             aria-live="polite"
@@ -318,7 +309,7 @@ export function AgentPanel({
           disabled={!isAvailable || isLoading || message.trim().length === 0}
           type="submit"
         >
-          {isLoading ? "Verifying change…" : "Ask Fitora"}
+          {isLoading ? "Updating look…" : "Apply change"}
         </button>
       </form>
 
@@ -327,8 +318,7 @@ export function AgentPanel({
           className="mt-5 border-l-2 border-[#9b7b45] pl-3 text-sm text-[#5f4a25]"
           role="status"
         >
-          Build a current set of verified outfits before asking for another
-          revision.
+          Choose a current look before asking for a change.
         </p>
       ) : null}
 
@@ -348,7 +338,7 @@ export function AgentPanel({
           role="status"
         >
           <p className="font-serif text-xl text-[var(--sage-dark)]">
-            Fitora’s verified response
+            Your updated edit
           </p>
           <p className="mt-2 text-sm leading-relaxed">
             {latestResponse.assistantMessage}
@@ -360,34 +350,9 @@ export function AgentPanel({
             </p>
           ) : null}
 
-          <dl className="mt-5 grid gap-2 border-t border-[var(--line)] pt-4 text-xs text-[var(--muted-ink)] sm:grid-cols-3">
-            <div>
-              <dt className="font-bold uppercase tracking-[0.1em]">
-                Configured
-              </dt>
-              <dd className="mt-1">
-                {providerLabel(latestResponse.provider.configured)}
-              </dd>
-            </div>
-            <div>
-              <dt className="font-bold uppercase tracking-[0.1em]">
-                Interpreted by
-              </dt>
-              <dd className="mt-1">
-                {providerLabel(latestResponse.provider.interpretedBy)}
-              </dd>
-            </div>
-            <div>
-              <dt className="font-bold uppercase tracking-[0.1em]">
-                Fallback
-              </dt>
-              <dd className="mt-1">
-                {latestResponse.provider.fallbackCode
-                  ? fallbackLabel(latestResponse.provider.fallbackCode)
-                  : "None"}
-              </dd>
-            </div>
-          </dl>
+          <p className="mt-5 border-t border-[var(--line)] pt-3 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[var(--muted-ink)]">
+            Styling mode: {providerLabel(latestResponse.provider.interpretedBy)}
+          </p>
         </div>
       ) : null}
     </section>

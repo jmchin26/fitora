@@ -11,7 +11,7 @@ const DEFAULT_PRAVA_HOSTED_CHECKOUT_ORIGIN =
   "https://sandbox.collect.prava.space";
 const PRAVA_SECRET_KEY_PATTERN =
   /^sk_test_[A-Za-z0-9._~-]{8,}$/;
-const DEFAULT_MERCHANT_NAME = "Fitora Demo Merchant";
+const DEFAULT_MERCHANT_NAME = "Fitora";
 const DEFAULT_MERCHANT_COUNTRY_CODE = "US";
 
 // Deliberately well-known and explicitly development-only. It keeps the local

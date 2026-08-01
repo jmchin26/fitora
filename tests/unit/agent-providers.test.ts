@@ -83,6 +83,21 @@ describe("agent provider factory", () => {
     });
   });
 
+  it("reports every missing OpenAI setting without silently using rules", () => {
+    expect(
+      resolveAgentProvider({
+        provider: "openai",
+        environment: {},
+      }),
+    ).toEqual({
+      status: "unavailable",
+      configured: "openai",
+      reason: "NOT_CONFIGURED",
+      message:
+        "openai is selected, but OPENAI_API_KEY and OPENAI_MODEL are not configured.",
+    });
+  });
+
   it("reports invalid configured mode precisely", () => {
     expect(
       resolveAgentProvider({ provider: "gemini ", environment: {} }),

@@ -395,7 +395,9 @@ This adapter simulates the merchant-side order acceptance needed to close the Pr
 
 Validate environment variables in `src/lib/config/env.ts`. Required variables depend on selected providers.
 
-- `AI_PROVIDER=rules|gemini|ollama`
+- `AI_PROVIDER=rules|openai|gemini|ollama`
+- `OPENAI_API_KEY`
+- `OPENAI_MODEL`
 - `GEMINI_API_KEY`
 - `GEMINI_MODEL`
 - `OLLAMA_BASE_URL`

@@ -11,7 +11,7 @@ const outfitItems = [
 export function EditorialLookPreview() {
   return (
     <figure
-      aria-label="A sample catalogue-verified Fitora outfit"
+      aria-label="A styled Fitora outfit"
       className="relative z-10 grid min-h-[29rem] overflow-hidden border border-[var(--line)] bg-[var(--surface-strong)] shadow-[var(--shadow-soft)] lg:grid-cols-[1.08fr_0.92fr]"
     >
       <div className="relative overflow-hidden border-b border-[var(--line)] bg-[var(--surface-muted)] lg:border-b-0 lg:border-r">
@@ -30,7 +30,7 @@ export function EditorialLookPreview() {
 
       <figcaption className="flex flex-col p-5 lg:p-6">
         <p className="w-fit bg-[#e7eadf] px-2.5 py-1 text-[0.62rem] font-bold uppercase tracking-[0.12em] text-[var(--sage-dark)]">
-          Outfit 1 of 3
+          The weekend edit
         </p>
         <h2 className="mt-4 font-serif text-[1.8rem] leading-[1.05] tracking-[-0.035em]">
           Smart casual
@@ -46,10 +46,6 @@ export function EditorialLookPreview() {
           <div className="flex items-center justify-between gap-4">
             <dt className="flex items-center gap-2"><LineIcon className="h-4 w-4" name="hanger" /> Sizes</dt>
             <dd className="text-[var(--muted-ink)]">M / 42</dd>
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <dt className="flex items-center gap-2"><LineIcon className="h-4 w-4" name="shield" /> Verified</dt>
-            <dd className="text-[var(--muted-ink)]">All items checked</dd>
           </div>
         </dl>
 

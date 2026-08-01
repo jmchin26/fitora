@@ -69,8 +69,8 @@ export const AgentFallbackCodeSchema = z.enum([
 
 export const AgentProviderStatusSchema = z
   .object({
-    configured: z.enum(["rules", "gemini", "ollama", "invalid"]),
-    interpretedBy: z.enum(["rules", "gemini", "ollama"]),
+    configured: z.enum(["rules", "openai", "gemini", "ollama", "invalid"]),
+    interpretedBy: z.enum(["rules", "openai", "gemini", "ollama"]),
     explainedBy: z.literal("template"),
     fallbackCode: AgentFallbackCodeSchema.nullable(),
   })

@@ -2,12 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { BuildExperience } from "@/components/build/build-experience";
-import { LineIcon } from "@/components/ui/line-icon";
 
 export const metadata: Metadata = {
   title: "Build an outfit",
   description:
-    "Set your occasion, sizes, colours, style, and budget to build up to three catalogue-verified outfits.",
+    "Set your occasion, sizes, colours, style, and budget to find three complete looks.",
 };
 
 export default function BuildPage() {
@@ -40,9 +39,8 @@ export default function BuildPage() {
           </div>
           <div className="max-w-2xl border-l-2 border-[var(--sage-dark)] pl-5 lg:pb-1">
             <p className="max-w-xl text-base leading-7 text-[var(--ink)]">
-              Set your occasion, sizes, colours, style, and total budget. Fitora
-              will rank in-stock pieces from one curated merchant and
-              return up to three verified combinations in USD.
+              Tell us where you are going, what fits and what you would like
+              to spend. We will put together three complete looks.
             </p>
           </div>
         </section>
@@ -50,11 +48,10 @@ export default function BuildPage() {
         <BuildExperience />
       </main>
 
-      <footer className="border-t border-[var(--line)] bg-[var(--surface)] px-6 py-7 text-sm text-[var(--ink)] lg:px-12">
-        <div className="mx-auto grid w-full max-w-[96rem] grid-cols-3">
-          <p className="flex items-center justify-center gap-3 border-r border-[var(--line)]"><LineIcon className="h-6 w-6" name="package" /> Curated products from one merchant</p>
-          <p className="flex items-center justify-center gap-3 border-r border-[var(--line)]"><LineIcon className="h-6 w-6" name="shield" /> Checked availability and prices</p>
-          <p className="flex items-center justify-center gap-3"><LineIcon className="h-6 w-6" name="heart" /> No account or personal profile required</p>
+      <footer className="border-t border-[var(--line)] bg-[var(--surface)] px-6 py-7 text-sm text-[var(--muted-ink)] lg:px-12">
+        <div className="mx-auto flex w-full max-w-[96rem] justify-between gap-6">
+          <p className="font-serif text-lg text-[var(--ink)]">Fitora</p>
+          <p>Style that fits the moment.</p>
         </div>
       </footer>
     </div>

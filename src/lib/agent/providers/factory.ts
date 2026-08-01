@@ -3,6 +3,7 @@ import {
   type GeminiContentClient,
 } from "./gemini";
 import { createOllamaProvider, type OllamaFetch } from "./ollama";
+import { createOpenAIProvider, type OpenAIFetch } from "./openai";
 import { createRulesProvider } from "./rules-provider";
 import {
   AGENT_PROVIDER_NAMES,
@@ -13,6 +14,8 @@ import {
 
 type AgentProviderEnvironment = Readonly<{
   AI_PROVIDER?: string;
+  OPENAI_API_KEY?: string;
+  OPENAI_MODEL?: string;
   GEMINI_API_KEY?: string;
   GEMINI_MODEL?: string;
   OLLAMA_BASE_URL?: string;
@@ -22,6 +25,9 @@ type AgentProviderEnvironment = Readonly<{
 export type AgentProviderFactoryOptions = {
   provider?: string;
   environment?: AgentProviderEnvironment;
+  openAiApiKey?: string;
+  openAiModel?: string;
+  openAiFetch?: OpenAIFetch;
   geminiApiKey?: string;
   geminiModel?: string;
   ollamaBaseUrl?: string;
@@ -114,6 +120,32 @@ export function resolveAgentProvider(
   }
 
   try {
+    if (configured === "openai") {
+      const apiKey = options.openAiApiKey ?? environment.OPENAI_API_KEY;
+      const model = options.openAiModel ?? environment.OPENAI_MODEL;
+      const missingVariables = [
+        ...(!options.openAiFetch && missing(apiKey)
+          ? ["OPENAI_API_KEY"]
+          : []),
+        ...(missing(model) ? ["OPENAI_MODEL"] : []),
+      ];
+
+      if (missingVariables.length > 0) {
+        return unavailable(configured, missingVariables);
+      }
+
+      return {
+        status: "ready",
+        configured,
+        provider: createOpenAIProvider({
+          apiKey,
+          model: model as string,
+          fetch: options.openAiFetch,
+          timeoutMs: options.timeoutMs,
+        }),
+      };
+    }
+
     if (configured === "gemini") {
       const apiKey = options.geminiApiKey ?? environment.GEMINI_API_KEY;
       const model = options.geminiModel ?? environment.GEMINI_MODEL;

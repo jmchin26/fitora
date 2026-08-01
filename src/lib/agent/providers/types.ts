@@ -11,7 +11,12 @@ import {
   STYLES,
 } from "@/lib/catalogue/schemas";
 
-export const AGENT_PROVIDER_NAMES = ["rules", "gemini", "ollama"] as const;
+export const AGENT_PROVIDER_NAMES = [
+  "rules",
+  "openai",
+  "gemini",
+  "ollama",
+] as const;
 
 export const AGENT_PROVIDER_FAILURE_REASONS = [
   "NOT_CONFIGURED",

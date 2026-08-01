@@ -78,12 +78,12 @@ describe("BuildExperience", () => {
 
     expect(
       await screen.findByText(
-        "Three verified outfits are ready. Choose one look.",
+        "Three outfits are ready. Choose one look.",
       ),
     ).toBeInTheDocument();
 
     const choices = screen.getAllByRole("radio", {
-      name: /Select verified outfit/,
+      name: /Select outfit/,
     });
 
     expect(choices).toHaveLength(3);
@@ -129,11 +129,11 @@ describe("BuildExperience", () => {
 
       expect(
         await screen.findByText(
-          `${countLabel} verified ${expectedCount === 1 ? "outfit is" : "outfits are"} ready. Choose one look.`,
+          `${countLabel} ${expectedCount === 1 ? "outfit is" : "outfits are"} ready. Choose one look.`,
         ),
       ).toBeInTheDocument();
       expect(
-        screen.getAllByRole("radio", { name: /Select verified outfit/ }),
+        screen.getAllByRole("radio", { name: /Select outfit/ }),
       ).toHaveLength(expectedCount);
     },
   );
@@ -155,7 +155,7 @@ describe("BuildExperience", () => {
       await screen.findByRole("alert"),
     ).toHaveTextContent("unexpected catalogue response");
     expect(
-      screen.queryByRole("radio", { name: /Select verified outfit/ }),
+      screen.queryByRole("radio", { name: /Select outfit/ }),
     ).not.toBeInTheDocument();
   });
 
@@ -201,7 +201,7 @@ describe("BuildExperience", () => {
       screen.getByRole("button", { name: "Build outfit options" }),
     ).toBeEnabled();
     expect(
-      screen.queryByRole("radio", { name: /Select verified outfit/ }),
+      screen.queryByRole("radio", { name: /Select outfit/ }),
     ).not.toBeInTheDocument();
   });
 
@@ -263,7 +263,7 @@ describe("BuildExperience", () => {
     await user.type(budgetInput, "140.00");
 
     expect(
-      screen.getByText("Ready to build up to three verified outfits."),
+      screen.getByText("Ready to style up to three outfits."),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Build outfit options" }),
@@ -277,11 +277,11 @@ describe("BuildExperience", () => {
 
     expect(
       screen.queryByText(
-        "Three verified outfits are ready. Choose one look.",
+        "Three outfits are ready. Choose one look.",
       ),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("radio", { name: /Select verified outfit/ }),
+      screen.queryByRole("radio", { name: /Select outfit/ }),
     ).not.toBeInTheDocument();
   });
 
@@ -308,7 +308,7 @@ describe("BuildExperience", () => {
       ),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole("radio", { name: /Select verified outfit/ }),
+      screen.queryByRole("radio", { name: /Select outfit/ }),
     ).not.toBeInTheDocument();
 
     await user.click(
@@ -316,7 +316,7 @@ describe("BuildExperience", () => {
     );
 
     const choices = await screen.findAllByRole("radio", {
-      name: /Select verified outfit/,
+      name: /Select outfit/,
     });
 
     expect(choices).toHaveLength(3);
@@ -337,7 +337,7 @@ describe("BuildExperience", () => {
     );
 
     const choices = await screen.findAllByRole("radio", {
-      name: /Select verified outfit/,
+      name: /Select outfit/,
     });
     await user.click(choices[0]);
 

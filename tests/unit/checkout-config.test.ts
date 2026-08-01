@@ -46,7 +46,7 @@ describe("checkout server environment", () => {
         ready: false,
       },
       merchant: {
-        name: "Fitora Demo Merchant",
+        name: "Fitora",
         url: "http://localhost:3000",
         countryCode: "US",
         forceDecline: false,

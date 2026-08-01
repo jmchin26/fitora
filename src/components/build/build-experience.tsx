@@ -5,7 +5,6 @@ import { z } from "zod";
 
 import { AgentPanel } from "@/components/agent/agent-panel";
 import { CheckoutReviewButton } from "@/components/checkout/checkout-review-button";
-import { LineIcon } from "@/components/ui/line-icon";
 import type { AgentSuccessResponse } from "@/lib/agent/contracts";
 import {
   OutfitSchema,
@@ -132,7 +131,7 @@ function readyMessage(outfitCount: number): string {
   const countLabel = ["No", "One", "Two", "Three"][outfitCount] ?? String(outfitCount);
   const noun = outfitCount === 1 ? "outfit is" : "outfits are";
 
-  return `${countLabel} verified ${noun} ready. Choose one look.`;
+  return `${countLabel} ${noun} ready. Choose one look.`;
 }
 
 function LoadingCards() {
@@ -157,26 +156,14 @@ function LoadingCards() {
 }
 
 function EmptyIntroduction() {
-  const items = [
-    ["filter" as const, "01", "Hard filters", "In-stock, your sizes, merchant, and excluded colours are checked first."],
-    ["award" as const, "02", "Verified ranking", "Eligible looks are scored for occasion, style, colour, and budget fit."],
-    ["heart" as const, "03", "Your choice", "Up to three refined looks are returned—no purchase action happens here."],
-  ] as const;
-
   return (
-    <div className="grid overflow-hidden rounded-md border border-[var(--line)] bg-[var(--surface-strong)] sm:grid-cols-3">
-      {items.map(([icon, number, title, copy]) => (
-        <div className="grid grid-cols-[2.5rem_1fr] gap-4 border-b border-[var(--line)] p-5 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0" key={number}>
-          <div>
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--sage-dark)] text-xs font-bold text-white">{number}</span>
-            <LineIcon className="mt-5 h-7 w-7" name={icon} />
-          </div>
-          <div>
-            <h3 className="font-serif text-xl">{title}</h3>
-            <p className="mt-2 text-sm leading-6 text-[var(--muted-ink)]">{copy}</p>
-          </div>
-        </div>
-      ))}
+    <div className="flex min-h-[25rem] items-end border border-[var(--line)] bg-[#ebe6dd] p-7 sm:p-10">
+      <div className="max-w-md border-l-2 border-[var(--ink)] pl-5">
+        <p className="font-serif text-3xl tracking-[-0.035em]">Your looks will appear here.</p>
+        <p className="mt-3 text-sm leading-6 text-[var(--muted-ink)]">
+          Set your preferences, then choose the outfit that feels most like you.
+        </p>
+      </div>
     </div>
   );
 }
@@ -509,10 +496,10 @@ export function BuildExperience() {
         ) ?? null)
       : null;
 
-  let liveMessage = "Ready to build up to three verified outfits.";
+  let liveMessage = "Ready to style up to three outfits.";
 
   if (requestState.status === "loading") {
-    liveMessage = "Building and verifying up to three outfits.";
+    liveMessage = "Putting together your outfits.";
   } else if (requestState.status === "success") {
     if (resultsAreStale) {
       liveMessage = "Preferences changed. Build again to refresh your results.";
@@ -553,9 +540,9 @@ export function BuildExperience() {
           <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
               <h2 className="font-serif text-3xl tracking-[-0.035em] sm:text-4xl">
-                Your verified edit
+                Your edit
               </h2>
-              <p className="mt-2 text-sm text-[var(--muted-ink)]">We apply verified filters, rank the best matches, and return up to three coordinated looks.</p>
+              <p className="mt-2 text-sm text-[var(--muted-ink)]">Three complete looks, styled around your preferences.</p>
             </div>
             {requestState.status === "success" ? (
               <p className="text-sm capitalize text-[var(--muted-ink)]">
@@ -605,7 +592,7 @@ export function BuildExperience() {
                 </div>
               ) : null}
               <fieldset>
-                <legend className="sr-only">Choose one verified outfit</legend>
+                <legend className="sr-only">Choose one outfit</legend>
                 <div className="space-y-6">
                   {requestState.outfits.map((outfit, index) => (
                     <OutfitCard

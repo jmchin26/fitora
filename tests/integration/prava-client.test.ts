@@ -222,7 +222,7 @@ describe("Prava REST client", () => {
       user_email: "shopper@example.com",
       total_amount: formatPravaAmount(order().totalCents),
       currency: "USD",
-      external_order_ref: `FITORA-${UUID}`,
+      external_order_ref: "FITORA-1111111111114111",
       integration_type: "full_checkout",
       callback_url: "https://fitora.example/checkout/callback",
       purchase_context: [

@@ -1,6 +1,6 @@
 import { parseServerEnvironment } from "@/lib/config/env";
 
-export const AI_PROVIDERS = ["rules", "gemini", "ollama"] as const;
+export const AI_PROVIDERS = ["rules", "openai", "gemini", "ollama"] as const;
 export const PAYMENT_PROVIDERS = ["mock", "prava"] as const;
 
 export type AiProvider = (typeof AI_PROVIDERS)[number] | "invalid";
@@ -58,6 +58,7 @@ export function getProviderModes(
 export function providerModeLabels(modes: ProviderModes): readonly string[] {
   const aiLabels: Record<AiProvider, string> = {
     rules: "Rules fallback",
+    openai: "OpenAI",
     gemini: "Gemini",
     ollama: "Local Ollama",
     invalid: "Invalid AI configuration",

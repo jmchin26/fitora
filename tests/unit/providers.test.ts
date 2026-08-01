@@ -151,6 +151,7 @@ describe("provider configuration", () => {
 describe("provider display labels", () => {
   it.each<[AiProvider, string]>([
     ["rules", "Rules fallback"],
+    ["openai", "OpenAI"],
     ["gemini", "Gemini"],
     ["ollama", "Local Ollama"],
     ["invalid", "Invalid AI configuration"],

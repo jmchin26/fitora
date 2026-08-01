@@ -2,7 +2,7 @@ import Image from "next/image";
 import { useState } from "react";
 
 import { LineIcon } from "@/components/ui/line-icon";
-import type { Outfit, ScoreBreakdown, SelectedProduct } from "@/lib/catalogue/schemas";
+import type { Outfit, SelectedProduct } from "@/lib/catalogue/schemas";
 import { formatUsd } from "@/lib/money";
 
 type OutfitCardProps = {
@@ -13,14 +13,6 @@ type OutfitCardProps = {
   disabled?: boolean;
   onSelect: (outfit: Outfit) => void;
 };
-
-const SCORE_COMPONENTS: ReadonlyArray<{ key: keyof ScoreBreakdown; label: string; maximum: number }> = [
-  { key: "occasion", label: "Occasion", maximum: 30 },
-  { key: "style", label: "Style", maximum: 25 },
-  { key: "colorCompatibility", label: "Colour harmony", maximum: 20 },
-  { key: "preferredColors", label: "Preferred colours", maximum: 15 },
-  { key: "budgetEfficiency", label: "Budget efficiency", maximum: 10 },
-];
 
 function ProductImage({ item, featured = false }: { item: SelectedProduct; featured?: boolean }) {
   const [failed, setFailed] = useState(false);
@@ -84,44 +76,29 @@ export function OutfitCard({ index, outfit, budgetCents, selected, disabled = fa
         <div className="flex min-w-0 flex-col p-5">
           <div className="flex items-start justify-between gap-5">
             <div>
-              <p className="text-[0.66rem] font-bold uppercase tracking-[0.14em] text-[var(--sage-dark)]">Outfit option {index + 1}</p>
-              <h3 className="mt-2 font-serif text-2xl tracking-[-0.03em]" id={titleId}>Verified outfit {String(index + 1).padStart(2, "0")}</h3>
+              <p className="text-[0.66rem] font-bold uppercase tracking-[0.14em] text-[var(--sage-dark)]">Complete outfit</p>
+              <h3 className="mt-2 font-serif text-3xl tracking-[-0.035em]" id={titleId}>Look {String(index + 1).padStart(2, "0")}</h3>
             </div>
-            <span className="rounded-full bg-[#e7eadf] px-3 py-1 text-xs font-semibold text-[var(--sage-dark)]">{outfit.score}% match</span>
           </div>
 
           <p className="mt-3 line-clamp-2 text-sm leading-6 text-[var(--muted-ink)]" id={explanationId}>{outfit.explanation}</p>
           <div className="mt-2"><ProductDetails item={outfit.top} /><ProductDetails item={outfit.bottom} /><ProductDetails item={outfit.shoes} /></div>
 
-          <div className="mt-auto grid grid-cols-3 border-y border-[var(--line)] py-3 text-xs">
-            <div className="flex items-center gap-2 border-r border-[var(--line)] pr-3">
-              <LineIcon className="h-5 w-5" name="tag" />
-              <span><strong className="block">Total</strong><span className="tabular-nums">{formatUsd(outfit.totalCents)}</span></span>
+          <div className="mt-auto flex items-end justify-between gap-5 border-y border-[var(--line)] py-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.12em] text-[var(--muted-ink)]">Outfit total</p>
+              <p className="mt-1 font-serif text-2xl font-semibold tabular-nums">{formatUsd(outfit.totalCents)}</p>
             </div>
-            <div className="flex items-center gap-2 border-r border-[var(--line)] px-3">
-              <LineIcon className="h-5 w-5" name="package" />
-              <span><strong className="block">In stock</strong><span className="text-[var(--muted-ink)]">All items</span></span>
-            </div>
-            <div className="flex items-center gap-2 pl-3">
-              <LineIcon className="h-5 w-5" name="shield" />
-              <span><strong className="block">Budget</strong><span className="text-[var(--muted-ink)]">{formatUsd(budgetRemainingCents)} left</span></span>
-            </div>
+            <p className="text-right text-xs leading-5 text-[var(--muted-ink)]">
+              In stock<br />{formatUsd(budgetRemainingCents)} under budget
+            </p>
           </div>
 
-          <div className="mt-3 flex items-center justify-between gap-4" id={totalId}>
-            <details className="group relative">
-              <summary className="cursor-pointer list-none text-sm font-semibold underline decoration-[var(--line)] underline-offset-4 [&::-webkit-details-marker]:hidden">Why it ranks</summary>
-              <dl className="absolute z-10 mt-2 w-64 space-y-2 border border-[var(--line)] bg-[var(--surface-strong)] p-4 shadow-[var(--shadow-soft)]">
-                {SCORE_COMPONENTS.map((component) => (
-                  <div className="flex justify-between gap-4 text-xs" key={component.key}><dt className="text-[var(--muted-ink)]">{component.label}</dt><dd className="font-semibold tabular-nums">{outfit.scoreBreakdown[component.key]} / {component.maximum}</dd></div>
-                ))}
-              </dl>
-            </details>
-
+          <div className="mt-4 flex items-center justify-end" id={totalId}>
             <label className={`inline-flex min-h-11 items-center gap-3 bg-[var(--sage-dark)] px-5 font-bold text-white ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:bg-[var(--ink)]"}`} htmlFor={cardId}>
               <span>{selected ? "Selected" : "Select look"}</span>
-              <input aria-describedby={`${explanationId} ${totalId}`} aria-label={`Select verified outfit ${String(index + 1).padStart(2, "0")}`} checked={selected} className="sr-only" disabled={disabled} id={cardId} name="selectedOutfit" onChange={() => onSelect(outfit)} type="radio" value={outfit.id} />
-              <LineIcon className="h-4 w-4" name={selected ? "shield" : "arrow"} />
+              <input aria-describedby={`${explanationId} ${totalId}`} aria-label={`Select outfit ${String(index + 1).padStart(2, "0")}`} checked={selected} className="sr-only" disabled={disabled} id={cardId} name="selectedOutfit" onChange={() => onSelect(outfit)} type="radio" value={outfit.id} />
+              <LineIcon className="h-4 w-4" name="arrow" />
             </label>
           </div>
         </div>
