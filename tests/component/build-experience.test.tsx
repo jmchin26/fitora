@@ -88,12 +88,15 @@ describe("BuildExperience", () => {
 
     expect(choices).toHaveLength(3);
     choices.forEach((choice) => expect(choice).not.toBeChecked());
+    expect(screen.getAllByText("Within budget")).toHaveLength(3);
+    expect(screen.queryByText(/under budget/i)).not.toBeInTheDocument();
 
     await user.click(choices[1]);
 
     expect(choices[1]).toBeChecked();
     expect(choices[0]).not.toBeChecked();
     expect(choices[2]).not.toBeChecked();
+    expect(screen.getByText("Selected look")).toBeInTheDocument();
     expect(screen.getByText("Outfit selected")).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/outfits/generate",
