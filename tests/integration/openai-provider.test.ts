@@ -36,7 +36,7 @@ describe("OpenAI agent provider", () => {
     );
     const provider = new OpenAIAgentProvider({
       apiKey: "sk-test-openai-provider-placeholder",
-      model: "gpt-5.6-sol",
+      model: "gpt-5.6-luna",
       fetch: request,
       maxAttempts: 1,
     });
@@ -56,7 +56,7 @@ describe("OpenAI agent provider", () => {
     const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
 
     expect(body).toMatchObject({
-      model: "gpt-5.6-sol",
+      model: "gpt-5.6-luna",
       store: false,
       reasoning: { effort: "low" },
       text: {
@@ -84,7 +84,7 @@ describe("OpenAI agent provider", () => {
         ),
       );
     const provider = new OpenAIAgentProvider({
-      model: "gpt-5.6-sol",
+      model: "gpt-5.6-luna",
       fetch: request,
     });
 
@@ -106,7 +106,7 @@ describe("OpenAI agent provider", () => {
       ),
     );
     const provider = new OpenAIAgentProvider({
-      model: "gpt-5.6-sol",
+      model: "gpt-5.6-luna",
       fetch: request,
       maxAttempts: 1,
     });
@@ -122,7 +122,7 @@ describe("OpenAI agent provider", () => {
   it("times out when the transport ignores cancellation", async () => {
     const request = vi.fn<OpenAIFetch>(() => new Promise(() => undefined));
     const provider = new OpenAIAgentProvider({
-      model: "gpt-5.6-sol",
+      model: "gpt-5.6-luna",
       fetch: request,
       timeoutMs: 5,
       maxAttempts: 1,

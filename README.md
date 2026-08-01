@@ -65,7 +65,7 @@ To use the OpenAI Responses API, add these server-only values and restart the Ne
 ```bash
 AI_PROVIDER=openai
 OPENAI_API_KEY=your_server_only_key
-OPENAI_MODEL=gpt-5.6-sol
+OPENAI_MODEL=gpt-5.6-luna
 ```
 
 Never prefix the variable with `NEXT_PUBLIC_` and never commit it. The OpenAI adapter uses strict structured output, low reasoning effort, bounded retries, and `store: false`. The interface reports both the configured provider and the provider that actually interpreted the request; configuration, timeout, availability, invalid-output, or semantic-evidence failures fall back to rules with an explicit reason.
