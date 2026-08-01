@@ -41,7 +41,6 @@ function updatedMessage(
 
 function noChangeMessage(
   event: Extract<AgentEvent, { type: "NO_CHANGE" }>,
-  intent: AgentIntent,
 ): string {
   if (event.reason === "help") {
     return "Try one change at a time: replace an item, make a look cheaper, change style or budget, prefer or avoid a colour, select a look, or request checkout review.";
@@ -63,14 +62,12 @@ function noChangeMessage(
     return "No in-stock replacement satisfies every current size, colour, merchant, and budget constraint, so the verified look is unchanged.";
   }
 
-  const reason = intent.type === "UNSUPPORTED" ? intent.reason : "UNRECOGNIZED_COMMAND";
-
-  return `I did not change the verified state (${humanize(reason).toLowerCase()}). Try one supported revision at a time.`;
+  return "I couldn't match that request to a supported edit. Try one change at a time: replace an item, change the style or budget, or prefer or avoid a colour.";
 }
 
 export function buildAgentMessage(
   event: AgentEvent,
-  intent: AgentIntent,
+  _intent: AgentIntent,
   state: AgentResponseState,
 ): string {
   if (event.type === "OUTFITS_UPDATED") {
@@ -94,5 +91,5 @@ export function buildAgentMessage(
     return `Look ${event.outfitIndex + 1} is ready for order review. No payment session has been created.`;
   }
 
-  return noChangeMessage(event, intent);
+  return noChangeMessage(event);
 }

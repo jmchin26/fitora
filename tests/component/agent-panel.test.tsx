@@ -134,6 +134,41 @@ describe("AgentPanel", () => {
     ).toHaveAttribute("maxlength", "280");
   });
 
+  it("presents unsupported requests as recoverable no-change feedback", async () => {
+    const user = userEvent.setup();
+    const noChangeResponse = agentResponse({
+      intent: { type: "UNSUPPORTED", reason: "UNRECOGNIZED_COMMAND" },
+      event: { type: "NO_CHANGE", reason: "unsupported" },
+      assistantMessage:
+        "I couldn't match that request to a supported edit. Try one change at a time: replace an item, change the style or budget, or prefer or avoid a colour.",
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(jsonResponse(noChangeResponse)),
+    );
+
+    render(
+      <AgentPanel
+        onVerifiedResponse={vi.fn()}
+        outfits={verifiedOutfits()}
+        preferences={standardPreferences}
+        selectedOutfitId={null}
+      />,
+    );
+
+    await user.type(
+      screen.getByRole("textbox", { name: "What would you change?" }),
+      "Make it better",
+    );
+    await user.click(screen.getByRole("button", { name: "Apply change" }));
+
+    expect(await screen.findByText("No changes made")).toBeInTheDocument();
+    expect(
+      screen.getByText(/replace an item, change the style or budget/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Your updated edit")).not.toBeInTheDocument();
+  });
+
   it("sends only the message, preferences, outfit references, and selected reference", async () => {
     const user = userEvent.setup();
     const outfits = verifiedOutfits();

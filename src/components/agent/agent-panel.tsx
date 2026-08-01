@@ -12,6 +12,7 @@ import {
   AgentSuccessResponseSchema,
   type AgentSuccessResponse,
 } from "@/lib/agent/contracts";
+import { LineIcon } from "@/components/ui/line-icon";
 import type {
   Outfit,
   OutfitReference,
@@ -240,6 +241,7 @@ export function AgentPanel({
 
   const isAvailable = !disabled && outfits.length > 0;
   const characterCount = message.length;
+  const latestResponseIsNoChange = latestResponse?.event.type === "NO_CHANGE";
 
   return (
     <section
@@ -284,33 +286,37 @@ export function AgentPanel({
         </label>
         <textarea
           aria-describedby="agent-message-help agent-character-count"
-          className="mt-2 min-h-28 w-full resize-y border border-[var(--line)] bg-[var(--surface)] px-3.5 py-3 text-base text-[var(--ink)] focus:border-[var(--sage-dark)] focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-2 min-h-24 max-h-48 w-full resize-y border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-base leading-6 text-[var(--ink)] transition-colors focus:border-[var(--sage-dark)] focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)] disabled:cursor-not-allowed disabled:bg-[#e8e7e2] disabled:text-[var(--muted-ink)]"
           disabled={!isAvailable}
           id="agent-message"
           maxLength={280}
           onChange={(event) => setMessage(event.currentTarget.value)}
           placeholder="For example: make this outfit more relaxed"
+          rows={3}
           value={message}
         />
-        <div className="mt-2 flex flex-col justify-between gap-2 text-xs text-[var(--muted-ink)] sm:flex-row">
-          <p id="agent-message-help">
-            Keep it short and specific.
-          </p>
-          <p
-            aria-live="polite"
-            className="tabular-nums"
-            id="agent-character-count"
+        <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center justify-between gap-4 text-xs text-[var(--muted-ink)] sm:justify-start">
+            <p id="agent-message-help">One clear change works best.</p>
+            <p
+              aria-live="polite"
+              className="tabular-nums"
+              id="agent-character-count"
+            >
+              {characterCount}/280
+            </p>
+          </div>
+          <button
+            className="flex min-h-12 min-w-40 items-center justify-center gap-3 bg-[var(--ink)] px-5 py-3 font-bold text-white transition-colors hover:bg-[var(--sage-dark)] disabled:cursor-not-allowed disabled:bg-[#d5d6d1] disabled:text-[#666b63] disabled:opacity-100"
+            disabled={!isAvailable || isLoading || message.trim().length === 0}
+            type="submit"
           >
-            {characterCount}/280
-          </p>
+            {isLoading ? "Updating look…" : "Apply change"}
+            {!isLoading && message.trim().length > 0 ? (
+              <LineIcon className="h-4 w-4" name="arrow" />
+            ) : null}
+          </button>
         </div>
-        <button
-          className="mt-4 min-h-12 bg-[var(--ink)] px-5 py-3 font-bold text-white transition-colors hover:bg-[var(--sage-dark)] disabled:cursor-wait disabled:opacity-60"
-          disabled={!isAvailable || isLoading || message.trim().length === 0}
-          type="submit"
-        >
-          {isLoading ? "Updating look…" : "Apply change"}
-        </button>
       </form>
 
       {!isAvailable ? (
@@ -334,13 +340,22 @@ export function AgentPanel({
       {latestResponse ? (
         <div
           aria-live="polite"
-          className="mt-5 border border-[var(--sage)] bg-[var(--surface)] p-5"
+          className={`mt-5 border-l-4 p-5 ${
+            latestResponseIsNoChange
+              ? "border-[#a88d55] bg-[#f5f0e4]"
+              : "border-[var(--sage-dark)] bg-[var(--surface)]"
+          }`}
           role="status"
         >
-          <p className="font-serif text-xl text-[var(--sage-dark)]">
-            Your updated edit
-          </p>
-          <p className="mt-2 text-sm leading-relaxed">
+          <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+            <p className="font-serif text-xl text-[var(--sage-dark)]">
+              {latestResponseIsNoChange ? "No changes made" : "Your updated edit"}
+            </p>
+            <p className="w-fit border border-[var(--line)] bg-[var(--surface-strong)] px-2.5 py-1 text-[0.68rem] font-semibold text-[var(--muted-ink)]">
+              Styling mode: {providerLabel(latestResponse.provider.interpretedBy)}
+            </p>
+          </div>
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed">
             {latestResponse.assistantMessage}
           </p>
 
@@ -350,9 +365,6 @@ export function AgentPanel({
             </p>
           ) : null}
 
-          <p className="mt-5 border-t border-[var(--line)] pt-3 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[var(--muted-ink)]">
-            Styling mode: {providerLabel(latestResponse.provider.interpretedBy)}
-          </p>
         </div>
       ) : null}
     </section>
