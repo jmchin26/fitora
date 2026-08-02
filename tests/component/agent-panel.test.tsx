@@ -141,6 +141,7 @@ describe("AgentPanel", () => {
   it("keeps the verified changed look visible beside the adjustment controls", async () => {
     const user = userEvent.setup();
     const outfits = verifiedOutfits();
+    const onSelectOutfit = vi.fn();
     const changedResponse = agentResponse({
       event: {
         type: "ITEM_REPLACED",
@@ -159,9 +160,10 @@ describe("AgentPanel", () => {
       vi.fn().mockResolvedValue(jsonResponse(changedResponse)),
     );
 
-    render(
+    const { rerender } = render(
       <AgentPanel
         onVerifiedResponse={vi.fn()}
+        onSelectOutfit={onSelectOutfit}
         outfits={outfits}
         preferences={standardPreferences}
         selectedOutfitId={null}
@@ -183,6 +185,26 @@ describe("AgentPanel", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Updated")).toBeInTheDocument();
     expect(screen.getByText(outfits[1].shoes.product.name)).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Review selected outfit" }),
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Select this look" }));
+    expect(onSelectOutfit).toHaveBeenCalledWith(outfits[1]);
+
+    rerender(
+      <AgentPanel
+        onVerifiedResponse={vi.fn()}
+        onSelectOutfit={onSelectOutfit}
+        outfits={outfits}
+        preferences={standardPreferences}
+        selectedOutfitId={outfits[1].id}
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Review selected outfit" }),
+    ).toBeInTheDocument();
   });
 
   it("turns unsupported requests into an editable clarification", async () => {

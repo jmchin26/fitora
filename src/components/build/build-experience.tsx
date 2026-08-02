@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 
 import { AgentPanel } from "@/components/agent/agent-panel";
-import { CheckoutReviewButton } from "@/components/checkout/checkout-review-button";
 import { LineIcon } from "@/components/ui/line-icon";
 import type { AgentSuccessResponse } from "@/lib/agent/contracts";
 import {
@@ -623,19 +622,13 @@ export function BuildExperience() {
                       before checkout.
                     </p>
                   </div>
-                  <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center">
-                    <a
-                      className="flex min-h-12 items-center justify-center gap-2 border border-[var(--ink)] bg-[var(--surface-strong)] px-5 py-3 font-bold text-[var(--ink)] transition-colors hover:bg-[var(--surface)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]"
-                      href="#adjust-look"
-                    >
-                      Adjust selected look
-                      <LineIcon className="h-4 w-4" name="arrow" />
-                    </a>
-                    <CheckoutReviewButton
-                      outfit={visibleSelectedOutfit}
-                      key={visibleSelectedOutfit.id}
-                    />
-                  </div>
+                  <a
+                    className="flex min-h-12 shrink-0 items-center justify-center gap-2 bg-[var(--sage-dark)] px-5 py-3 font-bold text-white transition-colors hover:bg-[var(--ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]"
+                    href="#adjust-look"
+                  >
+                    Adjust selected look
+                    <LineIcon className="h-4 w-4" name="arrow" />
+                  </a>
                 </div>
               ) : null}
             </>
@@ -648,6 +641,7 @@ export function BuildExperience() {
                   resultsAreStale || requestState.status !== "success"
                 }
                 onVerifiedResponse={handleAgentResponse}
+                onSelectOutfit={handleSelectOutfit}
                 outfits={
                   requestState.status === "success"
                     ? requestState.outfits

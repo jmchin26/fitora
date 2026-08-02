@@ -14,6 +14,7 @@ import {
   type AgentSuccessResponse,
 } from "@/lib/agent/contracts";
 import { AgentLookPreview } from "@/components/agent/agent-look-preview";
+import { CheckoutReviewButton } from "@/components/checkout/checkout-review-button";
 import { LineIcon } from "@/components/ui/line-icon";
 import type {
   Outfit,
@@ -67,6 +68,7 @@ export type AgentPanelProps = {
   outfits: Outfit[];
   preferences: UserPreferences;
   selectedOutfitId: string | null;
+  onSelectOutfit?: (outfit: Outfit) => void;
   onVerifiedResponse: (response: AgentSuccessResponse) => void;
 };
 
@@ -134,6 +136,7 @@ export function AgentPanel({
   outfits,
   preferences,
   selectedOutfitId,
+  onSelectOutfit,
   onVerifiedResponse,
 }: AgentPanelProps) {
   const [message, setMessage] = useState("");
@@ -312,6 +315,7 @@ export function AgentPanel({
   const previewWasUpdated = Boolean(
     latestResponse && latestResponse.event.type !== "NO_CHANGE",
   );
+  const previewIsSelected = previewOutfit?.id === selectedOutfitId;
 
   function prepareClarifiedRequest(draft: string) {
     setMessage(draft);
@@ -497,6 +501,39 @@ export function AgentPanel({
             </p>
           ) : null}
 
+        </div>
+      ) : null}
+
+      {onSelectOutfit && previewOutfit ? (
+        <div className="mt-5 flex flex-col justify-between gap-4 border-t border-[var(--line)] pt-5 sm:flex-row sm:items-center">
+          <div className="max-w-md">
+            <p className="font-serif text-xl text-[var(--sage-dark)]">
+              {previewIsSelected
+                ? "Ready for order review"
+                : "Confirm the updated look"}
+            </p>
+            <p className="mt-1 text-sm leading-6 text-[var(--muted-ink)]">
+              {previewIsSelected
+                ? "Review sizes, items and total before opening secure checkout."
+                : "Select this verified version before reviewing the order. No payment session will be created yet."}
+            </p>
+          </div>
+          {previewIsSelected ? (
+            <CheckoutReviewButton
+              key={previewOutfit.id}
+              outfit={previewOutfit}
+            />
+          ) : (
+            <button
+              className="flex min-h-12 shrink-0 items-center justify-center gap-2 bg-[var(--sage-dark)] px-5 py-3 font-bold text-white transition-colors hover:bg-[var(--ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]"
+              disabled={!isAvailable || isLoading}
+              onClick={() => onSelectOutfit(previewOutfit)}
+              type="button"
+            >
+              Select this look
+              <LineIcon className="h-4 w-4" name="check" />
+            </button>
+          )}
         </div>
       ) : null}
         </div>

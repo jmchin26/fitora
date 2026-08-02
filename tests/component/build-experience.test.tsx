@@ -1,5 +1,5 @@
 import { StrictMode } from "react";
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -101,6 +101,14 @@ describe("BuildExperience", () => {
     expect(
       screen.getByRole("link", { name: "Adjust selected look" }),
     ).toHaveAttribute("href", "#adjust-look");
+    const adjustWorkspace = screen.getByRole("region", {
+      name: "Adjust your look",
+    });
+    expect(
+      within(adjustWorkspace).getByRole("button", {
+        name: "Review selected outfit",
+      }),
+    ).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/outfits/generate",
       expect.objectContaining({
