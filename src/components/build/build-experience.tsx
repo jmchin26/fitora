@@ -521,7 +521,7 @@ export function BuildExperience() {
 
   return (
     <section className="border-t border-[var(--line)] bg-[var(--surface)] px-6 py-6 lg:px-12 lg:py-6">
-      <div className="mx-auto grid w-full max-w-[96rem] gap-9 xl:grid-cols-[27.5rem_minmax(0,1fr)] xl:items-start xl:gap-10">
+      <div className="mx-auto grid w-full max-w-[96rem] gap-6 xl:grid-cols-[27.5rem_minmax(0,1fr)] xl:items-start xl:gap-8">
         <div>
           {storageNotice ? (
             <p className="mb-4 border-l-2 border-[var(--sage)] pl-3 text-sm text-[var(--muted-ink)]">
@@ -608,33 +608,40 @@ export function BuildExperience() {
                 </div>
               </fieldset>
 
-              {visibleSelectedOutfit && !resultsAreStale ? (
-                <div className="mt-6 flex flex-col justify-between gap-4 rounded-md border border-[var(--sage-dark)] bg-[#e5e8df] p-5 shadow-[var(--shadow-soft)] sm:flex-row sm:items-center">
-                  <div>
-                    <p className="font-serif text-xl text-[var(--sage-dark)]">
-                      Outfit selected
-                    </p>
-                    <p className="mt-1 text-sm text-[var(--muted-ink)]">
-                      {storageAvailable
-                        ? "Fitora stores only product IDs, requested sizes, and safe preferences on this device. "
-                        : "This selection is available for the current browser session only. "}
-                      The server will verify every price and stock fact again
-                      before checkout.
-                    </p>
-                  </div>
-                  <a
-                    className="flex min-h-12 shrink-0 items-center justify-center gap-2 bg-[var(--sage-dark)] px-5 py-3 font-bold text-white transition-colors hover:bg-[var(--ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]"
-                    href="#adjust-look"
-                  >
-                    Adjust selected look
-                    <LineIcon className="h-4 w-4" name="arrow" />
-                  </a>
-                </div>
-              ) : null}
             </>
           ) : null}
 
         </div>
+
+        {visibleSelectedOutfit && !resultsAreStale ? (
+          <section
+            aria-labelledby="selected-outfit-title"
+            className="flex flex-col justify-between gap-4 rounded-md border border-[var(--sage-dark)] bg-[#e5e8df] p-5 shadow-[var(--shadow-soft)] sm:flex-row sm:items-center xl:col-span-2"
+          >
+            <div>
+              <h3
+                className="font-serif text-xl text-[var(--sage-dark)]"
+                id="selected-outfit-title"
+              >
+                Outfit selected
+              </h3>
+              <p className="mt-1 text-sm text-[var(--muted-ink)]">
+                {storageAvailable
+                  ? "Fitora stores only product IDs, requested sizes, and safe preferences on this device. "
+                  : "This selection is available for the current browser session only. "}
+                The server will verify every price and stock fact again before
+                checkout.
+              </p>
+            </div>
+            <a
+              className="flex min-h-12 shrink-0 items-center justify-center gap-2 bg-[var(--sage-dark)] px-5 py-3 font-bold text-white transition-colors hover:bg-[var(--ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]"
+              href="#adjust-look"
+            >
+              Adjust selected look
+              <LineIcon className="h-4 w-4" name="arrow" />
+            </a>
+          </section>
+        ) : null}
 
         {hasGeneratedOutfits && savedPreferences ? (
           <div className="xl:col-span-2">

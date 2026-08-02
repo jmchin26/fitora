@@ -97,7 +97,10 @@ describe("BuildExperience", () => {
     expect(choices[0]).not.toBeChecked();
     expect(choices[2]).not.toBeChecked();
     expect(screen.getByText("Selected look")).toBeInTheDocument();
-    expect(screen.getByText("Outfit selected")).toBeInTheDocument();
+    const selectedStatus = screen.getByRole("region", {
+      name: "Outfit selected",
+    });
+    expect(selectedStatus).toHaveClass("xl:col-span-2");
     expect(
       screen.getByRole("link", { name: "Adjust selected look" }),
     ).toHaveAttribute("href", "#adjust-look");
