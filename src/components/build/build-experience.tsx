@@ -634,34 +634,29 @@ export function BuildExperience() {
             </>
           ) : null}
 
-          {hasGeneratedOutfits && savedPreferences ? (
-            <div className="mt-10">
-              <AgentPanel
-                disabled={
-                  resultsAreStale || requestState.status !== "success"
-                }
-                onVerifiedResponse={handleAgentResponse}
-                onSelectOutfit={handleSelectOutfit}
-                outfits={
-                  requestState.status === "success"
-                    ? requestState.outfits
-                    : []
-                }
-                preferences={
-                  requestState.status === "success" ||
-                  requestState.status === "no-results"
-                    ? requestState.preferences
-                    : savedPreferences
-                }
-                selectedOutfitId={
-                  requestState.status === "success"
-                    ? selectedOutfitId
-                    : null
-                }
-              />
-            </div>
-          ) : null}
         </div>
+
+        {hasGeneratedOutfits && savedPreferences ? (
+          <div className="xl:col-span-2">
+            <AgentPanel
+              disabled={resultsAreStale || requestState.status !== "success"}
+              onVerifiedResponse={handleAgentResponse}
+              onSelectOutfit={handleSelectOutfit}
+              outfits={
+                requestState.status === "success" ? requestState.outfits : []
+              }
+              preferences={
+                requestState.status === "success" ||
+                requestState.status === "no-results"
+                  ? requestState.preferences
+                  : savedPreferences
+              }
+              selectedOutfitId={
+                requestState.status === "success" ? selectedOutfitId : null
+              }
+            />
+          </div>
+        ) : null}
       </div>
     </section>
   );

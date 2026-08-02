@@ -104,6 +104,7 @@ describe("BuildExperience", () => {
     const adjustWorkspace = screen.getByRole("region", {
       name: "Adjust your look",
     });
+    expect(adjustWorkspace.parentElement).toHaveClass("xl:col-span-2");
     expect(
       within(adjustWorkspace).getByRole("button", {
         name: "Review selected outfit",
