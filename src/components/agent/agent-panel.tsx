@@ -89,28 +89,6 @@ function toOutfitReference(outfit: Outfit): OutfitReference {
   };
 }
 
-function providerLabel(
-  provider: "rules" | "openai" | "gemini" | "ollama" | "invalid",
-) {
-  if (provider === "openai") {
-    return "OpenAI";
-  }
-
-  if (provider === "gemini") {
-    return "Gemini";
-  }
-
-  if (provider === "ollama") {
-    return "Local Ollama";
-  }
-
-  if (provider === "invalid") {
-    return "Invalid configuration";
-  }
-
-  return "Rules fallback";
-}
-
 async function readJsonResponse(response: Response): Promise<unknown> {
   try {
     return await response.json();
@@ -440,18 +418,13 @@ export function AgentPanel({
           }`}
           role="status"
         >
-          <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
-            <p className="font-serif text-xl text-[var(--sage-dark)]">
-              {latestResponseNeedsClarification
-                ? "What should I improve?"
-                : latestResponseIsNoChange
-                  ? "No changes made"
-                  : "Your updated edit"}
-            </p>
-            <p className="w-fit border border-[var(--line)] bg-[var(--surface-strong)] px-2.5 py-1 text-[0.68rem] font-semibold text-[var(--muted-ink)]">
-              Styling mode: {providerLabel(latestResponse.provider.interpretedBy)}
-            </p>
-          </div>
+          <p className="font-serif text-xl text-[var(--sage-dark)]">
+            {latestResponseNeedsClarification
+              ? "What should I improve?"
+              : latestResponseIsNoChange
+                ? "No changes made"
+                : "Your updated edit"}
+          </p>
           {latestResponseNeedsClarification ? (
             <>
               <p className="mt-3 max-w-3xl text-sm leading-relaxed">

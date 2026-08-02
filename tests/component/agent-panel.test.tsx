@@ -435,7 +435,10 @@ describe("AgentPanel", () => {
         "Checkout review is ready. No payment session was created.",
       ),
     ).toBeInTheDocument();
-    expect(screen.getByText("Styling mode: Rules fallback")).toBeInTheDocument();
+    expect(screen.queryByText(/Styling mode:/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Every update is verified/i),
+    ).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /pay|checkout/i })).not.toBeInTheDocument();
   });
 

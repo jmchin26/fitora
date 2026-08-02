@@ -123,7 +123,7 @@ export function AgentLookPreview({
         <PreviewProduct item={outfit.shoes} />
       </div>
 
-      <div className="flex items-end justify-between gap-4 border-t border-[var(--line)] bg-[var(--surface)] px-4 py-3.5">
+      <div className="border-t border-[var(--line)] bg-[var(--surface)] px-4 py-3.5">
         <div>
           <p className="text-[0.66rem] font-semibold uppercase tracking-[0.12em] text-[var(--muted-ink)]">
             Outfit total
@@ -132,9 +132,6 @@ export function AgentLookPreview({
             {formatUsd(outfit.totalCents)}
           </p>
         </div>
-        <p className="max-w-36 text-right text-xs leading-5 text-[var(--muted-ink)]">
-          Every update is verified against size, stock and budget.
-        </p>
       </div>
     </aside>
   );
