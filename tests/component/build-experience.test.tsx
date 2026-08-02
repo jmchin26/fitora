@@ -98,6 +98,9 @@ describe("BuildExperience", () => {
     expect(choices[2]).not.toBeChecked();
     expect(screen.getByText("Selected look")).toBeInTheDocument();
     expect(screen.getByText("Outfit selected")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Adjust selected look" }),
+    ).toHaveAttribute("href", "#adjust-look");
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/outfits/generate",
       expect.objectContaining({

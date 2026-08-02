@@ -132,6 +132,57 @@ describe("AgentPanel", () => {
     expect(
       screen.getByRole("textbox", { name: "What would you change?" }),
     ).toHaveAttribute("maxlength", "280");
+    expect(screen.getByText("Live preview")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Look 01" }),
+    ).toBeInTheDocument();
+  });
+
+  it("keeps the verified changed look visible beside the adjustment controls", async () => {
+    const user = userEvent.setup();
+    const outfits = verifiedOutfits();
+    const changedResponse = agentResponse({
+      event: {
+        type: "ITEM_REPLACED",
+        category: "shoes",
+        outfitIndex: 1,
+      },
+      state: {
+        preferences: standardPreferences,
+        outfits,
+        selectedOutfitId: null,
+        diagnostics: null,
+      },
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(jsonResponse(changedResponse)),
+    );
+
+    render(
+      <AgentPanel
+        onVerifiedResponse={vi.fn()}
+        outfits={outfits}
+        preferences={standardPreferences}
+        selectedOutfitId={null}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "Look 01" }),
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "Replace the shoes with a cheaper option",
+      }),
+    );
+
+    expect(
+      await screen.findByRole("heading", { name: "Look 02" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Updated")).toBeInTheDocument();
+    expect(screen.getByText(outfits[1].shoes.product.name)).toBeInTheDocument();
   });
 
   it("turns unsupported requests into an editable clarification", async () => {

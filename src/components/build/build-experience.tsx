@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { AgentPanel } from "@/components/agent/agent-panel";
 import { CheckoutReviewButton } from "@/components/checkout/checkout-review-button";
+import { LineIcon } from "@/components/ui/line-icon";
 import type { AgentSuccessResponse } from "@/lib/agent/contracts";
 import {
   OutfitSchema,
@@ -622,10 +623,19 @@ export function BuildExperience() {
                       before checkout.
                     </p>
                   </div>
-                  <CheckoutReviewButton
-                    outfit={visibleSelectedOutfit}
-                    key={visibleSelectedOutfit.id}
-                  />
+                  <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center">
+                    <a
+                      className="flex min-h-12 items-center justify-center gap-2 border border-[var(--ink)] bg-[var(--surface-strong)] px-5 py-3 font-bold text-[var(--ink)] transition-colors hover:bg-[var(--surface)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]"
+                      href="#adjust-look"
+                    >
+                      Adjust selected look
+                      <LineIcon className="h-4 w-4" name="arrow" />
+                    </a>
+                    <CheckoutReviewButton
+                      outfit={visibleSelectedOutfit}
+                      key={visibleSelectedOutfit.id}
+                    />
+                  </div>
                 </div>
               ) : null}
             </>

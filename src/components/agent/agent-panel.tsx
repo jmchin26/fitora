@@ -10,8 +10,10 @@ import {
 import {
   AgentApiErrorSchema,
   AgentSuccessResponseSchema,
+  type AgentEvent,
   type AgentSuccessResponse,
 } from "@/lib/agent/contracts";
+import { AgentLookPreview } from "@/components/agent/agent-look-preview";
 import { LineIcon } from "@/components/ui/line-icon";
 import type {
   Outfit,
@@ -113,6 +115,18 @@ async function readJsonResponse(response: Response): Promise<unknown> {
   } catch {
     return null;
   }
+}
+
+function eventOutfitIndex(event: AgentEvent): number | null {
+  if (
+    event.type === "ITEM_REPLACED" ||
+    event.type === "OUTFIT_SELECTED" ||
+    event.type === "CHECKOUT_REVIEW_READY"
+  ) {
+    return event.outfitIndex;
+  }
+
+  return null;
 }
 
 export function AgentPanel({
@@ -274,6 +288,30 @@ export function AgentPanel({
     latestResponse?.event.type === "NO_CHANGE" &&
     (latestResponse.event.reason === "unsupported" ||
       latestResponse.event.reason === "missing_target");
+  const previewOutfits = latestResponse
+    ? latestResponse.state.outfits
+    : outfits;
+  const previewSelectedOutfitId = latestResponse
+    ? latestResponse.state.selectedOutfitId
+    : selectedOutfitId;
+  const selectedPreviewIndex = previewSelectedOutfitId
+    ? previewOutfits.findIndex(
+        (outfit) => outfit.id === previewSelectedOutfitId,
+      )
+    : -1;
+  const responsePreviewIndex = latestResponse
+    ? eventOutfitIndex(latestResponse.event)
+    : null;
+  const previewIndex =
+    responsePreviewIndex !== null && previewOutfits[responsePreviewIndex]
+      ? responsePreviewIndex
+      : selectedPreviewIndex >= 0
+        ? selectedPreviewIndex
+        : 0;
+  const previewOutfit = previewOutfits[previewIndex] ?? null;
+  const previewWasUpdated = Boolean(
+    latestResponse && latestResponse.event.type !== "NO_CHANGE",
+  );
 
   function prepareClarifiedRequest(draft: string) {
     setMessage(draft);
@@ -288,6 +326,7 @@ export function AgentPanel({
     <section
       aria-labelledby="agent-panel-title"
       className="border border-[var(--line)] bg-[var(--surface-muted)] p-5 sm:p-7"
+      id="adjust-look"
     >
       <div className="flex flex-col justify-between gap-3 border-b border-[var(--line)] pb-5 sm:flex-row sm:items-start">
         <div>
@@ -304,7 +343,15 @@ export function AgentPanel({
         </div>
       </div>
 
-      <div className="mt-5">
+      <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(17rem,0.74fr)_minmax(0,1.26fr)] lg:items-start xl:gap-8">
+        <AgentLookPreview
+          index={previewIndex}
+          outfit={previewOutfit}
+          updated={previewWasUpdated}
+        />
+
+        <div className="min-w-0">
+      <div>
         <p className="text-sm font-bold">Popular changes</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {SUGGESTED_COMMANDS.map((command) => (
@@ -452,6 +499,8 @@ export function AgentPanel({
 
         </div>
       ) : null}
+        </div>
+      </div>
     </section>
   );
 }
