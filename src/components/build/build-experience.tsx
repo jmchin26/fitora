@@ -521,8 +521,8 @@ export function BuildExperience() {
 
   return (
     <section className="border-t border-[var(--line)] bg-[var(--surface)] px-6 py-6 lg:px-12 lg:py-6">
-      <div className="mx-auto grid w-full max-w-[96rem] gap-6 xl:grid-cols-[27.5rem_minmax(0,1fr)] xl:items-start xl:gap-8">
-        <div>
+      <div className="mx-auto grid w-full max-w-[96rem] gap-6 xl:grid-cols-[27.5rem_minmax(0,1fr)] xl:items-stretch xl:gap-8">
+        <div className="xl:flex">
           {storageNotice ? (
             <p className="mb-4 border-l-2 border-[var(--sage)] pl-3 text-sm text-[var(--muted-ink)]">
               {storageNotice}
@@ -536,7 +536,10 @@ export function BuildExperience() {
           />
         </div>
 
-        <div aria-busy={requestState.status === "loading"} className="min-w-0">
+        <div
+          aria-busy={requestState.status === "loading"}
+          className="min-w-0 xl:flex xl:flex-col"
+        >
           <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
               <h2 className="font-serif text-3xl tracking-[-0.035em] sm:text-4xl">
@@ -591,9 +594,9 @@ export function BuildExperience() {
                   again before selecting from the updated form.
                 </div>
               ) : null}
-              <fieldset>
+              <fieldset className="xl:flex-1">
                 <legend className="sr-only">Choose one outfit</legend>
-                <div className="grid gap-4 lg:grid-cols-3">
+                <div className="grid gap-4 lg:grid-cols-3 xl:h-full">
                   {requestState.outfits.map((outfit, index) => (
                     <OutfitCard
                       budgetCents={requestState.preferences.budgetCents}

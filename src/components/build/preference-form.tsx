@@ -461,7 +461,7 @@ export function PreferenceForm({
 
   return (
     <form
-      className="rounded-md border border-[var(--line)] bg-[var(--surface-strong)] p-6 shadow-[var(--shadow-soft)] xl:sticky xl:top-24"
+      className="rounded-md border border-[var(--line)] bg-[var(--surface-strong)] p-6 shadow-[var(--shadow-soft)] xl:sticky xl:top-24 xl:h-full xl:w-full"
       id="preference-form"
       noValidate
       onSubmit={handleSubmit}
