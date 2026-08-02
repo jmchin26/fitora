@@ -72,6 +72,17 @@ describe("PreferenceForm", () => {
     expect(
       screen.getByRole("button", { name: "Build outfit options" }),
     ).toBeEnabled();
+
+    const avoidedColours = screen.getByRole("group", {
+      name: "Colours to avoid (optional)",
+    });
+    const burgundyChoice = within(avoidedColours)
+      .getByRole("checkbox", { name: "Burgundy" })
+      .closest("label");
+    expect(burgundyChoice).toHaveClass("overflow-hidden", "text-xs");
+    expect(burgundyChoice?.parentElement).toHaveClass(
+      "sm:grid-cols-[repeat(4,minmax(0,1fr))_minmax(5.25rem,1.15fr)]",
+    );
   });
 
   it("shows an invalid budget error and submits after the value is corrected", async () => {

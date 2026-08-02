@@ -345,7 +345,7 @@ function ColourGroup({
 
     return (
       <label
-        className={`flex min-h-10 cursor-pointer items-center gap-1.5 border px-1.5 py-2 text-[0.68rem] transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus)] ${
+        className={`flex min-h-10 min-w-0 cursor-pointer items-center gap-1 overflow-hidden border px-1 py-2 text-xs transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus)] ${
           checked
             ? "border-[var(--sage-dark)] bg-[#e5e8df] font-semibold text-[var(--sage-dark)] shadow-[inset_0_0_0_1px_var(--sage-dark)]"
             : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--sage)]"
@@ -362,10 +362,10 @@ function ColourGroup({
         />
         <span
           aria-hidden="true"
-          className="h-3.5 w-3.5 shrink-0 rounded-full border border-black/20"
+          className="h-3 w-3 shrink-0 rounded-full border border-black/20"
           style={{ backgroundColor: COLOR_SWATCHES[color] }}
         />
-        {capitalize(color)}
+        <span className="min-w-0 whitespace-nowrap">{capitalize(color)}</span>
       </label>
     );
   }
@@ -379,7 +379,7 @@ function ColourGroup({
       {helperText ? (
         <p className="mt-1 text-xs leading-5 text-[var(--muted-ink)]">{helperText}</p>
       ) : null}
-      <div className="mt-2 grid grid-cols-3 gap-1.5 sm:grid-cols-5">
+      <div className="mt-2 grid grid-cols-3 gap-1 sm:grid-cols-[repeat(4,minmax(0,1fr))_minmax(5.25rem,1.15fr)]">
         {featuredColors.map(colorChoice)}
       </div>
       <details className="group mt-2">
@@ -395,7 +395,7 @@ function ColourGroup({
             name="chevron"
           />
         </summary>
-        <div className="grid grid-cols-3 gap-1.5 pt-2 sm:grid-cols-4">
+        <div className="grid grid-cols-3 gap-1 pt-2 sm:grid-cols-4">
           {moreColors.map(colorChoice)}
         </div>
       </details>
