@@ -382,22 +382,20 @@ function ColourGroup({
       <div className="mt-2 grid grid-cols-3 gap-1.5 sm:grid-cols-5">
         {featuredColors.map(colorChoice)}
       </div>
-      <details className="group mt-2 overflow-hidden border border-[var(--line)] bg-[var(--surface)] open:bg-[var(--surface-strong)]">
-        <summary className="flex min-h-10 w-full cursor-pointer list-none items-center gap-2 px-3 text-xs font-semibold text-[var(--sage-dark)] transition-colors hover:bg-[#efede7] hover:text-[var(--ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)] [&::-webkit-details-marker]:hidden">
-          <span>More colours</span>
-          <span className="ml-auto flex items-center gap-2">
-            {hiddenSelectionCount > 0 ? (
-              <span className="border border-[var(--line)] bg-[#e5e8df] px-2 py-0.5 text-[0.65rem] text-[var(--sage-dark)]">
-                {hiddenSelectionCount} selected
-              </span>
-            ) : null}
-            <LineIcon
-              className="h-4 w-4 transition-transform group-open:rotate-180"
-              name="chevron"
-            />
-          </span>
+      <details className="group mt-2">
+        <summary className="inline-flex min-h-9 cursor-pointer list-none items-center gap-1.5 text-xs font-semibold text-[var(--sage-dark)] transition-colors hover:text-[var(--ink)] [&::-webkit-details-marker]:hidden">
+          More colours
+          {hiddenSelectionCount > 0 ? (
+            <span className="rounded-full bg-[#e5e8df] px-2 py-0.5 text-[0.65rem]">
+              {hiddenSelectionCount} selected
+            </span>
+          ) : null}
+          <LineIcon
+            className="h-4 w-4 transition-transform group-open:rotate-180"
+            name="chevron"
+          />
         </summary>
-        <div className="grid grid-cols-2 gap-1.5 border-t border-[var(--line)] p-2.5 sm:grid-cols-4">
+        <div className="grid grid-cols-3 gap-1.5 pt-2 sm:grid-cols-4">
           {moreColors.map(colorChoice)}
         </div>
       </details>

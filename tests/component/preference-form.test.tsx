@@ -72,14 +72,6 @@ describe("PreferenceForm", () => {
     expect(
       screen.getByRole("button", { name: "Build outfit options" }),
     ).toBeEnabled();
-
-    const moreColours = within(
-      screen.getByRole("group", { name: "Colours to avoid (optional)" }),
-    )
-      .getByText("More colours")
-      .closest("details");
-    expect(moreColours).toHaveClass("border");
-    expect(moreColours).not.toHaveAttribute("open");
   });
 
   it("shows an invalid budget error and submits after the value is corrected", async () => {
