@@ -522,7 +522,7 @@ export function BuildExperience() {
   return (
     <section className="border-t border-[var(--line)] bg-[var(--surface)] px-6 py-6 lg:px-12 lg:py-6">
       <div className="mx-auto grid w-full max-w-[96rem] gap-6 xl:grid-cols-[27.5rem_minmax(0,1fr)] xl:items-stretch xl:gap-8">
-        <div className="xl:flex">
+        <div className="xl:flex xl:flex-col">
           {storageNotice ? (
             <p className="mb-4 border-l-2 border-[var(--sage)] pl-3 text-sm text-[var(--muted-ink)]">
               {storageNotice}

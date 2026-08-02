@@ -90,6 +90,9 @@ describe("BuildExperience", () => {
     expect(
       screen.getByRole("group", { name: "Choose one outfit" }),
     ).toHaveClass("xl:flex-1");
+    expect(document.getElementById("preference-form")?.parentElement).toHaveClass(
+      "xl:flex-col",
+    );
     choices.forEach((choice) => expect(choice).not.toBeChecked());
     expect(screen.getAllByText("Within budget")).toHaveLength(3);
     expect(screen.queryByText(/under budget/i)).not.toBeInTheDocument();
